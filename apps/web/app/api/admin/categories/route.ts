@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@mebel-salon/db";
-import { categorySchema } from "@/lib/schemas/category";
+import { categorySchema } from "@mebel-salon/shared";
 import { slugify } from "@/lib/utils";
 import { getAdminSession } from "@/lib/auth";
 

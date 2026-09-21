@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { categorySchema, type CategoryFormData } from "@/lib/schemas/category";
+import { categorySchema, type CategoryFormData } from "@mebel-salon/shared";
 import { slugify } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 

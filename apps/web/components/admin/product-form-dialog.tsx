@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { productSchema, type ProductFormData } from "@/lib/schemas/product";
+import { productSchema, type ProductFormData } from "@mebel-salon/shared";
 import { slugify } from "@/lib/utils";
 import { Loader2, Plus, X, Image as ImageIcon } from "lucide-react";
 import { type CategoryItem } from "./category-form-dialog";
