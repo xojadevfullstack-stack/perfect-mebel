@@ -142,7 +142,7 @@ export function CategoryFormDialog({
             </label>
             <Input
               {...register("nameUz")}
-              placeholder="Masalan: Divanlar"
+              placeholder={t("placeholderNameUz")}
               disabled={isSubmitting}
             />
             {errors.nameUz && (
@@ -157,7 +157,7 @@ export function CategoryFormDialog({
             </label>
             <Input
               {...register("nameRu")}
-              placeholder="Например: Диваны"
+              placeholder={t("placeholderNameRu")}
               disabled={isSubmitting}
             />
             {errors.nameRu && (
@@ -172,7 +172,7 @@ export function CategoryFormDialog({
             </label>
             <Input
               {...register("nameEn")}
-              placeholder="Example: Sofas"
+              placeholder={t("placeholderNameEn")}
               disabled={isSubmitting}
             />
             {errors.nameEn && (
@@ -187,7 +187,7 @@ export function CategoryFormDialog({
             </label>
             <Input
               {...register("slug")}
-              placeholder="divanlar"
+              placeholder={t("placeholderSlug")}
               disabled={isSubmitting}
             />
             {errors.slug && (
@@ -203,7 +203,7 @@ export function CategoryFormDialog({
             <Input
               type="number"
               {...register("order", { valueAsNumber: true })}
-              placeholder="1"
+              placeholder={t("placeholderOrder")}
               disabled={isSubmitting}
             />
             {errors.order && (

@@ -48,6 +48,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
   const tCat = useTranslations("admin.categories");
   const tProd = useTranslations("admin.products");
   const tCommon = useTranslations("admin.common");
+  const tDash = useTranslations("admin.dashboard");
 
   const [currentUser, setCurrentUser] = React.useState<AdminUser | null>(null);
   const [dashboardData, setDashboardData] = React.useState<DashboardData | null>(null);
@@ -93,10 +94,10 @@ export default function AdminDashboardPage(): React.JSX.Element {
               <CheckCircle2 className="h-5 w-5 text-primary" />
               <div>
                 <p className="text-sm font-semibold text-foreground">
-                  PostgreSQL Neon bazasi faol va ulangan
+                  {tDash("dbConnected")}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Barcha CRUD amallari real vaqt rejimida saqlanadi
+                  {tDash("realtimeSync")}
                 </p>
               </div>
             </div>
@@ -164,7 +165,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
             <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
               <div className="flex items-center justify-between">
                 <p className="text-xs font-semibold text-muted-foreground uppercase">
-                  Komplektlar
+                  {tDash("collections")}
                 </p>
                 <div className="rounded-lg bg-muted p-2 text-muted-foreground">
                   <Boxes className="h-5 w-5" />
@@ -173,7 +174,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
               <p className="mt-2 text-3xl font-extrabold text-foreground">
                 {isLoading ? "—" : dashboardData?.stats.collections ?? 0}
               </p>
-              <p className="mt-2 text-xs text-muted-foreground">Kun 3 rejasida</p>
+              <p className="mt-2 text-xs text-muted-foreground">{tDash("day3Planned")}</p>
             </div>
 
             <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
@@ -188,7 +189,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
               <p className="mt-2 text-3xl font-extrabold text-foreground">
                 {isLoading ? "—" : dashboardData?.stats.leads ?? 0}
               </p>
-              <p className="mt-2 text-xs text-muted-foreground">Kun 3 rejasida</p>
+              <p className="mt-2 text-xs text-muted-foreground">{tDash("day3Planned")}</p>
             </div>
           </div>
 
@@ -239,7 +240,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
                         </td>
                         <td className="px-5 py-3 text-center font-medium">
                           <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
-                            {cat._count?.products ?? 0} ta
+                            {cat._count?.products ?? 0} {tCommon("unitItem")}
                           </span>
                         </td>
                       </tr>

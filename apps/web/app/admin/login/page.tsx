@@ -3,11 +3,14 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Lock, ArrowLeft, Shield } from "lucide-react";
 
 export default function AdminLoginPage(): React.JSX.Element {
   const router = useRouter();
+  const locale = useLocale();
+  const t = useTranslations("admin.login");
   const [username, setUsername] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
@@ -19,7 +22,7 @@ export default function AdminLoginPage(): React.JSX.Element {
     setErrorMessage(null);
 
     if (!username.trim() || !password) {
-      setErrorMessage("Iltimos, login va parolni kiriting.");
+      setErrorMessage(t("errorEmpty"));
       setIsLoading(false);
       return;
     }
@@ -34,7 +37,7 @@ export default function AdminLoginPage(): React.JSX.Element {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        setErrorMessage(data.error || "Login yoki parol noto&apos;g&apos;ri");
+        setErrorMessage(data.error || t("errorInvalid"));
         setIsLoading(false);
         return;
       }
@@ -42,7 +45,7 @@ export default function AdminLoginPage(): React.JSX.Element {
       router.push("/admin");
       router.refresh();
     } catch {
-      setErrorMessage("Server bilan bog&apos;lanishda xatolik yuz berdi");
+      setErrorMessage(t("errorConnection"));
     } finally {
       setIsLoading(false);
     }
@@ -60,10 +63,10 @@ export default function AdminLoginPage(): React.JSX.Element {
             <Shield className="h-6 w-6" />
           </div>
           <h1 className="mt-4 text-2xl font-bold tracking-tight text-card-foreground">
-            Web Admin Panel
+            {t("title")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Tizim boshqaruviga kirish uchun maʼlumotlarni kiriting
+            {t("subtitle")}
           </p>
         </div>
 
@@ -79,14 +82,14 @@ export default function AdminLoginPage(): React.JSX.Element {
               htmlFor="username"
               className="text-sm font-medium leading-none text-foreground"
             >
-              Foydalanuvchi nomi
+              {t("usernameLabel")}
             </label>
             <input
               id="username"
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="admin"
+              placeholder={t("usernamePlaceholder")}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               required
             />
@@ -97,14 +100,14 @@ export default function AdminLoginPage(): React.JSX.Element {
               htmlFor="password"
               className="text-sm font-medium leading-none text-foreground"
             >
-              Maxfiy parol
+              {t("passwordLabel")}
             </label>
             <input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder={t("passwordPlaceholder")}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               required
             />
@@ -116,17 +119,17 @@ export default function AdminLoginPage(): React.JSX.Element {
             className="inline-flex h-10 w-full items-center justify-center space-x-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
           >
             <Lock className="h-4 w-4" />
-            <span>{isLoading ? "Tekshirilmoqda..." : "Kirish"}</span>
+            <span>{isLoading ? t("submitting") : t("submit")}</span>
           </button>
         </form>
 
         <div className="border-t border-border pt-4 text-center">
           <Link
-            href="/uz"
+            href={`/${locale}`}
             className="inline-flex items-center space-x-2 text-xs font-medium text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-3 w-3" />
-            <span>Vitrinaga qaytish</span>
+            <span>{t("backToShowcase")}</span>
           </Link>
         </div>
       </div>

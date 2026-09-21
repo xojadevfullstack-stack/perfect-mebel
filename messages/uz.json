@@ -68,7 +68,31 @@
       "page": "Sahifa",
       "total": "Jami",
       "yes": "Ha",
-      "no": "Yo'q"
+      "no": "Yo'q",
+      "refresh": "Yangilash",
+      "unitItem": "ta",
+      "language": "Til"
+    },
+    "dashboard": {
+      "dbConnected": "PostgreSQL Neon bazasi faol va ulangan",
+      "realtimeSync": "Barcha CRUD amallari real vaqt rejimida saqlanadi",
+      "collections": "Komplektlar",
+      "leads": "Arizalar",
+      "day3Planned": "Kun 3 rejasida"
+    },
+    "login": {
+      "title": "Web Admin Panel",
+      "subtitle": "Tizim boshqaruviga kirish uchun maʼlumotlarni kiriting",
+      "usernameLabel": "Foydalanuvchi nomi",
+      "usernamePlaceholder": "admin",
+      "passwordLabel": "Maxfiy parol",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Kirish",
+      "submitting": "Tekshirilmoqda...",
+      "backToShowcase": "Vitrinaga qaytish",
+      "errorEmpty": "Iltimos, login va parolni kiriting.",
+      "errorInvalid": "Login yoki parol noto'g'ri",
+      "errorConnection": "Server bilan bog'lanishda xatolik yuz berdi"
     },
     "categories": {
       "title": "Kategoriyalar boshqaruvi",
@@ -89,7 +113,12 @@
       "createSuccess": "Yangi kategoriya muvaffaqiyatli yaratildi",
       "updateSuccess": "Kategoriya ma'lumotlari yangilandi",
       "deleteSuccess": "Kategoriya muvaffaqiyatli o'chirildi",
-      "deleteErrorHasProducts": "Ushbu toifaga biriktirilgan mahsulotlar mavjud. Avval mahsulotlarni boshqa toifaga o'tkazing yoki o'chiring."
+      "deleteErrorHasProducts": "Ushbu toifaga biriktirilgan mahsulotlar mavjud. Avval mahsulotlarni boshqa toifaga o'tkazing yoki o'chiring.",
+      "placeholderNameUz": "Masalan: Divanlar",
+      "placeholderNameRu": "Например: Диваны",
+      "placeholderNameEn": "Example: Sofas",
+      "placeholderSlug": "divanlar",
+      "placeholderOrder": "1"
     },
     "products": {
       "title": "Mebellar boshqaruvi",
@@ -101,6 +130,7 @@
       "filterByCategory": "Toifa bo'yicha filter",
       "allCategories": "Barcha toifalar",
       "image": "Rasm",
+      "slug": "Slug (URL)",
       "titleUz": "Sarlavha (O'zbekcha)",
       "titleRu": "Sarlavha (Ruscha)",
       "titleEn": "Sarlavha (Inglizcha)",
@@ -126,7 +156,19 @@
       "createSuccess": "Yangi mebel muvaffaqiyatli qo'shildi",
       "updateSuccess": "Mebel ma'lumotlari yangilandi",
       "deleteSuccess": "Mebel muvaffaqiyatli o'chirildi",
-      "imageUploadHint": "Faqat rasm URL manzillarini kiriting (tavsiya etilgan hajm max 5MB, JPG/PNG/WEBP)"
+      "imageUploadHint": "Faqat rasm URL manzillarini kiriting (tavsiya etilgan hajm max 5MB, JPG/PNG/WEBP)",
+      "imageAlreadyAdded": "Bu rasm allaqachon qo'shilgan",
+      "placeholderTitleUz": "Masalan: Qulay Divan",
+      "placeholderTitleRu": "Например: Удобный диван",
+      "placeholderTitleEn": "Example: Comfortable Sofa",
+      "placeholderSlug": "qulay-divan",
+      "placeholderDescUz": "Batafsil ma'lumot...",
+      "placeholderDescRu": "Подробное описание...",
+      "placeholderDescEn": "Detailed description...",
+      "placeholderDimensions": "220x95x85 sm",
+      "placeholderMaterial": "Buk daraxti, velur",
+      "placeholderWarranty": "24 oy",
+      "totalProducts": "ta mebel"
     }
   }
 }

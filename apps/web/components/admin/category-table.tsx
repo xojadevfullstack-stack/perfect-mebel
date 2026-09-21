@@ -83,7 +83,7 @@ export function CategoryTable({
               </TableCell>
               <TableCell className="text-center font-medium">
                 <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
-                  {cat._count?.products ?? 0} ta
+                  {cat._count?.products ?? 0} {tCommon("unitItem")}
                 </span>
               </TableCell>
               <TableCell className="text-right">

@@ -151,7 +151,7 @@ export function ProductFormDialog({
     const trimmed = newImageUrl.trim();
     if (!trimmed) return;
     if (currentImages.includes(trimmed)) {
-      toast.error("Bu rasm allaqachon qo'shilgan");
+      toast.error(t("imageAlreadyAdded"));
       return;
     }
     setValue("images", [...currentImages, trimmed], { shouldValidate: true });
@@ -234,7 +234,7 @@ export function ProductFormDialog({
               </label>
               <Input
                 {...register("titleUz")}
-                placeholder="Masalan: Qulay Divan"
+                placeholder={t("placeholderTitleUz")}
                 disabled={isSubmitting}
               />
               {errors.titleUz && (
@@ -248,7 +248,7 @@ export function ProductFormDialog({
               </label>
               <Input
                 {...register("titleRu")}
-                placeholder="Удобный диван"
+                placeholder={t("placeholderTitleRu")}
                 disabled={isSubmitting}
               />
               {errors.titleRu && (
@@ -262,7 +262,7 @@ export function ProductFormDialog({
               </label>
               <Input
                 {...register("titleEn")}
-                placeholder="Comfortable Sofa"
+                placeholder={t("placeholderTitleEn")}
                 disabled={isSubmitting}
               />
               {errors.titleEn && (
@@ -274,11 +274,11 @@ export function ProductFormDialog({
           {/* Slug */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-foreground">
-              Slug (URL)
+              {t("slug")}
             </label>
             <Input
               {...register("slug")}
-              placeholder="qulay-divan"
+              placeholder={t("placeholderSlug")}
               disabled={isSubmitting}
             />
             {errors.slug && (
@@ -294,7 +294,7 @@ export function ProductFormDialog({
               </label>
               <Textarea
                 {...register("descUz")}
-                placeholder="Batafsil ma'lumot..."
+                placeholder={t("placeholderDescUz")}
                 rows={3}
                 disabled={isSubmitting}
               />
@@ -305,7 +305,7 @@ export function ProductFormDialog({
               </label>
               <Textarea
                 {...register("descRu")}
-                placeholder="Подробное описание..."
+                placeholder={t("placeholderDescRu")}
                 rows={3}
                 disabled={isSubmitting}
               />
@@ -316,7 +316,7 @@ export function ProductFormDialog({
               </label>
               <Textarea
                 {...register("descEn")}
-                placeholder="Detailed description..."
+                placeholder={t("placeholderDescEn")}
                 rows={3}
                 disabled={isSubmitting}
               />
@@ -331,7 +331,7 @@ export function ProductFormDialog({
               </label>
               <Input
                 {...register("dimensions")}
-                placeholder="220x95x85 sm"
+                placeholder={t("placeholderDimensions")}
                 disabled={isSubmitting}
               />
             </div>
@@ -341,7 +341,7 @@ export function ProductFormDialog({
               </label>
               <Input
                 {...register("material")}
-                placeholder="Buk daraxti, velur"
+                placeholder={t("placeholderMaterial")}
                 disabled={isSubmitting}
               />
             </div>
@@ -351,7 +351,7 @@ export function ProductFormDialog({
               </label>
               <Input
                 {...register("warranty")}
-                placeholder="24 oy"
+                placeholder={t("placeholderWarranty")}
                 disabled={isSubmitting}
               />
             </div>

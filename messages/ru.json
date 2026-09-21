@@ -68,7 +68,31 @@
       "page": "Страница",
       "total": "Всего",
       "yes": "Да",
-      "no": "Нет"
+      "no": "Нет",
+      "refresh": "Обновить",
+      "unitItem": "шт",
+      "language": "Язык"
+    },
+    "dashboard": {
+      "dbConnected": "База PostgreSQL Neon активна и подключена",
+      "realtimeSync": "Все операции CRUD сохраняются в реальном времени",
+      "collections": "Комплекты",
+      "leads": "Заявки",
+      "day3Planned": "В плане Дня 3"
+    },
+    "login": {
+      "title": "Web Admin Panel",
+      "subtitle": "Введите данные для входа в панель управления",
+      "usernameLabel": "Имя пользователя",
+      "usernamePlaceholder": "admin",
+      "passwordLabel": "Пароль",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Войти",
+      "submitting": "Проверка...",
+      "backToShowcase": "Вернуться на витрину",
+      "errorEmpty": "Пожалуйста, введите логин и пароль.",
+      "errorInvalid": "Неверный логин или пароль",
+      "errorConnection": "Ошибка подключения к серверу"
     },
     "categories": {
       "title": "Управление категориями",
@@ -89,7 +113,12 @@
       "createSuccess": "Категория успешно создана",
       "updateSuccess": "Данные категории обновлены",
       "deleteSuccess": "Категория успешно удалена",
-      "deleteErrorHasProducts": "В этой категории есть прикрепленная мебель. Сначала переместите или удалите мебель."
+      "deleteErrorHasProducts": "В этой категории есть прикрепленная мебель. Сначала переместите или удалите мебель.",
+      "placeholderNameUz": "Например: Диваны",
+      "placeholderNameRu": "Например: Диваны",
+      "placeholderNameEn": "Example: Sofas",
+      "placeholderSlug": "divany",
+      "placeholderOrder": "1"
     },
     "products": {
       "title": "Управление мебелью",
@@ -101,6 +130,7 @@
       "filterByCategory": "Фильтр по категории",
       "allCategories": "Все категории",
       "image": "Фото",
+      "slug": "Slug (URL)",
       "titleUz": "Заголовок (Узбекский)",
       "titleRu": "Заголовок (Русский)",
       "titleEn": "Заголовок (Английский)",
@@ -126,7 +156,19 @@
       "createSuccess": "Товар успешно добавлен",
       "updateSuccess": "Данные мебели обновлены",
       "deleteSuccess": "Товар успешно удален",
-      "imageUploadHint": "Вводите только прямые URL изображений (рекомендуемый размер до 5МБ, JPG/PNG/WEBP)"
+      "imageUploadHint": "Вводите только прямые URL изображений (рекомендуемый размер до 5МБ, JPG/PNG/WEBP)",
+      "imageAlreadyAdded": "Это изображение уже добавлено",
+      "placeholderTitleUz": "Например: Удобный диван",
+      "placeholderTitleRu": "Например: Удобный диван",
+      "placeholderTitleEn": "Example: Comfortable Sofa",
+      "placeholderSlug": "udobniy-divan",
+      "placeholderDescUz": "Подробное описание...",
+      "placeholderDescRu": "Подробное описание...",
+      "placeholderDescEn": "Detailed description...",
+      "placeholderDimensions": "220x95x85 см",
+      "placeholderMaterial": "Бук, велюр",
+      "placeholderWarranty": "24 месяца",
+      "totalProducts": "мебели"
     }
   }
 }

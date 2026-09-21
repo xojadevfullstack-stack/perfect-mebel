@@ -3,8 +3,15 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { ThemeToggle } from "@/components/theme-toggle";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Shield,
   LayoutDashboard,
@@ -12,6 +19,7 @@ import {
   Armchair,
   ExternalLink,
   LogOut,
+  Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +30,7 @@ interface AdminHeaderProps {
 export function AdminHeader({ adminName }: AdminHeaderProps): React.JSX.Element {
   const pathname = usePathname();
   const router = useRouter();
+  const locale = useLocale();
   const t = useTranslations("admin.nav");
 
   const navItems = [
@@ -53,6 +62,11 @@ export function AdminHeader({ adminName }: AdminHeaderProps): React.JSX.Element 
     } catch {
       router.push("/admin/login");
     }
+  };
+
+  const handleLocaleChange = (newLocale: string): void => {
+    document.cookie = `admin_locale=${newLocale};path=/;max-age=31536000;SameSite=Lax`;
+    router.refresh();
   };
 
   return (
@@ -98,13 +112,26 @@ export function AdminHeader({ adminName }: AdminHeaderProps): React.JSX.Element 
 
       <div className="flex items-center space-x-2 sm:space-x-3">
         <Link
-          href="/uz"
+          href={`/${locale}`}
           target="_blank"
           className="hidden md:inline-flex items-center space-x-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground"
         >
           <span>{t("viewShowcase")}</span>
           <ExternalLink className="h-3.5 w-3.5" />
         </Link>
+
+        {/* Admin til tanlash dropdown */}
+        <Select value={locale} onValueChange={handleLocaleChange}>
+          <SelectTrigger className="h-8 w-[82px] text-xs font-semibold">
+            <Globe className="mr-1 h-3.5 w-3.5 text-muted-foreground" />
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent align="end">
+            <SelectItem value="uz">UZ</SelectItem>
+            <SelectItem value="ru">RU</SelectItem>
+            <SelectItem value="en">EN</SelectItem>
+          </SelectContent>
+        </Select>
 
         <ThemeToggle />
 

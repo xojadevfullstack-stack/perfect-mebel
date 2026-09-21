@@ -68,7 +68,31 @@
       "page": "Page",
       "total": "Total",
       "yes": "Yes",
-      "no": "No"
+      "no": "No",
+      "refresh": "Refresh",
+      "unitItem": "pcs",
+      "language": "Language"
+    },
+    "dashboard": {
+      "dbConnected": "PostgreSQL Neon database active and connected",
+      "realtimeSync": "All CRUD operations are saved in real-time",
+      "collections": "Collections",
+      "leads": "Leads",
+      "day3Planned": "Day 3 roadmap"
+    },
+    "login": {
+      "title": "Web Admin Panel",
+      "subtitle": "Enter your credentials to access the admin panel",
+      "usernameLabel": "Username",
+      "usernamePlaceholder": "admin",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Sign In",
+      "submitting": "Checking...",
+      "backToShowcase": "Back to showcase",
+      "errorEmpty": "Please enter username and password.",
+      "errorInvalid": "Invalid username or password",
+      "errorConnection": "Connection error with server"
     },
     "categories": {
       "title": "Category Management",
@@ -89,7 +113,12 @@
       "createSuccess": "Category created successfully",
       "updateSuccess": "Category details updated",
       "deleteSuccess": "Category deleted successfully",
-      "deleteErrorHasProducts": "This category has linked furniture products. Reassign or delete products first."
+      "deleteErrorHasProducts": "This category has linked furniture products. Reassign or delete products first.",
+      "placeholderNameUz": "E.g. Sofas",
+      "placeholderNameRu": "Например: Диваны",
+      "placeholderNameEn": "Example: Sofas",
+      "placeholderSlug": "sofas",
+      "placeholderOrder": "1"
     },
     "products": {
       "title": "Furniture Management",
@@ -101,6 +130,7 @@
       "filterByCategory": "Filter by category",
       "allCategories": "All categories",
       "image": "Image",
+      "slug": "Slug (URL)",
       "titleUz": "Title (Uzbek)",
       "titleRu": "Title (Russian)",
       "titleEn": "Title (English)",
@@ -126,7 +156,19 @@
       "createSuccess": "Furniture added successfully",
       "updateSuccess": "Furniture details updated",
       "deleteSuccess": "Furniture deleted successfully",
-      "imageUploadHint": "Enter valid image URLs only (recommended size max 5MB, JPG/PNG/WEBP)"
+      "imageUploadHint": "Enter valid image URLs only (recommended size max 5MB, JPG/PNG/WEBP)",
+      "imageAlreadyAdded": "This image is already added",
+      "placeholderTitleUz": "E.g. Comfortable Sofa",
+      "placeholderTitleRu": "Например: Удобный диван",
+      "placeholderTitleEn": "Example: Comfortable Sofa",
+      "placeholderSlug": "comfortable-sofa",
+      "placeholderDescUz": "Detailed description...",
+      "placeholderDescRu": "Подробное описание...",
+      "placeholderDescEn": "Detailed description...",
+      "placeholderDimensions": "220x95x85 cm",
+      "placeholderMaterial": "Beech wood, velour",
+      "placeholderWarranty": "24 months",
+      "totalProducts": "furniture items"
     }
   }
 }

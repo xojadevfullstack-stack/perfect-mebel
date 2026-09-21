@@ -108,7 +108,7 @@ export default function AdminCategoriesPage(): React.JSX.Element {
                 disabled={isLoading}
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
-                <span>{tCommon("loading") === "Yuklanmoqda..." ? "Yangilash" : "Refresh"}</span>
+                <span>{tCommon("refresh")}</span>
               </Button>
               <Button onClick={handleOpenCreate} size="sm">
                 <Plus className="h-4 w-4 mr-2" />

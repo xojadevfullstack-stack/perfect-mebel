@@ -1,5 +1,6 @@
 import * as React from "react";
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -17,13 +18,19 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }): Promise<React.JSX.Element> {
-  const messages = await getMessages({ locale: "uz" });
+  const cookieStore = cookies();
+  const rawLocale =
+    cookieStore.get("admin_locale")?.value ||
+    cookieStore.get("NEXT_LOCALE")?.value ||
+    "uz";
+  const locale = ["uz", "ru", "en"].includes(rawLocale) ? rawLocale : "uz";
+  const messages = await getMessages({ locale });
 
   return (
-    <html lang="uz" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body className="min-h-screen bg-background text-foreground antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <NextIntlClientProvider locale="uz" messages={messages}>
+          <NextIntlClientProvider locale={locale} messages={messages}>
             {children}
             <Toaster position="top-right" richColors />
           </NextIntlClientProvider>

@@ -176,7 +176,7 @@ export default function AdminProductsPage(): React.JSX.Element {
                 disabled={isLoading}
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
-                <span>{tCommon("loading") === "Yuklanmoqda..." ? "Yangilash" : "Refresh"}</span>
+                <span>{tCommon("refresh")}</span>
               </Button>
               <Button onClick={handleOpenCreate} size="sm">
                 <Plus className="h-4 w-4 mr-2" />
@@ -235,7 +235,7 @@ export default function AdminProductsPage(): React.JSX.Element {
           {totalPages > 1 && (
             <div className="flex items-center justify-between border-t border-border pt-4 text-xs text-muted-foreground">
               <p>
-                {tCommon("total")}: <span className="font-semibold text-foreground">{totalCount}</span> ta mebel
+                {tCommon("total")}: <span className="font-semibold text-foreground">{totalCount}</span> {t("totalProducts")}
               </p>
 
               <div className="flex items-center space-x-2">
