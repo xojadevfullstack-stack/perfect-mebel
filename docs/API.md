@@ -43,8 +43,7 @@ Ko'plab ma'lumot qaytaradigan endpointlar sahifalashni qo'llab-quvvatlaydi:
 Public API endpointlariga DDOS va spamlarni oldini olish maqsadida rate limiting o'rnatilgan (masalan, `/api/leads` uchun 1 daqiqada 5 ta so'rov). Limit oshib ketsa, `429 Too Many Requests` qaytariladi.
 
 ### Autentifikatsiya (Authentication)
-Admin API endpointlari JWT (JSON Web Token) orqali himoyalangan. Token so'rov sarlavhasida (header) yuborilishi kerak:
-`Authorization: Bearer <your_jwt_token>`
+Admin API endpointlari xavfsiz HTTP-Only cookie (`admin_token`) orqali himoyalangan (`jose` JWT asosida). Muvaffaqiyatli login qilinganda server `Set-Cookie: admin_token=...; Path=/; HttpOnly; SameSite=Lax` sarlavhasini qaytaradi va keyingi barcha admin so'rovlari cookie orqali avtomatik tasdiqlanadi.
 
 ---
 
@@ -231,12 +230,12 @@ Mijoz savatchadagi mahsulotlar (yoki savollar) bilan ariza qoldirganda ishlaydi.
 ---
 
 ## Admin API (Protected)
-Ushbu endpointlar faqat administratorlar uchun. So'rov sarlavhasida JWT token bo'lishi shart.
+Ushbu endpointlar faqat administratorlar uchun. Tizim HTTP-Only cookie (`admin_token`) orqali himoyalangan.
 
 ### 1. Admin Login
 **POST** `/api/admin/auth/login`
 
-Admin panelga yoki bot orqali kirish uchun token beradi.
+Admin tizimiga kirish va sessiya o'rnatish. Muvaffaqiyatli kirilganda server `Set-Cookie` sarlavhasi orqali HTTP-Only `admin_token` cookie'sini o'rnatadi. Response body'da xavfsizlik nuqtai nazaridan token qaytarilmaydi (XSS hujumlaridan himoya qilish uchun).
 
 - **Request Body:**
 ```json
@@ -245,17 +244,18 @@ Admin panelga yoki bot orqali kirish uchun token beradi.
   "password": "secretpassword"
 }
 ```
+- **Response Headers:**
+```http
+Set-Cookie: admin_token=<jwt_token>; Path=/; HttpOnly; SameSite=Lax; Max-Age=604800
+```
 - **Response (200 OK):**
 ```json
 {
   "success": true,
   "data": {
-    "token": "eyJhbGciOiJIUzI1NiIsInR...",
-    "user": {
-      "id": "admin_1",
-      "username": "admin",
-      "name": "Administrator"
-    }
+    "id": "admin_1",
+    "username": "admin",
+    "name": "Administrator"
   }
 }
 ```
@@ -263,7 +263,7 @@ Admin panelga yoki bot orqali kirish uchun token beradi.
 ```json
 {
   "success": false,
-  "error": "Invalid credentials"
+  "error": "Foydalanuvchi nomi yoki parol noto'g'ri"
 }
 ```
 

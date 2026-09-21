@@ -10,8 +10,11 @@ export async function GET(req: Request): Promise<NextResponse> {
 
     const categorySlug = searchParams.get("category")?.trim();
     const collectionSlug = searchParams.get("collection")?.trim();
+    const categoryIdParam = searchParams.get("categoryId")?.trim();
+    const search = searchParams.get("search")?.trim();
+    const stockStatusParam = searchParams.get("stockStatus")?.trim();
 
-    let categoryId: string | undefined;
+    let categoryId: string | undefined = categoryIdParam || undefined;
     if (categorySlug) {
       const category = await prisma.category.findUnique({
         where: { slug: categorySlug },
@@ -52,9 +55,22 @@ export async function GET(req: Request): Promise<NextResponse> {
       collectionId = collection.id;
     }
 
+    const stockStatus =
+      stockStatusParam === "IN_STOCK" || stockStatusParam === "MADE_TO_ORDER"
+        ? stockStatusParam
+        : undefined;
+
     const where: Prisma.ProductWhereInput = {
       ...(categoryId && { categoryId }),
       ...(collectionId && { collectionId }),
+      ...(stockStatus && { stockStatus }),
+      ...(search && {
+        OR: [
+          { titleUz: { contains: search, mode: "insensitive" } },
+          { titleRu: { contains: search, mode: "insensitive" } },
+          { titleEn: { contains: search, mode: "insensitive" } },
+        ],
+      }),
     };
 
     const [total, products] = await Promise.all([
