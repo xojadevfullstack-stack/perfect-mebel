@@ -1,0 +1,134 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum StockStatus {
+  IN_STOCK
+  MADE_TO_ORDER
+}
+
+enum LeadSource {
+  WEB
+  BOT
+}
+
+// ─── 1. Kategoriyalar ─────────────────────────────────────────────────────────
+
+model Category {
+  id        String    @id @default(uuid())
+  slug      String    @unique
+  nameUz    String
+  nameRu    String
+  nameEn    String
+  order     Int       @default(0)
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("categories")
+}
+
+// ─── 2. Komplektlar ───────────────────────────────────────────────────────────
+
+model Collection {
+  id        String    @id @default(uuid())
+  slug      String    @unique
+  titleUz   String
+  titleRu   String
+  titleEn   String
+  descUz    String?
+  descRu    String?
+  descEn    String?
+  images    String[]
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("collections")
+}
+
+// ─── 3. Mebellar (Mahsulotlar) ────────────────────────────────────────────────
+
+model Product {
+  id           String      @id @default(uuid())
+  categoryId   String
+  category     Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  collectionId String?
+  collection   Collection? @relation(fields: [collectionId], references: [id], onDelete: SetNull)
+  slug         String      @unique
+
+  titleUz      String
+  titleRu      String
+  titleEn      String
+  descUz       String?
+  descRu       String?
+  descEn       String?
+
+  dimensions   String?
+  material     String?
+  warranty     String?
+
+  stockStatus  StockStatus @default(IN_STOCK)
+  images       String[]
+
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([categoryId])
+  @@index([collectionId])
+  @@map("products")
+}
+
+// ─── 4. Arizalar (Lead) ───────────────────────────────────────────────────────
+
+model Lead {
+  id           String     @id @default(uuid())
+  customerName String
+  phone        String
+  address      String?
+  latitude     Float?
+  longitude    Float?
+  notes        String?
+  telegramId   String?
+
+  source       LeadSource
+  itemsSummary String
+
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@map("leads")
+}
+
+// ─── 5. Live Chat bog'liqligi ─────────────────────────────────────────────────
+
+model SupportMessage {
+  id             String   @id @default(uuid())
+  groupMessageId Int      @unique
+  userTelegramId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("support_messages")
+}
+
+// ─── 6. Web Admin foydalanuvchilari ──────────────────────────────────────────
+
+model AdminUser {
+  id         String   @id @default(uuid())
+  username   String   @unique
+  password   String
+  name       String
+  telegramId String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("admin_users")
+}

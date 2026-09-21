@@ -1,0 +1,22 @@
+{
+  "name": "@mebel-salon/bot",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./src/bot.ts",
+  "scripts": {
+    "dev": "tsx watch src/bot.ts",
+    "build": "tsc --noEmit",
+    "start": "node dist/bot.js"
+  },
+  "dependencies": {
+    "@grammyjs/conversations": "^1.2.0",
+    "@mebel-salon/db": "workspace:*",
+    "dotenv": "^16.4.5",
+    "grammy": "^1.30.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.10",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2"
+  }
+}

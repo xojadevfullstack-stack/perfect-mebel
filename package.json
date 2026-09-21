@@ -1,0 +1,21 @@
+{
+  "name": "mebel-salon-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:web": "pnpm --filter @mebel-salon/web dev",
+    "dev:bot": "pnpm --filter @mebel-salon/bot dev",
+    "build:web": "pnpm --filter @mebel-salon/web build",
+    "build": "pnpm --filter @mebel-salon/db build && pnpm --filter @mebel-salon/web build",
+    "db:generate": "pnpm --filter @mebel-salon/db generate",
+    "db:migrate": "pnpm --filter @mebel-salon/db migrate",
+    "db:seed": "pnpm --filter @mebel-salon/db seed",
+    "db:studio": "pnpm --filter @mebel-salon/db studio",
+    "lint": "pnpm --filter @mebel-salon/web lint",
+    "type-check": "pnpm -r exec tsc --noEmit"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.2"
+  }
+}
