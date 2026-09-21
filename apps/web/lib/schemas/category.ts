@@ -2,8 +2,8 @@ import { z } from "zod";
 
 export const categorySchema = z.object({
   nameUz: z.string().min(1, "O'zbekcha nom kiritilishi shart").max(100, "Nom 100 belgidan oshmasligi kerak"),
-  nameRu: z.string().min(1, "Ruscha nom kiritilishi shart").max(100, "Nom 100 belgidan oshmasligi kerak"),
-  nameEn: z.string().min(1, "Inglizcha nom kiritilishi shart").max(100, "Nom 100 belgidan oshmasligi kerak"),
+  nameRu: z.string().max(100, "Nom 100 belgidan oshmasligi kerak").optional().or(z.literal("")),
+  nameEn: z.string().max(100, "Nom 100 belgidan oshmasligi kerak").optional().or(z.literal("")),
   slug: z
     .string()
     .max(100, "Slug 100 belgidan oshmasligi kerak")

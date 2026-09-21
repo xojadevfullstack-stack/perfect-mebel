@@ -89,8 +89,8 @@ export async function PUT(
       where: { id },
       data: {
         ...(input.nameUz && { nameUz: input.nameUz }),
-        ...(input.nameRu && { nameRu: input.nameRu }),
-        ...(input.nameEn && { nameEn: input.nameEn }),
+        ...(input.nameRu !== undefined && { nameRu: input.nameRu || input.nameUz || existing.nameUz }),
+        ...(input.nameEn !== undefined && { nameEn: input.nameEn || input.nameUz || existing.nameUz }),
         ...(newSlug && { slug: newSlug }),
         ...(input.order !== undefined && { order: input.order }),
       },

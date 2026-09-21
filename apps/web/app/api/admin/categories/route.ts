@@ -86,8 +86,8 @@ export async function POST(req: Request): Promise<NextResponse> {
     const category = await prisma.category.create({
       data: {
         nameUz: input.nameUz,
-        nameRu: input.nameRu,
-        nameEn: input.nameEn,
+        nameRu: input.nameRu || input.nameUz,
+        nameEn: input.nameEn || input.nameUz,
         slug,
         order: input.order ?? 0,
       },

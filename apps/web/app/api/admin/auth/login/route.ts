@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@mebel-salon/db";
-import { createAdminToken } from "@/lib/auth";
+import { createAdminToken, verifyPassword } from "@/lib/auth";
 
 interface RateLimitRecord {
   attempts: number;
@@ -137,7 +136,7 @@ export async function POST(req: Request): Promise<NextResponse> {
       );
     }
 
-    const isValid = await bcrypt.compare(password, admin.password);
+    const isValid = await verifyPassword(password, admin.password);
     if (!isValid) {
       recordFailedAttempt(ip);
       return NextResponse.json(

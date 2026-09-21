@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
   Table,
@@ -71,14 +72,13 @@ export function ProductTable({
                 <TableCell>
                   <div className="h-12 w-12 overflow-hidden rounded-md border border-border bg-muted flex items-center justify-center">
                     {firstImage ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <Image
                         src={firstImage}
                         alt={product.titleUz}
+                        width={48}
+                        height={48}
+                        unoptimized
                         className="h-full w-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = "none";
-                        }}
                       />
                     ) : (
                       <ImageIcon className="h-5 w-5 text-muted-foreground opacity-50" />

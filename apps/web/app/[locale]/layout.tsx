@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, unstable_setRequestLocale } from "next-intl/server";
 import { ThemeProvider } from "@/components/theme-provider";
 import { locales } from "@/i18n/request";
+import "@/lib/env";
 import "../globals.css";
 
 export const metadata: Metadata = {

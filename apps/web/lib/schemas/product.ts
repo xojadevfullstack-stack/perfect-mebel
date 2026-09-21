@@ -10,8 +10,8 @@ export const productSchema = z.object({
     .optional()
     .or(z.literal("")),
   titleUz: z.string().min(1, "O'zbekcha sarlavha kiritilishi shart").max(200, "Sarlavha 200 belgidan oshmasligi kerak"),
-  titleRu: z.string().min(1, "Ruscha sarlavha kiritilishi shart").max(200, "Sarlavha 200 belgidan oshmasligi kerak"),
-  titleEn: z.string().min(1, "Inglizcha sarlavha kiritilishi shart").max(200, "Sarlavha 200 belgidan oshmasligi kerak"),
+  titleRu: z.string().max(200, "Sarlavha 200 belgidan oshmasligi kerak").optional().or(z.literal("")),
+  titleEn: z.string().max(200, "Sarlavha 200 belgidan oshmasligi kerak").optional().or(z.literal("")),
   descUz: z.string().nullable().optional().or(z.literal("")),
   descRu: z.string().nullable().optional().or(z.literal("")),
   descEn: z.string().nullable().optional().or(z.literal("")),
