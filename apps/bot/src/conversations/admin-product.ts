@@ -1,7 +1,7 @@
 import { prisma, StockStatus } from "@mebel-salon/db";
 import type { MyConversation, MyContext } from "../types/index.js";
 import { getCancelKeyboard, getMainMenuKeyboard } from "../keyboards/main-menu.js";
-import { isAdmin } from "../config.js";
+import { config, isAdmin } from "../config.js";
 
 function slugify(text: string): string {
   return text
@@ -166,18 +166,20 @@ export async function adminAddProductConversation(
   if (imgCtx.message?.photo && imgCtx.message.photo.length > 0) {
     const largestPhoto = imgCtx.message.photo[imgCtx.message.photo.length - 1];
     if (largestPhoto) {
-      // Telegram file URL yoki file_id
       try {
         const file = await conversation.external(() =>
           ctx.api.getFile(largestPhoto.file_id)
         );
         if (file.file_path) {
+          const token = config.botToken || ctx.api.token;
           images.push(
-            `https://api.telegram.org/file/bot${ctx.api.token}/${file.file_path}`
+            `https://api.telegram.org/file/bot${token}/${file.file_path}`
           );
         }
-      } catch {
-        images.push(largestPhoto.file_id);
+      } catch (err) {
+        process.stderr.write(
+          `Telegram photo URL olishda xatolik: ${err instanceof Error ? err.message : String(err)}\n`
+        );
       }
     }
   } else if (imgCtx.message?.text && imgCtx.message.text !== "-") {
