@@ -1,19 +1,174 @@
-import { Bot } from "grammy";
-import dotenv from "dotenv";
+import { Bot, session } from "grammy";
+import { conversations, createConversation } from "@grammyjs/conversations";
+import type { MyContext } from "./types/index.js";
+import { config } from "./config.js";
 
-dotenv.config();
+// Conversations
+import { applyConversation } from "./conversations/apply.js";
+import { adminAddCategoryConversation } from "./conversations/admin-category.js";
+import { adminAddProductConversation } from "./conversations/admin-product.js";
+import { adminAddCollectionConversation } from "./conversations/admin-collection.js";
 
-const token = process.env["TELEGRAM_BOT_TOKEN"];
+// Handlers
+import { handleStart } from "./handlers/start.js";
+import {
+  showCategories,
+  showCategoryProducts,
+  showProductDetails,
+  showCollections,
+  showCollectionDetails,
+  showContactInfo,
+} from "./handlers/catalog.js";
+import {
+  handleAdminMenu,
+  handleAdminStats,
+} from "./handlers/admin.js";
+import {
+  handleCustomerMessage,
+  handleSupportGroupReply,
+} from "./handlers/livechat.js";
 
-if (!token) {
-  process.stderr.write("TELEGRAM_BOT_TOKEN aniqlanmadi. Iltimos, .env faylini tekshiring.\n");
-}
+const token = config.botToken || "dummy-token-for-typecheck";
+export const bot = new Bot<MyContext>(token);
 
-export const bot = new Bot(token || "dummy-token-for-typecheck");
+// 1. Session va Conversations pluginlarini ulash
+bot.use(
+  session({
+    initial: () => ({}),
+  })
+);
+bot.use(conversations());
 
-bot.command("start", async (ctx) => {
-  await ctx.reply(
-    "Assalomu alaykum! Mebel Salon rasmiy botiga xush kelibsiz.\n\n" +
-      "Bu bot orqali mahsulotlarimizni ko'rishingiz va to'g'ridan-to'g'ri zavodga ariza yuborishingiz mumkin."
+// 2. FSM Conversationlarni ro'yxatdan o'tkazish
+bot.use(createConversation(applyConversation));
+bot.use(createConversation(adminAddCategoryConversation));
+bot.use(createConversation(adminAddProductConversation));
+bot.use(createConversation(adminAddCollectionConversation));
+
+// 3. Buyruqlar (Commands)
+bot.command("start", handleStart);
+bot.command("catalog", showCategories);
+bot.command("collections", (ctx) => showCollections(ctx, 1));
+bot.command("help", showContactInfo);
+bot.command("admin", handleAdminMenu);
+
+bot.command("add_category", async (ctx) => {
+  await ctx.conversation.enter("adminAddCategoryConversation");
+});
+bot.command("add_product", async (ctx) => {
+  await ctx.conversation.enter("adminAddProductConversation");
+});
+bot.command("add_collection", async (ctx) => {
+  await ctx.conversation.enter("adminAddCollectionConversation");
+});
+
+// 4. Asosiy Menyu (Reply Keyboard tugmalari)
+bot.hears("🛋 Katalog", showCategories);
+bot.hears("🗂 Komplektlar", (ctx) => showCollections(ctx, 1));
+bot.hears("📝 Ariza qoldirish", async (ctx) => {
+  await ctx.conversation.enter("applyConversation");
+});
+bot.hears("📞 Aloqa", showContactInfo);
+bot.hears("⚙️ Admin Panel", handleAdminMenu);
+
+// 5. Callback querylar (Inline keyboard hodisalari)
+bot.callbackQuery("show_categories", showCategories);
+
+bot.callbackQuery(/^cat_([a-zA-Z0-9-]+)_(\d+)$/, async (ctx) => {
+  const match = ctx.match;
+  if (match && match[1] && match[2]) {
+    const categoryId = match[1];
+    const page = parseInt(match[2], 10) || 1;
+    await showCategoryProducts(ctx, categoryId, page);
+  }
+});
+
+bot.callbackQuery(/^prod_([a-zA-Z0-9-]+)$/, async (ctx) => {
+  const match = ctx.match;
+  if (match && match[1]) {
+    await showProductDetails(ctx, match[1]);
+  }
+});
+
+bot.callbackQuery(/^apply_prod_([a-zA-Z0-9-]+)$/, async (ctx) => {
+  const match = ctx.match;
+  if (match && match[1]) {
+    ctx.match = `order_product_${match[1]}`;
+    await ctx.conversation.enter("applyConversation");
+  }
+});
+
+bot.callbackQuery("show_collections", (ctx) => showCollections(ctx, 1));
+
+bot.callbackQuery(/^cols_(\d+)$/, async (ctx) => {
+  const match = ctx.match;
+  if (match && match[1]) {
+    const page = parseInt(match[1], 10) || 1;
+    await showCollections(ctx, page);
+  }
+});
+
+bot.callbackQuery(/^col_([a-zA-Z0-9-]+)$/, async (ctx) => {
+  const match = ctx.match;
+  if (match && match[1]) {
+    await showCollectionDetails(ctx, match[1]);
+  }
+});
+
+bot.callbackQuery(/^apply_col_([a-zA-Z0-9-]+)$/, async (ctx) => {
+  const match = ctx.match;
+  if (match && match[1]) {
+    ctx.match = `order_set_${match[1]}`;
+    await ctx.conversation.enter("applyConversation");
+  }
+});
+
+// Admin Callbacks
+bot.callbackQuery("admin_menu", handleAdminMenu);
+bot.callbackQuery("admin_stats", handleAdminStats);
+
+bot.callbackQuery("admin_add_cat", async (ctx) => {
+  await ctx.answerCallbackQuery();
+  await ctx.conversation.enter("adminAddCategoryConversation");
+});
+
+bot.callbackQuery("admin_add_prod", async (ctx) => {
+  await ctx.answerCallbackQuery();
+  await ctx.conversation.enter("adminAddProductConversation");
+});
+
+bot.callbackQuery("admin_add_col", async (ctx) => {
+  await ctx.answerCallbackQuery();
+  await ctx.conversation.enter("adminAddCollectionConversation");
+});
+
+// 6. Support Guruhi javoblari (Reply to customer)
+bot.on("message", async (ctx, next) => {
+  if (ctx.message?.reply_to_message) {
+    await handleSupportGroupReply(ctx);
+    return;
+  }
+  await next();
+});
+
+// 7. Mijoz erkin xabari (Live Chat)
+bot.on("message:text", handleCustomerMessage);
+
+// 8. Xatoliklar boshqaruvi
+bot.catch((err) => {
+  const ctx = err.ctx;
+  process.stderr.write(
+    `Bot xatoligi [update_id: ${ctx.update.update_id}]: ${
+      err.error instanceof Error ? err.error.message : String(err.error)
+    }\n`
   );
 });
+
+// 9. To'g'ridan-to'g'ri ishga tushirish (Long polling)
+if (process.env["NODE_ENV"] !== "test" && config.botToken) {
+  bot.start({
+    onStart: (botInfo) => {
+      process.stdout.write(`Telegram Bot (@${botInfo.username}) muvaffaqiyatli ishga tushdi!\n`);
+    },
+  });
+}

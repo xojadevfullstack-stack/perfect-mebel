@@ -14,10 +14,10 @@
 | 🗃 Ma'lumotlar Bazasi (Prisma + PostgreSQL) | 🟩 Bajarildi | 100% |
 | 🔧 Web Admin Panel | 🟩 Bajarildi | 100% |
 | 🌐 Veb-Vitrina (Mijoz sahifasi) | 🟩 Bajarildi | 100% |
-| 🤖 Telegram Bot (Mijoz) | 🟨 Boshlanmoqda | 0% |
-| 🤖 Telegram Bot (Admin) | 🟨 Boshlanmoqda | 0% |
-| 📢 Telegram Kanal integratsiya | 🟨 Jarayonda | 50% |
-| 💬 Live Chat (Support guruh) | ⬜ Boshlanmagan | 0% |
+| 🤖 Telegram Bot (Mijoz) | 🟩 Bajarildi | 100% |
+| 🤖 Telegram Bot (Admin) | 🟩 Bajarildi | 100% |
+| 📢 Telegram Kanal integratsiya | 🟩 Bajarildi | 100% |
+| 💬 Live Chat (Support guruh) | 🟩 Bajarildi | 100% |
 | 🚀 Deploy | ⬜ Boshlanmagan | 0% |
 
 ---
@@ -67,12 +67,12 @@
 - [x] Aloqa sahifasi
 
 ### Kun 6 — Telegram Bot
-- [ ] grammY bot setup + `/start` buyrug'i
-- [ ] Deep link ariza FSM (4 bosqich)
-- [ ] Ichki katalog (inline keyboard bilan)
-- [ ] Admin bot: Kategoriya/Mebel/Komplekt CRUD FSM
-- [ ] Live Chat: Mijoz → Support guruh → Reply → Mijoz
-- [ ] Zavod kanaliga xabarnoma
+- [x] grammY bot setup + `/start` buyrug'i
+- [x] Deep link ariza FSM (4 bosqich)
+- [x] Ichki katalog (inline keyboard bilan)
+- [x] Admin bot: Kategoriya/Mebel/Komplekt CRUD FSM
+- [x] Live Chat: Mijoz → Support guruh → Reply → Mijoz
+- [x] Zavod kanaliga xabarnoma
 
 ### Kun 7 — Integratsiya, Deploy, QA
 - [ ] End-to-end test: Sayt ariza → DB → Kanal xabarnoma
