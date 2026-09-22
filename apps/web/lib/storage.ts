@@ -59,11 +59,18 @@ export async function uploadImageFile(file: File): Promise<{ url: string }> {
       return { url: urlData.publicUrl };
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Supabase storage xatosi";
+      if (process.env["NODE_ENV"] === "production") {
+        throw new Error(`Production Supabase yuklash xatosi: ${message}`);
+      }
       process.stderr.write(`Supabase upload error, falling back to local: ${message}\n`);
     }
+  } else if (process.env["NODE_ENV"] === "production") {
+    throw new Error(
+      "Production muhitida Supabase Storage sozlanmagan. NEXT_PUBLIC_SUPABASE_URL va NEXT_PUBLIC_SUPABASE_ANON_KEY kiritilishi shart."
+    );
   }
 
-  // 2. Lokal saqlash (development va mustaqil ishlash uchun)
+  // 2. Lokal saqlash (faqat lokal development muhiti uchun)
   const uploadsDir = path.join(process.cwd(), "public", "uploads");
   await fs.mkdir(uploadsDir, { recursive: true });
 

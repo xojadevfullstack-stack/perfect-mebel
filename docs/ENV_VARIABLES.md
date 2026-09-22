@@ -30,10 +30,11 @@ ADMIN_TELEGRAM_IDS="11111111,22222222"
 TELEGRAM_WEBHOOK_SECRET="super-secret-webhook-token"
 
 # ==========================================
-# MEDIA STORAGE (SUPABASE)
+# MEDIA STORAGE (SUPABASE - Web va Bot)
 # ==========================================
 NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhb...your-key-here"
+SUPABASE_SERVICE_ROLE_KEY="eyJhb...your-service-role-key-here"
 
 # ==========================================
 # AUTH / SECURITY
@@ -69,14 +70,15 @@ JWT_SECRET="your-super-secret-key-32-chars-min"
 
 *Qanday olish mumkin?* Kanal yoki guruh ID sini olish uchun Telegramda veb versiyaga kiring yoki `@RawDataBot` kabi botlarga guruhdan xabar uzating (forward qiling). Guruh/Superguruh/Kanal ID lari odatda `-100` bilan boshlanadi.
 
-### 4. Media Storage (Supabase)
+### 4. Media Storage (Supabase — Web va Telegram Bot)
 | Variable Name | Required | Description | Example Value |
 | --- | --- | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase loyihangiz manzili. | `https://xyz123.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase loyihangiz manzili (Web vitrina va Telegram Bot uchun). | `https://xyz123.supabase.co` |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase Public / Anon API kaliti. | `eyJhbGci...` |
+| `SUPABASE_SERVICE_ROLE_KEY` | Optional | Supabase Service Role kaliti (Server va Bot uchun to'liq huquqli kalit). | `eyJhbGci...` |
 
-*Qanday olish mumkin?* Supabase Dashboard -> Project Settings -> API bo'limiga kiring. Project URL va anon/public key'ni nusxalang.
-*Muhim:* `NEXT_PUBLIC_` bilan boshlanuvchi o'zgaruvchilar brauzerga ko'rinadi (public), shuning uchun faqat anon kalitni ishlating, "service_role" kalitini EMAS.
+*Qanday olish mumkin?* Supabase Dashboard -> Project Settings -> API bo'limiga kiring. Project URL va anon/service_role key'ni nusxalang.
+*Muhim:* Telegram Bot orqali admin yangi mebel rasmini yuklaganda, rasm to'g'ridan-to'g'ri ushbu Supabase Storage ga joylanadi va umumiy ochiq URL saqlanadi (Telegram bot tokeni fosh bo'lmaydi).
 
 ### 5. Auth / Security (Avtorizatsiya)
 | Variable Name | Required | Description | Example Value |

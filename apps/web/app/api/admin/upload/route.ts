@@ -23,6 +23,7 @@ export async function POST(req: Request): Promise<NextResponse> {
     return NextResponse.json({ success: true, data: result }, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Rasm yuklashda xatolik yuz berdi";
-    return NextResponse.json({ success: false, error: message }, { status: 400 });
+    const status = message.includes("Production") || message.includes("Supabase") ? 500 : 400;
+    return NextResponse.json({ success: false, error: message }, { status });
   }
 }

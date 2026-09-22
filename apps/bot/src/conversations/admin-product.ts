@@ -2,6 +2,7 @@ import { prisma, StockStatus } from "@mebel-salon/db";
 import type { MyConversation, MyContext } from "../types/index.js";
 import { getCancelKeyboard, getMainMenuKeyboard } from "../keyboards/main-menu.js";
 import { config, isAdmin } from "../config.js";
+import { uploadBufferToStorage } from "../utils/storage.js";
 
 function slugify(text: string): string {
   return text
@@ -172,14 +173,25 @@ export async function adminAddProductConversation(
         );
         if (file.file_path) {
           const token = config.botToken || ctx.api.token;
-          images.push(
-            `https://api.telegram.org/file/bot${token}/${file.file_path}`
-          );
+          const downloadUrl = `https://api.telegram.org/file/bot${token}/${file.file_path}`;
+
+          const uploadedUrl = await conversation.external(async () => {
+            const res = await fetch(downloadUrl);
+            if (!res.ok) {
+              throw new Error(`Telegram serveridan rasmni yuklab bo'lmadi (${res.status}: ${res.statusText})`);
+            }
+            const arrayBuffer = await res.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+            return await uploadBufferToStorage(buffer, file.file_path || "photo.jpg", "image/jpeg");
+          });
+
+          images.push(uploadedUrl);
+          await ctx.reply("✅ Rasm muvaffaqiyatli yuklandi.");
         }
       } catch (err) {
-        process.stderr.write(
-          `Telegram photo URL olishda xatolik: ${err instanceof Error ? err.message : String(err)}\n`
-        );
+        const errMsg = err instanceof Error ? err.message : String(err);
+        process.stderr.write(`Telegram photo yuklashda xatolik: ${errMsg}\n`);
+        await ctx.reply(`⚠️ Rasmni saqlashda xatolik yuz berdi: ${errMsg}`);
       }
     }
   } else if (imgCtx.message?.text && imgCtx.message.text !== "-") {
