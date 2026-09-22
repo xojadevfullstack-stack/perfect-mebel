@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, unstable_setRequestLocale } from "next-intl/server";
 import { ThemeProvider } from "@/components/theme-provider";
+import { PublicShell } from "@/components/layout/public-shell";
 import { locales } from "@/i18n/request";
 import "@/lib/env";
 import "../globals.css";
@@ -33,7 +34,7 @@ export default async function LocaleLayout({
       <body className="min-h-screen bg-background text-foreground antialiased selection:bg-primary selection:text-primary-foreground">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <NextIntlClientProvider locale={locale} messages={messages}>
-            {children}
+            <PublicShell>{children}</PublicShell>
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>

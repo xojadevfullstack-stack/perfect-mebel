@@ -8,7 +8,7 @@ export const leadSchema = z.object({
   longitude: z.number().optional().nullable(),
   notes: z.string().max(500, "Izoh 500 belgidan oshmasligi kerak").optional().nullable().or(z.literal("")),
   telegramId: z.string().optional().nullable().or(z.literal("")),
-  source: z.enum(["WEB", "BOT"]).default("WEB"),
+  source: z.enum(["WEB", "BOT"]),
   itemsSummary: z.string().min(1, "Tanlangan mebellar ro'yxati ko'rsatilishi shart"),
 });
 

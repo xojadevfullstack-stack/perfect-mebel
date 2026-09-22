@@ -13,10 +13,10 @@
 | 📁 Loyiha Setup (monorepo, config) | 🟩 Bajarildi | 100% |
 | 🗃 Ma'lumotlar Bazasi (Prisma + PostgreSQL) | 🟩 Bajarildi | 100% |
 | 🔧 Web Admin Panel | 🟩 Bajarildi | 100% |
-| 🌐 Veb-Vitrina (Mijoz sahifasi) | ⬜ Boshlanmagan | 0% |
-| 🤖 Telegram Bot (Mijoz) | ⬜ Boshlanmagan | 0% |
-| 🤖 Telegram Bot (Admin) | ⬜ Boshlanmagan | 0% |
-| 📢 Telegram Kanal integratsiya | ⬜ Boshlanmagan | 0% |
+| 🌐 Veb-Vitrina (Mijoz sahifasi) | 🟩 Bajarildi | 100% |
+| 🤖 Telegram Bot (Mijoz) | 🟨 Boshlanmoqda | 0% |
+| 🤖 Telegram Bot (Admin) | 🟨 Boshlanmoqda | 0% |
+| 📢 Telegram Kanal integratsiya | 🟨 Jarayonda | 50% |
 | 💬 Live Chat (Support guruh) | ⬜ Boshlanmagan | 0% |
 | 🚀 Deploy | ⬜ Boshlanmagan | 0% |
 
@@ -51,20 +51,20 @@
 - [x] Supabase Storage yoki Cloudinary integratsiya
 
 ### Kun 4 — Veb-Vitrina: Bosh sahifa + Katalog
-- [ ] Layout: Header (til, tema, navigatsiya), Footer
-- [ ] Bosh sahifa: Hero, ommabop mebellar, komplektlar slayderi
-- [ ] Katalog sahifasi: toifalar tabs, filtrlar, qidiruv
-- [ ] Mahsulot karta komponenti
-- [ ] `next-intl` setup (UZ/RU/EN tarjima fayllari)
-- [ ] `next-themes` setup
+- [x] Layout: Header (til, tema, navigatsiya), Footer
+- [x] Bosh sahifa: Hero, ommabop mebellar, komplektlar slayderi
+- [x] Katalog sahifasi: toifalar tabs, filtrlar, qidiruv
+- [x] Mahsulot karta komponenti
+- [x] `next-intl` setup (UZ/RU/EN tarjima fayllari)
+- [x] `next-themes` setup
 
 ### Kun 5 — Veb-Vitrina: Komplektlar + Ariza tizimi
-- [ ] Komplektlar sahifasi + ichki checklist
-- [ ] "Mening tanlovlarim" (zustand store + floating widget)
-- [ ] Ariza modali (react-hook-form + zod)
-- [ ] `POST /api/leads` endpoint
-- [ ] Telegram kanaliga xabarnoma yuborish
-- [ ] Aloqa sahifasi
+- [x] Komplektlar sahifasi + ichki checklist
+- [x] "Mening tanlovlarim" (zustand store + floating widget)
+- [x] Ariza modali (react-hook-form + zod)
+- [x] `POST /api/leads` endpoint
+- [x] Telegram kanaliga xabarnoma yuborish
+- [x] Aloqa sahifasi
 
 ### Kun 6 — Telegram Bot
 - [ ] grammY bot setup + `/start` buyrug'i
