@@ -29,6 +29,7 @@ import {
   handleCustomerMessage,
   handleSupportGroupReply,
 } from "./handlers/livechat.js";
+import { requireAdmin } from "./middleware/auth.js";
 
 const token = config.botToken || "dummy-token-for-typecheck";
 export const bot = new Bot<MyContext>(token);
@@ -55,13 +56,13 @@ bot.command("collections", (ctx) => showCollections(ctx, 1));
 bot.command("help", showContactInfo);
 bot.command("admin", handleAdminMenu);
 
-bot.command("add_category", async (ctx) => {
+bot.command("add_category", requireAdmin, async (ctx) => {
   await ctx.conversation.enter("adminAddCategoryConversation");
 });
-bot.command("add_product", async (ctx) => {
+bot.command("add_product", requireAdmin, async (ctx) => {
   await ctx.conversation.enter("adminAddProductConversation");
 });
-bot.command("add_collection", async (ctx) => {
+bot.command("add_collection", requireAdmin, async (ctx) => {
   await ctx.conversation.enter("adminAddCollectionConversation");
 });
 
@@ -130,17 +131,17 @@ bot.callbackQuery(/^apply_col_([a-zA-Z0-9-]+)$/, async (ctx) => {
 bot.callbackQuery("admin_menu", handleAdminMenu);
 bot.callbackQuery("admin_stats", handleAdminStats);
 
-bot.callbackQuery("admin_add_cat", async (ctx) => {
+bot.callbackQuery("admin_add_cat", requireAdmin, async (ctx) => {
   await ctx.answerCallbackQuery();
   await ctx.conversation.enter("adminAddCategoryConversation");
 });
 
-bot.callbackQuery("admin_add_prod", async (ctx) => {
+bot.callbackQuery("admin_add_prod", requireAdmin, async (ctx) => {
   await ctx.answerCallbackQuery();
   await ctx.conversation.enter("adminAddProductConversation");
 });
 
-bot.callbackQuery("admin_add_col", async (ctx) => {
+bot.callbackQuery("admin_add_col", requireAdmin, async (ctx) => {
   await ctx.answerCallbackQuery();
   await ctx.conversation.enter("adminAddCollectionConversation");
 });
