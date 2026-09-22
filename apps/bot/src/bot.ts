@@ -1,5 +1,7 @@
 import { Bot, session } from "grammy";
 import { conversations, createConversation } from "@grammyjs/conversations";
+import { PrismaAdapter } from "@grammyjs/storage-prisma";
+import { prisma } from "@mebel-salon/db";
 import type { MyContext } from "./types/index.js";
 import { config } from "./config.js";
 
@@ -35,6 +37,7 @@ export const bot = new Bot<MyContext>(token);
 bot.use(
   session({
     initial: () => ({}),
+    storage: new PrismaAdapter(prisma.session),
   })
 );
 bot.use(conversations());

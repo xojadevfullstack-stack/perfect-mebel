@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@grammyjs/conversations": "^1.2.0",
+    "@grammyjs/storage-prisma": "^2.6.0",
     "@mebel-salon/db": "workspace:*",
     "dotenv": "^16.4.5",
     "grammy": "^1.30.0"

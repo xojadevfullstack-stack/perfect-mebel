@@ -132,3 +132,13 @@ model AdminUser {
 
   @@map("admin_users")
 }
+
+// ─── 7. Telegram Bot Sessionlari ──────────────────────────────────────────────
+
+model Session {
+  key   String @id
+  value String
+
+  @@map("sessions")
+}
+
