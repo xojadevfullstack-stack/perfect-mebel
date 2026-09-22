@@ -12,7 +12,7 @@
 |-----------|-------|----------|
 | 📁 Loyiha Setup (monorepo, config) | 🟩 Bajarildi | 100% |
 | 🗃 Ma'lumotlar Bazasi (Prisma + PostgreSQL) | 🟩 Bajarildi | 100% |
-| 🔧 Web Admin Panel | ⬜ Boshlanmagan | 0% |
+| 🔧 Web Admin Panel | 🟩 Bajarildi | 100% |
 | 🌐 Veb-Vitrina (Mijoz sahifasi) | ⬜ Boshlanmagan | 0% |
 | 🤖 Telegram Bot (Mijoz) | ⬜ Boshlanmagan | 0% |
 | 🤖 Telegram Bot (Admin) | ⬜ Boshlanmagan | 0% |
@@ -44,11 +44,11 @@
 - [x] Kategoriyalar & Mebellar boshqaruv UI (jadval + forma + react-hook-form + zod)
 
 ### Kun 3 — Admin Panel: Komplektlar + Arizalar
-- [ ] Komplektlar CRUD (tarkibiy mebellarni biriktirish)
-- [ ] Rasm galereyasi boshqaruvi
-- [ ] Arizalar (Leads) jadvali (faqat ko'rish)
-- [ ] Admin panel responsive tuning
-- [ ] Supabase Storage yoki Cloudinary integratsiya
+- [x] Komplektlar CRUD (tarkibiy mebellarni biriktirish)
+- [x] Rasm galereyasi boshqaruvi
+- [x] Arizalar (Leads) jadvali (faqat ko'rish)
+- [x] Admin panel responsive tuning
+- [x] Supabase Storage yoki Cloudinary integratsiya
 
 ### Kun 4 — Veb-Vitrina: Bosh sahifa + Katalog
 - [ ] Layout: Header (til, tema, navigatsiya), Footer

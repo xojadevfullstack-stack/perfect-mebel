@@ -17,6 +17,8 @@ import {
   LayoutDashboard,
   Layers,
   Armchair,
+  Boxes,
+  ClipboardList,
   ExternalLink,
   LogOut,
   Globe,
@@ -51,6 +53,18 @@ export function AdminHeader({ adminName }: AdminHeaderProps): React.JSX.Element 
       label: t("products"),
       icon: Armchair,
       active: pathname.startsWith("/admin/products"),
+    },
+    {
+      href: "/admin/collections",
+      label: t("collections"),
+      icon: Boxes,
+      active: pathname.startsWith("/admin/collections"),
+    },
+    {
+      href: "/admin/leads",
+      label: t("leads"),
+      icon: ClipboardList,
+      active: pathname.startsWith("/admin/leads"),
     },
   ];
 

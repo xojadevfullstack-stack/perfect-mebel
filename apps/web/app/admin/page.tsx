@@ -162,35 +162,47 @@ export default function AdminDashboardPage(): React.JSX.Element {
               </div>
             </Link>
 
-            <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+            <Link
+              href="/admin/collections"
+              className="group block rounded-xl border border-border bg-card p-5 shadow-sm transition-all hover:border-primary/50 hover:shadow-md"
+            >
               <div className="flex items-center justify-between">
                 <p className="text-xs font-semibold text-muted-foreground uppercase">
                   {tDash("collections")}
                 </p>
-                <div className="rounded-lg bg-muted p-2 text-muted-foreground">
+                <div className="rounded-lg bg-primary/10 p-2 text-primary">
                   <Boxes className="h-5 w-5" />
                 </div>
               </div>
               <p className="mt-2 text-3xl font-extrabold text-foreground">
                 {isLoading ? "—" : dashboardData?.stats.collections ?? 0}
               </p>
-              <p className="mt-2 text-xs text-muted-foreground">{tDash("day3Planned")}</p>
-            </div>
+              <div className="mt-2 flex items-center text-xs font-medium text-primary">
+                <span>{tDash("collections")}</span>
+                <ArrowRight className="ml-1 h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+              </div>
+            </Link>
 
-            <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+            <Link
+              href="/admin/leads"
+              className="group block rounded-xl border border-border bg-card p-5 shadow-sm transition-all hover:border-primary/50 hover:shadow-md"
+            >
               <div className="flex items-center justify-between">
                 <p className="text-xs font-semibold text-muted-foreground uppercase">
                   {tNav("leads")}
                 </p>
-                <div className="rounded-lg bg-muted p-2 text-muted-foreground">
+                <div className="rounded-lg bg-primary/10 p-2 text-primary">
                   <FileText className="h-5 w-5" />
                 </div>
               </div>
               <p className="mt-2 text-3xl font-extrabold text-foreground">
                 {isLoading ? "—" : dashboardData?.stats.leads ?? 0}
               </p>
-              <p className="mt-2 text-xs text-muted-foreground">{tDash("day3Planned")}</p>
-            </div>
+              <div className="mt-2 flex items-center text-xs font-medium text-primary">
+                <span>{tNav("leads")}</span>
+                <ArrowRight className="ml-1 h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+              </div>
+            </Link>
           </div>
 
           {/* Oxirgi Kategoriyalar */}

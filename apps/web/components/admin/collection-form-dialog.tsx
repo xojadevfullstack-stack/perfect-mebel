@@ -16,23 +16,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { productSchema, type ProductFormData } from "@mebel-salon/shared";
+import { collectionSchema, type CollectionFormData } from "@mebel-salon/shared";
 import { slugify } from "@/lib/utils";
-import { Loader2, Plus } from "lucide-react";
-import { type CategoryItem } from "./category-form-dialog";
+import { Loader2, Check } from "lucide-react";
 import { ImageUploader } from "./image-uploader";
+import { type ProductItem } from "./product-form-dialog";
 
-export interface ProductItem {
+export interface CollectionItem {
   id: string;
-  categoryId: string;
-  collectionId?: string | null;
   slug: string;
   titleUz: string;
   titleRu: string;
@@ -40,35 +31,39 @@ export interface ProductItem {
   descUz?: string | null;
   descRu?: string | null;
   descEn?: string | null;
-  dimensions?: string | null;
-  material?: string | null;
-  warranty?: string | null;
-  stockStatus: "IN_STOCK" | "MADE_TO_ORDER";
   images: string[];
-  category?: CategoryItem;
+  products?: Array<{
+    id: string;
+    titleUz: string;
+    images: string[];
+    stockStatus: "IN_STOCK" | "MADE_TO_ORDER";
+  }>;
+  _count?: {
+    products: number;
+  };
   createdAt: string;
 }
 
-interface ProductFormDialogProps {
+interface CollectionFormDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  initialData?: ProductItem | null;
-  categories: CategoryItem[];
+  initialData?: CollectionItem | null;
+  availableProducts: ProductItem[];
 }
 
-export function ProductFormDialog({
+export function CollectionFormDialog({
   isOpen,
   onClose,
   onSuccess,
   initialData,
-  categories,
-}: ProductFormDialogProps): React.JSX.Element {
-  const t = useTranslations("admin.products");
+  availableProducts,
+}: CollectionFormDialogProps): React.JSX.Element {
+  const t = useTranslations("admin.collections");
   const tCommon = useTranslations("admin.common");
   const isEditing = Boolean(initialData);
 
-  const [newImageUrl, setNewImageUrl] = React.useState<string>("");
+  const [selectedProductIds, setSelectedProductIds] = React.useState<string[]>([]);
 
   const {
     register,
@@ -77,10 +72,9 @@ export function ProductFormDialog({
     watch,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<ProductFormData>({
-    resolver: zodResolver(productSchema),
+  } = useForm<CollectionFormData>({
+    resolver: zodResolver(collectionSchema),
     defaultValues: {
-      categoryId: "",
       titleUz: "",
       titleRu: "",
       titleEn: "",
@@ -88,18 +82,13 @@ export function ProductFormDialog({
       descUz: "",
       descRu: "",
       descEn: "",
-      dimensions: "",
-      material: "",
-      warranty: "",
-      stockStatus: "IN_STOCK",
       images: [],
+      productIds: [],
     },
   });
 
   const titleUzValue = watch("titleUz");
   const currentImages = watch("images") || [];
-  const selectedCategoryId = watch("categoryId");
-  const selectedStockStatus = watch("stockStatus");
 
   // Slug avtomatik generatsiya
   React.useEffect(() => {
@@ -111,9 +100,9 @@ export function ProductFormDialog({
   // initialData o'zgarganda formani to'ldirish
   React.useEffect(() => {
     if (initialData) {
+      const prodIds = initialData.products?.map((p) => p.id) || [];
+      setSelectedProductIds(prodIds);
       reset({
-        categoryId: initialData.categoryId,
-        collectionId: initialData.collectionId,
         slug: initialData.slug,
         titleUz: initialData.titleUz,
         titleRu: initialData.titleRu,
@@ -121,15 +110,12 @@ export function ProductFormDialog({
         descUz: initialData.descUz || "",
         descRu: initialData.descRu || "",
         descEn: initialData.descEn || "",
-        dimensions: initialData.dimensions || "",
-        material: initialData.material || "",
-        warranty: initialData.warranty || "",
-        stockStatus: initialData.stockStatus,
         images: initialData.images || [],
+        productIds: prodIds,
       });
     } else {
+      setSelectedProductIds([]);
       reset({
-        categoryId: categories[0]?.id || "",
         slug: "",
         titleUz: "",
         titleRu: "",
@@ -137,38 +123,36 @@ export function ProductFormDialog({
         descUz: "",
         descRu: "",
         descEn: "",
-        dimensions: "",
-        material: "",
-        warranty: "",
-        stockStatus: "IN_STOCK",
         images: [],
+        productIds: [],
       });
     }
-    setNewImageUrl("");
-  }, [initialData, categories, reset]);
+  }, [initialData, reset]);
 
-  const handleAddImage = (): void => {
-    const trimmed = newImageUrl.trim();
-    if (!trimmed) return;
-    if (currentImages.includes(trimmed)) {
-      toast.error(t("imageAlreadyAdded"));
-      return;
-    }
-    setValue("images", [...currentImages, trimmed], { shouldValidate: true });
-    setNewImageUrl("");
+  const toggleProduct = (productId: string) => {
+    const next = selectedProductIds.includes(productId)
+      ? selectedProductIds.filter((id) => id !== productId)
+      : [...selectedProductIds, productId];
+    setSelectedProductIds(next);
+    setValue("productIds", next, { shouldValidate: true });
   };
 
-  const onSubmit = async (data: ProductFormData): Promise<void> => {
+  const onSubmit = async (data: CollectionFormData): Promise<void> => {
     try {
+      const payload = {
+        ...data,
+        productIds: selectedProductIds,
+      };
+
       const url = isEditing && initialData
-        ? `/api/admin/products/${initialData.id}`
-        : "/api/admin/products";
+        ? `/api/admin/collections/${initialData.id}`
+        : "/api/admin/collections";
       const method = isEditing ? "PUT" : "POST";
 
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
 
       const json = await res.json();
@@ -195,32 +179,6 @@ export function ProductFormDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Kategoriya tanlash */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-foreground">
-              {t("category")} <span className="text-destructive">*</span>
-            </label>
-            <Select
-              value={selectedCategoryId}
-              onValueChange={(val) => setValue("categoryId", val, { shouldValidate: true })}
-              disabled={isSubmitting}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t("selectCategory")} />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.id}>
-                    {cat.nameUz} ({cat.nameRu})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.categoryId && (
-              <p className="text-xs text-destructive">{errors.categoryId.message}</p>
-            )}
-          </div>
-
           {/* Sarlavhalar (3 tilda) */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="space-y-1.5">
@@ -239,30 +197,24 @@ export function ProductFormDialog({
 
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-foreground">
-                {t("titleRu")} <span className="text-destructive">*</span>
+                {t("titleRu")}
               </label>
               <Input
                 {...register("titleRu")}
                 placeholder={t("placeholderTitleRu")}
                 disabled={isSubmitting}
               />
-              {errors.titleRu && (
-                <p className="text-xs text-destructive">{errors.titleRu.message}</p>
-              )}
             </div>
 
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-foreground">
-                {t("titleEn")} <span className="text-destructive">*</span>
+                {t("titleEn")}
               </label>
               <Input
                 {...register("titleEn")}
                 placeholder={t("placeholderTitleEn")}
                 disabled={isSubmitting}
               />
-              {errors.titleEn && (
-                <p className="text-xs text-destructive">{errors.titleEn.message}</p>
-              )}
             </div>
           </div>
 
@@ -318,63 +270,7 @@ export function ProductFormDialog({
             </div>
           </div>
 
-          {/* Xususiyatlar: O'lcham, Material, Kafolat */}
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-foreground">
-                {t("dimensions")}
-              </label>
-              <Input
-                {...register("dimensions")}
-                placeholder={t("placeholderDimensions")}
-                disabled={isSubmitting}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-foreground">
-                {t("material")}
-              </label>
-              <Input
-                {...register("material")}
-                placeholder={t("placeholderMaterial")}
-                disabled={isSubmitting}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-foreground">
-                {t("warranty")}
-              </label>
-              <Input
-                {...register("warranty")}
-                placeholder={t("placeholderWarranty")}
-                disabled={isSubmitting}
-              />
-            </div>
-          </div>
-
-          {/* Stock holati */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-foreground">
-              {t("stockStatus")}
-            </label>
-            <Select
-              value={selectedStockStatus}
-              onValueChange={(val: "IN_STOCK" | "MADE_TO_ORDER") =>
-                setValue("stockStatus", val, { shouldValidate: true })
-              }
-              disabled={isSubmitting}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="IN_STOCK">{t("inStock")}</SelectItem>
-                <SelectItem value="MADE_TO_ORDER">{t("madeToOrder")}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Rasm yuklash va Galereya */}
+          {/* Rasm yuklash va galereya */}
           <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-3.5">
             <label className="text-xs font-semibold text-foreground">
               {t("images")}
@@ -383,34 +279,57 @@ export function ProductFormDialog({
               images={currentImages}
               onChange={(imgs) => setValue("images", imgs, { shouldValidate: true })}
             />
+          </div>
 
-            {/* Qo'lda URL kiritish imkoniyati ham qoldiriladi */}
-            <div className="mt-3 border-t border-border/60 pt-3">
-              <span className="text-[11px] text-muted-foreground">Yoki rasm URL manzilini to&apos;g&apos;ridan-to&apos;g&apos;ri kiriting:</span>
-              <div className="mt-1.5 flex space-x-2">
-                <Input
-                  value={newImageUrl}
-                  onChange={(e) => setNewImageUrl(e.target.value)}
-                  placeholder={t("imageAddPlaceholder")}
-                  disabled={isSubmitting}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleAddImage();
-                    }
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={handleAddImage}
-                  disabled={isSubmitting || !newImageUrl.trim()}
-                >
-                  <Plus className="h-4 w-4 mr-1" />
-                  <span>{t("addImage")}</span>
-                </Button>
-              </div>
+          {/* Tarkibdagi mebellarni biriktirish */}
+          <div className="space-y-2 rounded-lg border border-border bg-muted/10 p-3.5">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-foreground">
+                {t("products")} ({selectedProductIds.length} ta tanlandi)
+              </label>
+              <span className="text-[11px] text-muted-foreground">
+                {t("selectProducts")}
+              </span>
             </div>
+
+            {availableProducts.length > 0 ? (
+              <div className="max-h-48 space-y-1.5 overflow-y-auto pr-1">
+                {availableProducts.map((prod) => {
+                  const isChecked = selectedProductIds.includes(prod.id);
+                  return (
+                    <div
+                      key={prod.id}
+                      onClick={() => toggleProduct(prod.id)}
+                      className={`flex cursor-pointer items-center justify-between rounded-md border p-2 text-xs transition-colors ${
+                        isChecked
+                          ? "border-primary bg-primary/10 text-primary font-medium"
+                          : "border-border bg-card hover:bg-muted/50 text-foreground"
+                      }`}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <div
+                          className={`flex h-4 w-4 items-center justify-center rounded border ${
+                            isChecked
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-muted-foreground/40 bg-background"
+                          }`}
+                        >
+                          {isChecked && <Check className="h-3 w-3 stroke-[3]" />}
+                        </div>
+                        <span>{prod.titleUz}</span>
+                      </div>
+                      <span className="text-[11px] text-muted-foreground">
+                        {prod.category?.nameUz || ""}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Mavjud mebellar topilmadi. Avval mebellar bo&apos;limida mahsulot qo&apos;shing.
+              </p>
+            )}
           </div>
 
           <DialogFooter className="pt-2">
