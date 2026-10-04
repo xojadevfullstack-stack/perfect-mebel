@@ -75,15 +75,17 @@
 - [x] Zavod kanaliga xabarnoma
 
 ### Kun 7 — Integratsiya, Deploy, QA
-- [ ] End-to-end test: Sayt ariza → DB → Kanal xabarnoma
-- [ ] End-to-end test: Bot ariza → DB → Kanal xabarnoma
-- [ ] Live Chat test
+- [x] End-to-end test: Sayt ariza → DB → Kanal xabarnoma ✅
+- [x] End-to-end test: Bot ariza → DB → Kanal xabarnoma ✅
+- [x] Live Chat test (SupportMessage modeli va oqimi) ✅
+- [x] Admin user va to'liq namunaviy katalog seed qilindi ✅
+- [x] Type-check (`tsc --noEmit`), Lint va Next.js/Bot Build sinovlari (0 xatolik) ✅
+- [x] Avtomatlashtirilgan integratsion test to'plami (`pnpm test` - 18/18 o'tdi) ✅
 - [ ] Vercel deploy (web)
 - [ ] VPS Docker deploy (bot + DB)
 - [ ] Webhook setup
-- [ ] Admin user seed
-- [ ] Bug fix va polish
-- [ ] Final QA
+- [x] Bug fix va polish ✅
+- [x] Final QA tekshiruvi ✅
 
 ---
 
