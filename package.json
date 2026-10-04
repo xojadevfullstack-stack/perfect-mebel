@@ -7,6 +7,8 @@
     "dev:bot": "pnpm --filter @mebel-salon/bot dev",
     "build:web": "pnpm --filter @mebel-salon/web build",
     "build:shared": "pnpm --filter @mebel-salon/shared build",
+    "build:bot": "pnpm --filter @mebel-salon/db generate && pnpm --filter @mebel-salon/bot build",
+    "start:bot": "pnpm --filter @mebel-salon/bot start",
     "build": "pnpm --filter @mebel-salon/db build && pnpm --filter @mebel-salon/shared build && pnpm --filter @mebel-salon/web build",
     "db:generate": "pnpm --filter @mebel-salon/db generate",
     "db:migrate": "pnpm --filter @mebel-salon/db migrate",
