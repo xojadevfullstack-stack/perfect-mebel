@@ -22,6 +22,7 @@ import {
   collectionSchema,
   escapeHtml,
 } from "../packages/shared/src";
+import { checkRateLimitAtomic, cleanupExpiredRateLimits } from "../packages/db/src";
 
 const prisma = new PrismaClient();
 
@@ -490,6 +491,95 @@ async function main(): Promise<void> {
     }
     if (!message.includes("Divan Comfort")) {
       throw new Error("Xabar matnida tanlangan mebel yo'q");
+    }
+  });
+
+  // ─────────────────────────────────────────────────────────────
+  // 7. ATOMIK RATE LIMITING VA 20 TA PARALLEL SO'ROV TESTI
+  // ─────────────────────────────────────────────────────────────
+  process.stdout.write("\n🛡️  7. ATOMIK RATE LIMITING (PostgreSQL $queryRaw):\n");
+
+  await runTest("Parallel 20 ta so'rov: Atomik hisoblash va aniq limit nazorati", async () => {
+    const testKey = `test:parallel:race_condition_${Date.now()}`;
+    const limit = 5;
+    const windowSeconds = 60;
+
+    // Bir vaqtning o'zida 20 ta parallel atomik so'rov yuborish
+    const promises = Array.from({ length: 20 }, () =>
+      checkRateLimitAtomic({
+        key: testKey,
+        limit,
+        windowSeconds,
+      })
+    );
+
+    const testResults = await Promise.all(promises);
+
+    const allowedCount = testResults.filter((r) => r.allowed).length;
+    const blockedCount = testResults.filter((r) => !r.allowed).length;
+
+    if (allowedCount !== 5) {
+      throw new Error(`Ruxsat berilgan so'rovlar soni 5 ta bo'lishi kerak edi, lekin ${allowedCount} ta bo'ldi`);
+    }
+
+    if (blockedCount !== 15) {
+      throw new Error(`Bloklangan so'rovlar soni 15 ta bo'lishi kerak edi, lekin ${blockedCount} ta bo'ldi`);
+    }
+
+    // Bazadagi yakuniy count qiymatini tekshiramiz (Lost update bo'lmaganligini isbotlash)
+    const dbRecord = await prisma.rateLimit.findUnique({
+      where: { key: testKey },
+    });
+
+    if (!dbRecord || dbRecord.count !== 20) {
+      throw new Error(
+        `Bazadagi count qiymati aynan 20 bo'lishi shart edi (lost update tekshiruvi), amalda: ${dbRecord?.count}`
+      );
+    }
+
+    // Tozalash
+    await prisma.rateLimit.delete({ where: { key: testKey } });
+  });
+
+  await runTest("Alohida kalitlar izolyatsiyasi: login vs lead namespace", async () => {
+    const loginKey = `auth:login:test_ip_${Date.now()}`;
+    const leadKey = `api:lead:test_ip_${Date.now()}`;
+
+    // Login uchun 1 ta so'rov
+    const resLogin = await checkRateLimitAtomic({ key: loginKey, limit: 5, windowSeconds: 60 });
+    // Lead uchun 1 ta so'rov
+    const resLead = await checkRateLimitAtomic({ key: leadKey, limit: 5, windowSeconds: 60 });
+
+    if (resLogin.count !== 1 || resLead.count !== 1) {
+      throw new Error("Login va Lead kalitlari alohida hisoblanmadi");
+    }
+
+    await prisma.rateLimit.deleteMany({
+      where: { key: { in: [loginKey, leadKey] } },
+    });
+  });
+
+  await runTest("Eskirgan yozuvlarni tozalash mexanizmi (cleanupExpiredRateLimits)", async () => {
+    const expiredKey = `test:expired_${Date.now()}`;
+    // O'tgan vaqt bilan yozuv kiritamiz
+    await prisma.rateLimit.create({
+      data: {
+        key: expiredKey,
+        count: 10,
+        resetAt: new Date(Date.now() - 10000), // 10 soniya oldin eskirgan
+      },
+    });
+
+    const cleanedCount = await cleanupExpiredRateLimits();
+    if (cleanedCount < 1) {
+      throw new Error("Eskirgan yozuv tozalanmadi");
+    }
+
+    const check = await prisma.rateLimit.findUnique({
+      where: { key: expiredKey },
+    });
+    if (check !== null) {
+      throw new Error("Eskirgan yozuv hali ham bazada mavjud");
     }
   });
 

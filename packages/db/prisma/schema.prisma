@@ -146,3 +146,17 @@ model Session {
   @@map("sessions")
 }
 
+// ─── 8. Rate Limiting ─────────────────────────────────────────────────────────
+
+model RateLimit {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  count     Int      @default(1)
+  resetAt   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([resetAt])
+  @@map("rate_limits")
+}
+

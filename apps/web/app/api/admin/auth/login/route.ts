@@ -3,88 +3,7 @@ import { cookies } from "next/headers";
 import { z } from "zod";
 import { prisma } from "@mebel-salon/db";
 import { createAdminToken, verifyPassword } from "@/lib/auth";
-
-interface RateLimitRecord {
-  attempts: number;
-  firstAttempt: number;
-  blockedUntil: number | null;
-}
-
-const rateLimitStore = new Map<string, RateLimitRecord>();
-
-const MAX_ATTEMPTS = 5;
-const WINDOW_MS = 15 * 60 * 1000; // 15 daqiqa
-
-function getClientIp(req: Request): string {
-  const forwardedFor = req.headers.get("x-forwarded-for");
-  if (forwardedFor) {
-    const firstIp = forwardedFor.split(",")[0]?.trim();
-    if (firstIp) return firstIp;
-  }
-  const realIp = req.headers.get("x-real-ip");
-  if (realIp) {
-    return realIp.trim();
-  }
-  return "127.0.0.1";
-}
-
-function checkRateLimit(ip: string): { allowed: boolean; remainingMinutes?: number } {
-  const key = `login_attempts:${ip}`;
-  const record = rateLimitStore.get(key);
-  const now = Date.now();
-
-  if (!record) {
-    return { allowed: true };
-  }
-
-  if (record.blockedUntil) {
-    if (now < record.blockedUntil) {
-      const remainingMs = record.blockedUntil - now;
-      const remainingMinutes = Math.max(1, Math.ceil(remainingMs / (60 * 1000)));
-      return { allowed: false, remainingMinutes };
-    }
-    rateLimitStore.delete(key);
-    return { allowed: true };
-  }
-
-  if (now - record.firstAttempt > WINDOW_MS) {
-    rateLimitStore.delete(key);
-    return { allowed: true };
-  }
-
-  return { allowed: true };
-}
-
-function recordFailedAttempt(ip: string): { blocked: boolean; remainingMinutes?: number } {
-  const key = `login_attempts:${ip}`;
-  const now = Date.now();
-  let record = rateLimitStore.get(key);
-
-  if (!record || now - record.firstAttempt > WINDOW_MS) {
-    record = {
-      attempts: 1,
-      firstAttempt: now,
-      blockedUntil: null,
-    };
-    rateLimitStore.set(key, record);
-    return { blocked: false };
-  }
-
-  record.attempts += 1;
-
-  if (record.attempts >= MAX_ATTEMPTS) {
-    record.blockedUntil = now + WINDOW_MS;
-    const remainingMinutes = Math.ceil(WINDOW_MS / (60 * 1000));
-    return { blocked: true, remainingMinutes };
-  }
-
-  return { blocked: false };
-}
-
-function resetRateLimit(ip: string): void {
-  const key = `login_attempts:${ip}`;
-  rateLimitStore.delete(key);
-}
+import { checkLoginRateLimit, getClientIpInfo } from "@/lib/rate-limit";
 
 const loginSchema = z.object({
   username: z.string().min(1, "Foydalanuvchi nomi kiritilishi shart"),
@@ -93,20 +12,19 @@ const loginSchema = z.object({
 
 export async function POST(req: Request): Promise<NextResponse> {
   try {
-    const ip = getClientIp(req);
-
-    // 1. Rate limiting tekshiruvi (bruteforce himoyasi)
-    const rateLimit = checkRateLimit(ip);
+    // 1. Rate limiting tekshiruvi (bruteforce himoyasi, PostgreSQL atomik)
+    const rateLimit = await checkLoginRateLimit(req);
     if (!rateLimit.allowed) {
+      const remainingMinutes = Math.max(1, Math.ceil(rateLimit.retryAfterSeconds / 60));
       return NextResponse.json(
         {
           success: false,
-          error: `Juda ko'p muvaffaqiyatsiz urinishlar. Iltimos, ${rateLimit.remainingMinutes} daqiqadan so'ng qayta urinib ko'ring.`,
+          error: `Juda ko'p urinishlar. Iltimos, ${remainingMinutes} daqiqadan so'ng qayta urinib ko'ring.`,
         },
         {
           status: 429,
           headers: {
-            "Retry-After": String((rateLimit.remainingMinutes || 15) * 60),
+            "Retry-After": String(rateLimit.retryAfterSeconds),
           },
         }
       );
@@ -129,7 +47,6 @@ export async function POST(req: Request): Promise<NextResponse> {
     });
 
     if (!admin) {
-      recordFailedAttempt(ip);
       return NextResponse.json(
         { success: false, error: "Foydalanuvchi nomi yoki parol noto'g'ri" },
         { status: 401 }
@@ -138,15 +55,17 @@ export async function POST(req: Request): Promise<NextResponse> {
 
     const isValid = await verifyPassword(password, admin.password);
     if (!isValid) {
-      recordFailedAttempt(ip);
       return NextResponse.json(
         { success: false, error: "Foydalanuvchi nomi yoki parol noto'g'ri" },
         { status: 401 }
       );
     }
 
-    // Muvaffaqiyatli kirish: hisoblagichni tozalaymiz
-    resetRateLimit(ip);
+    // Muvaffaqiyatli kirish: login rate limit hisoblagichini tozalaymiz
+    const { key } = getClientIpInfo(req);
+    await prisma.rateLimit.deleteMany({
+      where: { key: `auth:login:${key}` },
+    }).catch(() => {});
 
     const token = await createAdminToken({
       id: admin.id,
