@@ -3,6 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, Bookmark, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +29,7 @@ export function CardImageSlider({
   priority = false,
   className,
 }: CardImageSliderProps): React.JSX.Element {
+  const t = useTranslations("slider");
   const [activeIndex, setActiveIndex] = React.useState(0);
 
   const displayImages =
@@ -111,7 +113,7 @@ export function CardImageSlider({
               <Link href={href} className="block h-full w-full" tabIndex={-1}>
                 <Image
                   src={src}
-                  alt={`${title} - Rasm ${idx + 1}`}
+                  alt={t("altImage", { title, index: idx + 1 })}
                   fill
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   priority={priority && idx === 0}
@@ -122,7 +124,7 @@ export function CardImageSlider({
             ) : (
               <Image
                 src={src}
-                alt={`${title} - Rasm ${idx + 1}`}
+                alt={t("altImage", { title, index: idx + 1 })}
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 priority={priority && idx === 0}
@@ -139,8 +141,8 @@ export function CardImageSlider({
         <button
           type="button"
           onClick={onToggleSelection}
-          title={isInSelection ? "Tanlovdan o'chirish" : "Tanlovga qo'shish"}
-          aria-label={isInSelection ? "Tanlovdan o'chirish" : "Tanlovga qo'shish"}
+          title={isInSelection ? t("removeFromSelection") : t("addToSelection")}
+          aria-label={isInSelection ? t("removeFromSelection") : t("addToSelection")}
           className={cn(
             "icon-button absolute right-3 top-3 sm:right-3.5 sm:top-3.5 z-10 h-9 w-9 bg-card text-foreground border border-border-strong shadow-whisper-md transition-all duration-300 ease-editorial hover:scale-105 active:scale-95",
             isInSelection && "border-primary bg-primary text-primary-foreground shadow-sm"
@@ -160,7 +162,7 @@ export function CardImageSlider({
           <button
             type="button"
             onClick={scrollPrev}
-            aria-label="Oldingi rasm"
+            aria-label={t("prevImage")}
             className={cn(
               "absolute left-2.5 top-1/2 -translate-y-1/2 z-20",
               "h-10 w-10 flex items-center justify-center",
@@ -176,7 +178,7 @@ export function CardImageSlider({
           <button
             type="button"
             onClick={scrollNext}
-            aria-label="Keyingi rasm"
+            aria-label={t("nextImage")}
             className={cn(
               "absolute right-2.5 top-1/2 -translate-y-1/2 z-20",
               "h-10 w-10 flex items-center justify-center",

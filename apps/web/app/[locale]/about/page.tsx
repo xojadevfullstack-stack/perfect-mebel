@@ -2,8 +2,8 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { unstable_setRequestLocale } from "next-intl/server";
-import { ShieldCheck, Ruler, Sparkles, MapPin, Phone, Clock, ArrowRight, Award } from "lucide-react";
+import { unstable_setRequestLocale, getTranslations } from "next-intl/server";
+import { ShieldCheck, Ruler, Sparkles, MapPin, Phone, Clock, ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -14,15 +14,10 @@ interface AboutPageProps {
 export async function generateMetadata({
   params: { locale },
 }: AboutPageProps): Promise<Metadata> {
-  const titles: Record<string, string> = {
-    uz: "Biz haqimizda — Perfect Mebel Atelyesi",
-    ru: "О нас — Ателье Perfect Mebel",
-    en: "About Us — Perfect Mebel Atelier",
-  };
+  const t = await getTranslations({ locale, namespace: "about" });
   return {
-    title: titles[locale] || titles.uz,
-    description:
-      "Toshkentda tabiiy materiallardan yaratilgan mualliflik mebellari atelyesi.",
+    title: t("metaTitle"),
+    description: t("metaDescription"),
   };
 }
 
@@ -30,17 +25,19 @@ export default async function AboutPage({
   params: { locale },
 }: AboutPageProps): Promise<React.JSX.Element> {
   unstable_setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: "about" });
+  const tHome = await getTranslations({ locale, namespace: "home" });
 
   return (
     <div className="space-y-16 py-12 md:py-20 max-w-7xl mx-auto px-4 sm:px-8">
       {/* Editorial Header Section */}
       <section className="max-w-3xl space-y-4">
-        <p className="eyebrow">Atelier Falsafasi &bull; Toshkent, 2026</p>
+        <p className="eyebrow">{t("philosophyBadge")}</p>
         <h1 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-foreground leading-tight">
-          Biz mebel emas, yillar davomida qadrini yo'qotmaydigan san'at asarlarini yaratamiz.
+          {t("heroTitle")}
         </h1>
         <p className="text-muted-foreground text-sm sm:text-base font-light leading-relaxed pt-2">
-          Perfect Mebel — sokin hashamat (Quiet Luxury) va me'moriy muvozanatga asoslangan O'zbekiston mualliflik mebel atelyesi. Toshkentdagi ustaxonamizda 15 yildan ortiq vaqt mobaynida an'anaviy duradgorlik san'atini zamonaviy arxitektura bilan uyg'unlashtirib kelmoqdamiz.
+          {t("heroDesc")}
         </p>
       </section>
 
@@ -48,7 +45,7 @@ export default async function AboutPage({
       <section className="relative aspect-[4/3] sm:aspect-[16/9] md:aspect-[21/9] w-full overflow-hidden border border-border bg-muted">
         <Image
           src="https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?q=80&w=1800&auto=format&fit=crop"
-          alt="Perfect Mebel duradgorlik ustaxonasi"
+          alt="Perfect Mebel"
           fill
           priority
           sizes="100vw"
@@ -56,7 +53,7 @@ export default async function AboutPage({
         />
         <div className="absolute bottom-2.5 left-2.5 right-2.5 sm:right-auto sm:bottom-6 sm:left-6 max-w-lg border border-border bg-card p-3 sm:p-5 shadow-md">
           <p className="text-foreground text-xs sm:text-sm font-light tracking-wide italic font-serif">
-            "Mukammallik ortiqcha bezakda emas, balki tabiiy tolalarning samimiy tilida namoyon bo'ladi."
+            {t("quote")}
           </p>
         </div>
       </section>
@@ -68,10 +65,10 @@ export default async function AboutPage({
             <Sparkles className="h-5 w-5" />
           </div>
           <h3 className="font-serif text-xl font-bold text-foreground">
-            Tabiiy va Oliy Xomashyolar
+            {t("pillar1Title")}
           </h3>
           <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-            Biz faqat ekologik toza materiallar bilan ishlaymiz: yaxlit eman, qora Amerika yong'og'i, Italiya tabiiy travertin toshi va antibakterial to'qilgan Bouclé matolari.
+            {t("pillar1Desc")}
           </p>
         </div>
 
@@ -80,10 +77,10 @@ export default async function AboutPage({
             <Ruler className="h-5 w-5" />
           </div>
           <h3 className="font-serif text-xl font-bold text-foreground">
-            Individual Arxitektura
+            {t("pillar2Title")}
           </h3>
           <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-            Standart o'lchamlar bilan chegaralanmaymiz. Har bir mebel xonadoningizning aniq chizmasi, yorug'lik tushishi va interyer proporsiyalariga moslashtirib tayyorlanadi.
+            {t("pillar2Desc")}
           </p>
         </div>
 
@@ -92,10 +89,10 @@ export default async function AboutPage({
             <ShieldCheck className="h-5 w-5" />
           </div>
           <h3 className="font-serif text-xl font-bold text-foreground">
-            24 Oylik Rasmiy Kafolat
+            {t("pillar3Title")}
           </h3>
           <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-            Har bir birikma, qattiq karkas va furnitura sifatiga to'liq javobgarlik beramiz. Barcha mexanizmlar avstriya BLUM va germaniya sifat standartlariga muvofiq.
+            {t("pillar3Desc")}
           </p>
         </div>
       </section>
@@ -103,21 +100,21 @@ export default async function AboutPage({
       {/* Showroom & Atelier Invitation */}
       <section className="border border-border bg-muted/40 p-5 sm:p-12 grid gap-6 sm:gap-8 lg:grid-cols-12 items-center">
         <div className="lg:col-span-7 space-y-4">
-          <p className="eyebrow">Toshkent Ko'rgazma Zali</p>
+          <p className="eyebrow">{t.has("showroomEyebrow") ? t("showroomEyebrow") : "Showroom"}</p>
           <h2 className="font-serif text-2xl sm:text-3xl font-bold text-foreground">
-            Showroomimizga tashrif buyuring
+            {t.has("showroomTitle") ? t("showroomTitle") : "Showroom"}
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-xl">
-            Materiallar namunalarini qo'l bilan ushlab ko'ring, yog'och teksturasini his qiling va mutaxassisimiz bilan birga orzuingizdagi mebel loyihasini yarating.
+            {t.has("showroomDesc") ? t("showroomDesc") : ""}
           </p>
           <div className="pt-2 space-y-2 text-xs text-foreground">
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-primary" />
-              <span>Toshkent sh., Bunyodkor shox ko'chasi, 42-uy ("Novza" metrosi yaqinida)</span>
+              <span>{t.has("showroomAddress") ? t("showroomAddress") : "Toshkent sh., Bunyodkor shox ko'chasi, 42-uy"}</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-primary" />
-              <span>Dushanba &ndash; Shanba: 10:00 &ndash; 20:00</span>
+              <span>{t.has("workingHours") ? t("workingHours") : "10:00 - 20:00"}</span>
             </div>
             <div className="flex items-center gap-2">
               <Phone className="h-4 w-4 text-primary" />
@@ -134,7 +131,7 @@ export default async function AboutPage({
               "bg-primary hover:bg-primary-hover text-primary-foreground text-xs uppercase tracking-wider font-semibold rounded-none shadow-none"
             )}
           >
-            Katalogni ko'rish
+            {tHome("viewCatalog")}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
           <Link
@@ -144,7 +141,7 @@ export default async function AboutPage({
               "border-border-strong bg-card text-foreground hover:bg-foreground hover:text-background text-xs uppercase tracking-wider font-semibold rounded-none transition-colors"
             )}
           >
-            Bog'lanish
+            {tHome("contactUs")}
           </Link>
         </div>
       </section>

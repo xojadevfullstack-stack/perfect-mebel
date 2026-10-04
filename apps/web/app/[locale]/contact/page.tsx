@@ -1,6 +1,6 @@
 import * as React from "react";
 import { getTranslations, unstable_setRequestLocale } from "next-intl/server";
-import { Phone, MapPin, Clock, Send, ShieldCheck, Factory, Award } from "lucide-react";
+import { Phone, MapPin, Clock, Send, Factory, Award } from "lucide-react";
 
 interface ContactPageProps {
   params: { locale: string };
@@ -60,7 +60,7 @@ export default async function ContactPage({
 
           <div className="mt-6 flex items-center space-x-2 text-xs text-muted-foreground pt-4 border-t border-border/60">
             <Clock className="h-4 w-4 text-primary shrink-0" />
-            <span>09:00 – 20:00 (Har kuni, dam olishsiz)</span>
+            <span>{tContact("workingHoursDesc")}</span>
           </div>
         </div>
 
@@ -73,16 +73,14 @@ export default async function ContactPage({
             <h3 className="font-serif text-xl font-bold text-foreground">
               {tContact("showroomTitle")}
             </h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Showroomimizga tashrif buyurib, tabiiy materiallar va mebellar sifati bilan bevosita tanishishingiz mumkin.
-            </p>
             <p className="text-sm font-medium text-foreground leading-relaxed pt-2">
-              Toshkent sh., Bunyodkor shox ko'chasi, 42-uy
+              {tContact("showroomAddress")}
             </p>
           </div>
 
-          <div className="mt-6 text-xs text-muted-foreground pt-4 border-t border-border/60">
-            <span>Mo'ljal: 'Novza' metrosi yaqinida, 'Perfect' binosi</span>
+          <div className="mt-6 flex items-center space-x-2 text-xs text-muted-foreground pt-4 border-t border-border/60">
+            <Clock className="h-4 w-4 text-primary shrink-0" />
+            <span>{tContact("workingHoursDesc")}</span>
           </div>
         </div>
 
@@ -95,17 +93,14 @@ export default async function ContactPage({
             <h3 className="font-serif text-xl font-bold text-foreground">
               {tContact("factoryTitle")}
             </h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Zamonaviy texnologiyalar va tabiiy duradgorlik an'analari asosida to'liq tsiklli mebellar fabrikasi.
-            </p>
             <p className="text-sm font-medium text-foreground leading-relaxed pt-2">
-              Toshkent sh., Sergeli sanoat zonasi, 12-bino
+              {tContact("factoryAddress")}
             </p>
           </div>
 
           <div className="mt-6 flex items-center space-x-2 text-xs text-muted-foreground pt-4 border-t border-border/60">
             <Award className="h-4 w-4 text-primary shrink-0" />
-            <span>10 yillik rasmiy kafolat bilan</span>
+            <span>100% Sifat kafolati</span>
           </div>
         </div>
       </div>
@@ -116,13 +111,13 @@ export default async function ContactPage({
           <div className="max-w-xl space-y-2">
             <div className="inline-flex items-center space-x-2 border border-border bg-background px-3 py-1 text-xs font-bold text-primary">
               <Send className="h-3.5 w-3.5" />
-              <span>Telegram 24/7 Aloqa</span>
+              <span>Telegram 24/7</span>
             </div>
             <h2 className="font-serif text-2xl sm:text-3xl font-bold text-foreground">
-              Telegram Bot &amp; Jonli Maslahatchi
+              {tContact("telegramBotTitle")}
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground font-light leading-relaxed">
-              Savollaringiz bormi? Telegram botimiz orqali mebellarni ko'rishingiz, rasmlar bo'yicha maslahat olishingiz yoki operatorimiz bilan jonli muloqot qilishingiz mumkin.
+              {tContact("telegramBotDesc")}
             </p>
           </div>
 
@@ -134,7 +129,7 @@ export default async function ContactPage({
               className="inline-flex items-center space-x-2 rounded-none bg-primary hover:bg-primary-hover px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-primary-foreground shadow-none transition-all"
             >
               <Send className="h-4 w-4" />
-              <span>Telegram Botga o'tish</span>
+              <span>{tContact("openBot")}</span>
             </a>
           </div>
         </div>

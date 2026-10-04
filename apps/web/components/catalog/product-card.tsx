@@ -151,7 +151,7 @@ export function ProductCard({ product, onAskPrice }: ProductCardProps): React.JS
           className="w-full h-10 text-xs font-semibold uppercase tracking-wider border-border-strong bg-card text-foreground hover:bg-foreground hover:text-background smooth-btn"
         >
           <HelpCircle className="mr-1.5 h-3.5 w-3.5 text-primary shrink-0 transition-transform duration-300 group-hover/btn:scale-110" />
-          <span>Narxini bilish</span>
+          <span>{tCat("askPrice")}</span>
         </Button>
       </div>
 
@@ -159,7 +159,7 @@ export function ProductCard({ product, onAskPrice }: ProductCardProps): React.JS
       <LeadModal
         isOpen={leadModalOpen}
         onClose={() => setLeadModalOpen(false)}
-        customItemsSummary={`${title} (№ ${articleCode}) bo'yicha narx va individual maslahat so'rovi`}
+        customItemsSummary={`${title} (№ ${articleCode})`}
       />
     </article>
   );

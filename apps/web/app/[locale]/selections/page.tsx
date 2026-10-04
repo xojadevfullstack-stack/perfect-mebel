@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -27,6 +27,8 @@ import { leadSchema, type LeadFormData } from "@mebel-salon/shared";
 
 export default function SelectionsPage(): React.JSX.Element {
   const locale = useLocale();
+  const t = useTranslations("selections");
+  const tNav = useTranslations("navigation");
 
   const items = useSelectionsStore((state) => state.items);
   const removeItem = useSelectionsStore((state) => state.removeItem);
@@ -35,7 +37,13 @@ export default function SelectionsPage(): React.JSX.Element {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = React.useState(false);
   const [orderCode, setOrderCode] = React.useState("");
 
-  const itemsSummary = items.map((i) => i.titleUz).join(", ") || "Tanlovlar mavjud emas";
+  const getItemTitle = (item: (typeof items)[0]) => {
+    if (locale === "ru" && item.titleRu) return item.titleRu;
+    if (locale === "en" && item.titleEn) return item.titleEn;
+    return item.titleUz;
+  };
+
+  const itemsSummary = items.map((i) => getItemTitle(i)).join(", ") || t("noSelections");
 
   const {
     register,
@@ -70,7 +78,7 @@ export default function SelectionsPage(): React.JSX.Element {
 
       const json = await res.json();
       if (!res.ok || !json.success) {
-        toast.error(json.error || "Arizani yuborishda xatolik yuz berdi");
+        toast.error(json.error || t("submitError"));
         return;
       }
 
@@ -79,9 +87,9 @@ export default function SelectionsPage(): React.JSX.Element {
       setIsSuccessModalOpen(true);
       clearAll();
       reset();
-      toast.success("Arizangiz muvaffaqiyatli qabul qilindi!");
+      toast.success(t("successTitle"));
     } catch {
-      toast.error("Tarmoqda xatolik yuz berdi");
+      toast.error(t("networkError"));
     }
   };
 
@@ -93,18 +101,18 @@ export default function SelectionsPage(): React.JSX.Element {
       <section className="space-y-3">
         <nav className="flex items-center space-x-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
           <Link href={`/${locale}`} className="hover:text-primary transition-colors">
-            Bosh sahifa
+            {tNav("home")}
           </Link>
           <span>•</span>
-          <span className="text-foreground">Tanlovlar &amp; Ariza</span>
+          <span className="text-foreground">{t("breadcrumb")}</span>
         </nav>
 
         <div className="max-w-3xl">
           <h1 className="font-serif text-3xl sm:text-4xl text-foreground font-bold tracking-tight">
-            Tanlangan Mebellar &amp; Ariza
+            {t("pageTitle")}
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground font-light leading-relaxed mt-2">
-            Xonadoningiz uchun tanlagan buyumlaringizni ko'rib chiqing va mutaxassisimiz bilan bog'lanish uchun ariza qoldiring.
+            {t("pageSubtitle")}
           </p>
         </div>
       </section>
@@ -117,13 +125,13 @@ export default function SelectionsPage(): React.JSX.Element {
         <section className="lg:col-span-7 space-y-6">
           <div className="flex items-center justify-between pb-3 border-b border-border/80">
             <h2 className="font-serif text-xl sm:text-2xl font-bold text-foreground">
-              Mening Tanlovlarim{" "}
+              {t("title")}{" "}
               <span className="text-xs font-normal text-muted-foreground font-sans ml-1">
-                ({items.length} ta mebel)
+                {t("itemsCount", { count: items.length })}
               </span>
             </h2>
             <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
-              INDIVIDUAL ATELIER
+              {t("atelierTag")}
             </span>
           </div>
 
@@ -131,16 +139,16 @@ export default function SelectionsPage(): React.JSX.Element {
             <div className="bg-card border border-border rounded-none p-12 text-center space-y-4 shadow-sm">
               <Bookmark className="h-12 w-12 text-muted-foreground/30 mx-auto stroke-1" />
               <h3 className="font-serif text-xl font-bold text-foreground">
-                Hozircha hech qanday mebel tanlanmagan
+                {t("noItemsSelected")}
               </h3>
               <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                Katalogimizdan yoqtirgan modellaringizni <span className="font-semibold text-foreground">"Tanlash"</span> tugmasi orqali shaxsiy vitrinangizga qo'shishingiz mumkin.
+                {t("emptyHint")}
               </p>
               <Link
                 href={`/${locale}/catalog`}
                 className="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-primary-foreground text-xs uppercase tracking-wider font-semibold px-6 py-3 rounded-none transition-colors"
               >
-                <span>Katalogga o'tish</span>
+                <span>{t("goToCatalog")}</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -149,6 +157,7 @@ export default function SelectionsPage(): React.JSX.Element {
               {items.map((item, idx) => {
                 const coverImage = item.images[0] || null;
                 const itemCode = `PM-${100 + (idx * 37 + 19) % 900}`;
+                const title = getItemTitle(item);
 
                 return (
                   <article
@@ -160,7 +169,7 @@ export default function SelectionsPage(): React.JSX.Element {
                       {coverImage ? (
                         <Image
                           src={coverImage}
-                          alt={item.titleUz}
+                          alt={title}
                           fill
                           className="object-cover transition-transform duration-700 ease-editorial group-hover:scale-105"
                         />
@@ -177,7 +186,7 @@ export default function SelectionsPage(): React.JSX.Element {
                         <div className="flex items-start justify-between gap-2">
                           <div>
                             <h3 className="font-serif text-base sm:text-lg font-bold text-foreground">
-                              {item.titleUz}
+                              {title}
                             </h3>
                             {item.material && (
                               <p className="text-xs text-muted-foreground mt-0.5">
@@ -190,7 +199,7 @@ export default function SelectionsPage(): React.JSX.Element {
                             type="button"
                             onClick={() => removeItem(item.id)}
                             className="text-muted-foreground hover:text-destructive p-1 rounded transition-colors"
-                            title="Ro'yxatdan o'chirish"
+                            title={t("removeFromSelection")}
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -200,24 +209,24 @@ export default function SelectionsPage(): React.JSX.Element {
                           {item.stockStatus === "IN_STOCK" ? (
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] uppercase tracking-wider font-semibold bg-card text-success border border-success/40">
                               <span className="w-1.5 h-1.5 rounded-full bg-success" />
-                              Omborda mavjud
+                              {t("inStock")}
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] uppercase tracking-wider font-semibold bg-card text-warning border border-warning/40">
                               <span className="w-1.5 h-1.5 rounded-full bg-warning" />
-                              Buyurtma asosida
+                              {t("madeToOrder")}
                             </span>
                           )}
                           <span className="text-[10px] font-mono tracking-wider text-muted-foreground">
-                            KOD: {itemCode}
+                            {t("code")}: {itemCode}
                           </span>
                         </div>
                       </div>
 
                       {item.dimensions && (
                         <div className="pt-2.5 mt-2.5 border-t border-border/60 text-xs text-muted-foreground flex items-center justify-between">
-                          <span>O'lchami: {item.dimensions}</span>
-                          <span className="text-primary font-medium">Bespoke o'lcham mumkin</span>
+                          <span>{t("dimensions")}: {item.dimensions}</span>
+                          <span className="text-primary font-medium">{t("bespokeAvailable")}</span>
                         </div>
                       )}
                     </div>
@@ -227,7 +236,7 @@ export default function SelectionsPage(): React.JSX.Element {
 
               {/* Note under list */}
               <div className="p-4 rounded-none bg-muted/40 border border-border/80 text-xs text-muted-foreground leading-relaxed">
-                Tanlovdagi barcha buyumlar xonadon o'lchamlari va individual materiallar bo'yicha moslashtirilishi mumkin. Shaxsiy me'moriy loyihalar uchun qirralar va furnituralar erkin tanlanadi.
+                {t("customizationNotice")}
               </div>
             </div>
           )}
@@ -238,13 +247,13 @@ export default function SelectionsPage(): React.JSX.Element {
           <div className="bg-card border border-border rounded-none p-4 sm:p-8 shadow-whisper space-y-5">
             <div className="border-b border-border/80 pb-4">
               <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-primary block">
-                Eksklyuziv Maslahat
+                {t("exclusiveConsultation")}
               </span>
               <h2 className="font-serif text-xl sm:text-2xl font-bold text-foreground mt-1">
-                Konsultatsiya va Narxni Hisoblash
+                {t("consultationTitle")}
               </h2>
               <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                Menejerimiz 15 daqiqa ichida siz bilan bog'lanib, tanlangan mebellar narxini xonadoningiz o'lchamlari bo'yicha hisoblab beradi.
+                {t("consultationDesc")}
               </p>
             </div>
 
@@ -252,7 +261,7 @@ export default function SelectionsPage(): React.JSX.Element {
               {/* Ism */}
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                  To'liq Ismingiz <span className="text-destructive">*</span>
+                  {t("fullName")} <span className="text-destructive">*</span>
                 </label>
                 <Input
                   {...register("customerName")}
@@ -268,7 +277,7 @@ export default function SelectionsPage(): React.JSX.Element {
               {/* Telefon */}
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                  Telefon Raqamingiz <span className="text-destructive">*</span>
+                  {t("phoneNumber")} <span className="text-destructive">*</span>
                 </label>
                 <Input
                   {...register("phone")}
@@ -284,7 +293,7 @@ export default function SelectionsPage(): React.JSX.Element {
               {/* Manzil */}
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                  Manzil / Shahar
+                  {t("addressCity")}
                 </label>
                 <Input
                   {...register("address")}
@@ -297,11 +306,11 @@ export default function SelectionsPage(): React.JSX.Element {
               {/* Izoh */}
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                  Qo'shimcha Izoh yoki Maxsus O'lchamlar
+                  {t("notesOrSizes")}
                 </label>
                 <Textarea
                   {...register("notes")}
-                  placeholder="Masalan: Mehmonxona 32 kv.m, devorlar och sarg'ish rangda..."
+                  placeholder={t("notesPlaceholder")}
                   rows={3}
                   disabled={isSubmitting}
                   className="bg-background text-sm resize-none"
@@ -312,15 +321,15 @@ export default function SelectionsPage(): React.JSX.Element {
               <div className="pt-2 border-t border-border/60 space-y-1.5 text-xs text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
-                  <span>10 yillik rasmiy kafolat va servis xizmati</span>
+                  <span>{t("warranty10")}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-primary font-bold">✓</span>
-                  <span>Bepul xonadon o'lchov olish va rang tanlash</span>
+                  <span>{t("freeMeasurement")}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-primary font-bold">✓</span>
-                  <span>Interyeringiz uchun bepul 3D loyihalashtirish</span>
+                  <span>{t("free3d")}</span>
                 </div>
               </div>
 
@@ -334,11 +343,11 @@ export default function SelectionsPage(): React.JSX.Element {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      <span>Yuborilmoqda...</span>
+                      <span>{t("submitting")}</span>
                     </>
                   ) : (
                     <>
-                      <span>Arizani Yuborish (Narxini bilish)</span>
+                      <span>{t("submitButton")}</span>
                       <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                     </>
                   )}
@@ -351,12 +360,12 @@ export default function SelectionsPage(): React.JSX.Element {
                   className="w-full flex items-center justify-center gap-2 rounded-none border border-border-strong hover:border-foreground hover:bg-foreground hover:text-background py-2.5 px-4 text-xs font-semibold text-foreground smooth-btn"
                 >
                   <Send className="h-3.5 w-3.5 text-primary" />
-                  <span>Telegram Bot Orqali Buyurtma Berish</span>
+                  <span>{t("orderViaTelegram")}</span>
                 </a>
               </div>
 
               <p className="text-[10px] text-center text-muted-foreground leading-tight pt-1">
-                Tugmani bosish orqali siz maxfiylik siyosati va ma'lumotlarni qayta ishlash shartlariga rozilik bildirasiz.
+                {t("privacyConsent")}
               </p>
             </form>
           </div>
@@ -375,15 +384,15 @@ export default function SelectionsPage(): React.JSX.Element {
 
             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-muted border border-border text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               <span className="w-1.5 h-1.5 rounded-full bg-success" />
-              <span>Buyurtma ID: {orderCode}</span>
+              <span>{t("orderId")}: {orderCode}</span>
             </div>
 
             <h3 className="font-serif text-2xl font-bold text-foreground">
-              Arizangiz muvaffaqiyatli qabul qilindi!
+              {t("successTitle")}
             </h3>
 
             <p className="text-xs sm:text-sm text-muted-foreground font-light leading-relaxed max-w-sm mx-auto">
-              15 daqiqa ichida mebel mutaxassisimiz siz bilan bog'lanadi va tanlangan to'plam bo'yicha xonadoningiz o'lchamlari hamda material namunalarini kelishib oladi.
+              {t("successDesc")}
             </p>
 
             <div className="space-y-2.5 pt-3">
@@ -391,7 +400,7 @@ export default function SelectionsPage(): React.JSX.Element {
                 onClick={() => setIsSuccessModalOpen(false)}
                 className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-semibold text-xs uppercase tracking-wider py-3.5 rounded-none shadow-none smooth-btn"
               >
-                Tushunarli / Vitrinaga qaytish
+                {t("backToShowcase")}
               </Button>
 
               <a
@@ -401,7 +410,7 @@ export default function SelectionsPage(): React.JSX.Element {
                 className="w-full flex items-center justify-center gap-2 rounded-none border border-border-strong hover:border-foreground hover:bg-foreground hover:text-background py-2.5 px-4 text-xs font-semibold text-foreground smooth-btn"
               >
                 <Send className="h-3.5 w-3.5 text-primary" />
-                <span>Telegram orqali holatni kuzatish</span>
+                <span>{t("trackViaTelegram")}</span>
               </a>
             </div>
           </div>

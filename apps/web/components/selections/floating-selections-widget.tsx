@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Bookmark, Trash2, ArrowRight, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +26,7 @@ export function FloatingSelectionsWidget({
   onExternalOpenChange,
 }: FloatingSelectionsWidgetProps): React.JSX.Element {
   const locale = useLocale();
+  const t = useTranslations("selections");
 
   const items = useSelectionsStore((state) => state.items);
   const removeItem = useSelectionsStore((state) => state.removeItem);
@@ -41,6 +42,12 @@ export function FloatingSelectionsWidget({
     } else {
       setInternalOpen(val);
     }
+  };
+
+  const getItemTitle = (item: (typeof items)[0]) => {
+    if (locale === "ru" && item.titleRu) return item.titleRu;
+    if (locale === "en" && item.titleEn) return item.titleEn;
+    return item.titleUz;
   };
 
   if (items.length === 0 && !isOpen) {
@@ -60,10 +67,10 @@ export function FloatingSelectionsWidget({
             <Bookmark className="h-4 w-4 sm:h-5 sm:w-5 fill-current shrink-0" />
             <div className="text-left">
               <span className="text-xs sm:text-sm font-semibold block leading-tight">
-                Tanlanganlar ({items.length} ta mebel)
+                {t("floatingBadge", { count: items.length })}
               </span>
               <span className="text-[10px] sm:text-[11px] text-primary-foreground/90 block font-normal">
-                Loyiha hisobini olish →
+                {t("getEstimate")}
               </span>
             </div>
           </button>
@@ -77,23 +84,23 @@ export function FloatingSelectionsWidget({
             <div className="flex items-center justify-between pr-4">
               <DialogTitle className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
                 <Bookmark className="h-5 w-5 text-primary fill-primary/20" />
-                <span>Mening Tanlovlarim</span>
+                <span>{t("title")}</span>
               </DialogTitle>
               <span className="border border-border bg-background px-2.5 py-0.5 text-xs font-bold text-primary">
-                {items.length} ta mebel
+                {t("itemsCountBadge", { count: items.length })}
               </span>
             </div>
             <DialogDescription className="text-xs text-muted-foreground pt-1">
-              Narxlar va yetkazib berish shartlari telefon orqali mutaxassis bilan individual kelishiladi.
+              {t("floatingNotice")}
             </DialogDescription>
           </DialogHeader>
 
           {items.length === 0 ? (
             <div className="py-12 text-center space-y-3">
               <Bookmark className="mx-auto h-12 w-12 text-muted-foreground/30 stroke-1" />
-              <p className="text-sm font-semibold text-foreground">Hozircha hech qanday mebel tanlanmadi</p>
+              <p className="text-sm font-semibold text-foreground">{t("noItemsSelected")}</p>
               <p className="text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">
-                Katalogdan yoqqan modellaringizni <span className="font-semibold text-foreground">"Tanlash"</span> tugmasi orqali bu yerga to'plashingiz mumkin.
+                {t("emptyHint")}
               </p>
             </div>
           ) : (
@@ -102,6 +109,8 @@ export function FloatingSelectionsWidget({
               <div className="max-h-72 space-y-2.5 overflow-y-auto pr-1">
                 {items.map((item) => {
                   const coverImage = item.images[0] || null;
+                  const itemTitle = getItemTitle(item);
+
                   return (
                     <div
                       key={item.id}
@@ -112,7 +121,7 @@ export function FloatingSelectionsWidget({
                           {coverImage ? (
                             <Image
                               src={coverImage}
-                              alt={item.titleUz}
+                              alt={itemTitle}
                               fill
                               className="object-cover"
                             />
@@ -124,7 +133,7 @@ export function FloatingSelectionsWidget({
                         </div>
                         <div className="overflow-hidden">
                           <p className="truncate text-xs font-bold text-foreground">
-                            {item.titleUz}
+                            {itemTitle}
                           </p>
                           {item.material && (
                             <p className="truncate text-[11px] text-muted-foreground">
@@ -138,7 +147,7 @@ export function FloatingSelectionsWidget({
                                   item.stockStatus === "IN_STOCK" ? "bg-success" : "bg-warning"
                                 }`}
                               />
-                              {item.stockStatus === "IN_STOCK" ? "Omborda tayyor" : "Buyurtma asosida"}
+                              {item.stockStatus === "IN_STOCK" ? t("inStockReady") : t("madeToOrder")}
                             </span>
                           </div>
                         </div>
@@ -148,7 +157,7 @@ export function FloatingSelectionsWidget({
                         type="button"
                         onClick={() => removeItem(item.id)}
                         className="text-muted-foreground hover:text-destructive transition-colors p-1.5 rounded-full hover:bg-muted"
-                        title="O'chirish"
+                        title={t("removeFromSelection")}
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -166,7 +175,7 @@ export function FloatingSelectionsWidget({
                     setIsLeadModalOpen(true);
                   }}
                 >
-                  <span>Arizani Yuborish (Narxini bilish)</span>
+                  <span>{t("submitButton")}</span>
                   <ArrowRight className="h-4 w-4" />
                 </Button>
 
@@ -176,7 +185,7 @@ export function FloatingSelectionsWidget({
                     onClick={() => setOpen(false)}
                     className="flex-1 text-center py-2.5 px-3 rounded-none border border-border-strong bg-card hover:bg-foreground hover:text-background text-xs font-semibold uppercase tracking-wider text-foreground transition-colors flex items-center justify-center gap-1.5"
                   >
-                    <span>To'liq ko'rish</span>
+                    <span>{t("viewFull")}</span>
                     <ArrowUpRight className="h-3.5 w-3.5" />
                   </Link>
 
@@ -186,7 +195,7 @@ export function FloatingSelectionsWidget({
                     onClick={clearAll}
                     className="text-xs text-muted-foreground hover:text-destructive rounded-none uppercase tracking-wider"
                   >
-                    Tozalash
+                    {t("clearAll")}
                   </Button>
                 </div>
               </div>

@@ -2,14 +2,11 @@
 
 import * as React from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { useLocale } from "next-intl";
-import { Checkbox } from "@/components/ui/checkbox";
+import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { LeadModal } from "@/components/lead/lead-modal";
-import { buildCollectionDeepLink, buildProductDeepLink } from "@/lib/telegram/deep-link";
-import { Send, ArrowRight, Check, Eye, Plus } from "lucide-react";
-import { CardImageSlider } from "@/components/catalog/card-image-slider";
+import { buildCollectionDeepLink } from "@/lib/telegram/deep-link";
+import { Send, ArrowRight, Check, Plus } from "lucide-react";
 import { ProductCard, type ProductCardData } from "@/components/catalog/product-card";
 
 export interface ChecklistProduct {
@@ -44,6 +41,7 @@ export interface CollectionChecklistProps {
 
 export function CollectionChecklist({ collection }: CollectionChecklistProps): React.JSX.Element {
   const locale = useLocale();
+  const t = useTranslations("collectionDetail");
 
   const getCollectionTitle = () => {
     if (locale === "ru" && collection.titleRu) return collection.titleRu;
@@ -88,8 +86,11 @@ export function CollectionChecklist({ collection }: CollectionChecklistProps): R
   const collectionTitle = getCollectionTitle();
   const selectedSummary =
     selectedProducts.length > 0
-      ? `${collectionTitle} to'plami (${selectedProducts.length} ta buyum): ` +
-        selectedProducts.map((p) => getProductTitle(p)).join(", ")
+      ? t("setSummary", {
+          title: collectionTitle,
+          count: selectedProducts.length,
+          items: selectedProducts.map((p) => getProductTitle(p)).join(", "),
+        })
       : "";
 
   const telegramLink = buildCollectionDeepLink(collection.id);
@@ -119,7 +120,7 @@ export function CollectionChecklist({ collection }: CollectionChecklistProps): R
             <div className="absolute bottom-4 left-4 bg-card px-3.5 py-1.5 border border-border flex items-center space-x-2 shadow-sm">
               <span className="w-2 h-2 rounded-full bg-primary" />
               <span className="eyebrow">
-                Atelier Spec &bull; 2026 Kolleksiya
+                {t("specBadge")}
               </span>
             </div>
 
@@ -130,7 +131,7 @@ export function CollectionChecklist({ collection }: CollectionChecklistProps): R
                 1
               </span>
               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-foreground text-background px-3 py-1.5 text-xs whitespace-nowrap shadow-lg">
-                Asosiy mebel elementi
+                {t("hotspotMain")}
               </div>
             </div>
 
@@ -139,7 +140,7 @@ export function CollectionChecklist({ collection }: CollectionChecklistProps): R
                 2
               </span>
               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-foreground text-background px-3 py-1.5 text-xs whitespace-nowrap shadow-lg">
-                Yondosh tumba / stol
+                {t("hotspotSide")}
               </div>
             </div>
 
@@ -148,7 +149,7 @@ export function CollectionChecklist({ collection }: CollectionChecklistProps): R
                 3
               </span>
               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-foreground text-background px-3 py-1.5 text-xs whitespace-nowrap shadow-lg">
-                Javon / Modul
+                {t("hotspotShelf")}
               </div>
             </div>
           </div>
@@ -157,21 +158,21 @@ export function CollectionChecklist({ collection }: CollectionChecklistProps): R
           <div className="pt-2 grid grid-cols-3 gap-2 text-center text-xs">
             <div className="p-2.5 bg-muted/40 border border-border/60">
               <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-0.5">
-                Asosiy Qoplama
+                {t("upholstery")}
               </span>
-              <span className="font-medium text-foreground">Italiya Bouclé</span>
+              <span className="font-medium text-foreground">{t("upholsteryValue")}</span>
             </div>
             <div className="p-2.5 bg-muted/40 border border-border/60">
               <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-0.5">
-                Yog'och Massivi
+                {t("wood")}
               </span>
-              <span className="font-medium text-foreground">Solid Oak (Eman)</span>
+              <span className="font-medium text-foreground">{t("woodValue")}</span>
             </div>
             <div className="p-2.5 bg-muted/40 border border-border/60">
               <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-0.5">
-                Ustki Qoplama
+                {t("surface")}
               </span>
-              <span className="font-medium text-foreground">Honed Travertin</span>
+              <span className="font-medium text-foreground">{t("surfaceValue")}</span>
             </div>
           </div>
         </div>
@@ -183,14 +184,14 @@ export function CollectionChecklist({ collection }: CollectionChecklistProps): R
           <div className="border-b border-border/80 pb-4">
             <div className="flex items-center justify-between">
               <h3 className="font-serif text-xl sm:text-2xl font-bold text-foreground">
-                To'plam tarkibiy qismlari
+                {t("componentsTitle")}
               </h3>
               <span className="text-xs font-semibold px-2.5 py-1 bg-primary/10 text-primary">
-                Tanlangan: {selectedProducts.length} ta
+                {t("selectedCount", { count: selectedProducts.length })}
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-              Komplektdan istalgan mahsulotlarni tanlang yoki o'chirib qoldiring. Tanlovingiz bo'yicha to'g'ridan-to'g'ri maslahatchiga ariza yuboriladi.
+              {t("description")}
             </p>
 
             <div className="flex items-center gap-3 pt-3 text-xs">
@@ -199,7 +200,7 @@ export function CollectionChecklist({ collection }: CollectionChecklistProps): R
                 onClick={selectAll}
                 className="text-primary hover:underline font-semibold"
               >
-                Barchasini tanlash
+                {t("selectAll")}
               </button>
               <span className="text-muted-foreground">&bull;</span>
               <button
@@ -207,12 +208,12 @@ export function CollectionChecklist({ collection }: CollectionChecklistProps): R
                 onClick={deselectAll}
                 className="text-muted-foreground hover:text-foreground"
               >
-                Bekor qilish
+                {t("deselectAll")}
               </button>
             </div>
           </div>
 
-          {/* Checklist Items: 2-Column Marketplace Grid (Uzum Market Inspired) */}
+          {/* Checklist Items: 2-Column Marketplace Grid */}
           <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
             {collection.products.map((product) => {
               const isChecked = selectedIds.has(product.id);
@@ -272,7 +273,7 @@ export function CollectionChecklist({ collection }: CollectionChecklistProps): R
                               : "bg-card text-warning border border-warning/40"
                           }`}
                         >
-                          {product.stockStatus === "IN_STOCK" ? "Tayyor" : "Buyurtma"}
+                          {product.stockStatus === "IN_STOCK" ? t("statusReady") : t("statusOrder")}
                         </span>
                       </div>
                     </div>
@@ -291,7 +292,7 @@ export function CollectionChecklist({ collection }: CollectionChecklistProps): R
                   {/* Bottom Toggle Pill */}
                   <div className="mt-2.5 pt-2 border-t border-border/60 flex items-center justify-between text-[11px]">
                     <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
-                      {isChecked ? "Tanlandi" : "Qo'shish"}
+                      {isChecked ? t("selected") : t("add")}
                     </span>
                     <span
                       className={`text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 border inline-flex items-center justify-center transition-all duration-200 ease-editorial ${
@@ -316,7 +317,7 @@ export function CollectionChecklist({ collection }: CollectionChecklistProps): R
               onClick={() => setLeadModalOpen(true)}
               className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-semibold text-xs uppercase tracking-wider py-5 sm:py-6 rounded-none shadow-none smooth-btn"
             >
-              <span>Tanlangan qismlar bo'yicha ariza qoldirish</span>
+              <span>{t("submitInquiry")}</span>
               <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Button>
 
@@ -327,43 +328,43 @@ export function CollectionChecklist({ collection }: CollectionChecklistProps): R
               className="inline-flex w-full items-center justify-center gap-2 border border-border bg-card hover:bg-muted text-foreground text-xs uppercase tracking-wider font-semibold py-3 smooth-btn"
             >
               <Send className="h-3.5 w-3.5 text-primary" />
-              <span>Telegram orqali buyurtma</span>
+              <span>{t("orderViaTelegram")}</span>
             </a>
           </div>
 
           <div className="border-t border-border/60 pt-4 space-y-1.5 text-xs text-muted-foreground font-light">
             <p className="flex items-center gap-1.5">
               <Check className="h-3.5 w-3.5 text-primary shrink-0" />
-              <span>Bepul xonadon o'lchov olish</span>
+              <span>{t("freeMeasurement")}</span>
             </p>
             <p className="flex items-center gap-1.5">
               <Check className="h-3.5 w-3.5 text-primary shrink-0" />
-              <span>3D interyerga joylashtirib ko'rsatish</span>
+              <span>{t("free3d")}</span>
             </p>
             <p className="flex items-center gap-1.5">
               <Check className="h-3.5 w-3.5 text-primary shrink-0" />
-              <span>24 oylik rasmiy kafolat</span>
+              <span>{t("warranty24")}</span>
             </p>
           </div>
         </div>
       </div>
 
       {/* ======================================================== */}
-      {/* BOTTOM SECTION: Minimalist Furniture Grid (Image 4 Style) */}
+      {/* BOTTOM SECTION: Minimalist Furniture Grid */}
       {/* ======================================================== */}
       <section className="space-y-8 pt-8 border-t border-border">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <p className="eyebrow">Tarkibiy Mebellar Galereyasi</p>
+            <p className="eyebrow">{t("galleryEyebrow")}</p>
             <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-foreground mt-1">
-              Komplektga Kiruvchi Elementlar
+              {t("galleryTitle")}
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground mt-1 font-light">
-              Har bir buyumni alohida ko'rishingiz, parametrlarini tekshirishingiz yoki komplektga qo'shishingiz mumkin.
+              {t("galleryDesc")}
             </p>
           </div>
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            {collection.products.length} ta mebel
+            {t("itemsCount", { count: collection.products.length })}
           </span>
         </div>
 
@@ -395,14 +396,14 @@ export function CollectionChecklist({ collection }: CollectionChecklistProps): R
         </div>
       </section>
 
-      {/* Mobile Floating Sticky Action Bar (Solid Atelier Design) */}
+      {/* Mobile Floating Sticky Action Bar */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-background border-t border-border p-3 shadow-2xl flex items-center gap-2">
         <div className="flex-1 min-w-0">
           <div className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
-            To'plamdan:
+            {t("mobileFromSet")}
           </div>
           <div className="text-xs font-bold text-foreground truncate">
-            {selectedProducts.length} ta element tanlandi
+            {t("mobileSelected", { count: selectedProducts.length })}
           </div>
         </div>
         <a
@@ -410,7 +411,7 @@ export function CollectionChecklist({ collection }: CollectionChecklistProps): R
           target="_blank"
           rel="noopener noreferrer"
           className="h-10 w-10 flex items-center justify-center border border-border bg-card text-foreground hover:bg-muted shrink-0 transition-colors"
-          title="Telegram orqali"
+          title={t("orderViaTelegram")}
         >
           <Send className="h-4 w-4 text-primary" />
         </a>
@@ -420,7 +421,7 @@ export function CollectionChecklist({ collection }: CollectionChecklistProps): R
           onClick={() => setLeadModalOpen(true)}
           className="bg-primary hover:bg-primary-hover text-primary-foreground font-semibold text-xs uppercase tracking-wider h-10 px-3.5 rounded-none shadow-none shrink-0"
         >
-          <span>Ariza</span>
+          <span>{t("mobileInquiry")}</span>
           <ArrowRight className="ml-1 h-3.5 w-3.5" />
         </Button>
       </div>

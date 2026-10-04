@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   Bookmark,
   Check,
@@ -11,7 +11,6 @@ import {
   ShieldCheck,
   Ruler,
   Clock,
-  Sparkles,
   ChevronLeft,
   ArrowRight,
   Share2,
@@ -54,6 +53,7 @@ export function ProductDetailView({
   relatedProducts,
 }: ProductDetailViewProps): React.JSX.Element {
   const locale = useLocale();
+  const t = useTranslations("productDetail");
 
   const title =
     locale === "ru" && product.titleRu
@@ -80,7 +80,7 @@ export function ProductDetailView({
   const toggleSelection = () => {
     if (isInSelection) {
       removeItem(product.id);
-      toast.info("Tanlovdan olib tashlandi");
+      toast.info(t("removedToast"));
     } else {
       const item: SelectionItem = {
         id: product.id,
@@ -95,7 +95,7 @@ export function ProductDetailView({
         categoryName: product.categoryName,
       };
       addItem(item);
-      toast.success("Tanlovlarga qo'shildi");
+      toast.success(t("addedToast"));
     }
   };
 
@@ -109,7 +109,7 @@ export function ProductDetailView({
   const copyShareLink = () => {
     if (typeof window !== "undefined") {
       navigator.clipboard.writeText(window.location.href);
-      toast.success("Havola nusxalandi!");
+      toast.success(t("shareCopied"));
     }
   };
 
@@ -123,7 +123,7 @@ export function ProductDetailView({
             className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider font-semibold text-muted-foreground hover:text-foreground transition-colors"
           >
             <ChevronLeft className="h-4 w-4" />
-            <span>Katalogga qaytish</span>
+            <span>{t("backToCatalog")}</span>
           </Link>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="hidden sm:inline">{product.categoryName}</span>
@@ -154,7 +154,7 @@ export function ProductDetailView({
             <button
               type="button"
               onClick={copyShareLink}
-              title="Ulashish"
+              title={t("share")}
               className="icon-button absolute right-4 top-4 bg-card border border-border-strong text-foreground hover:bg-foreground hover:text-background shadow-whisper-md transition-all duration-300 ease-editorial hover:scale-105 active:scale-95"
             >
               <Share2 className="h-4 w-4" />
@@ -186,23 +186,23 @@ export function ProductDetailView({
             <div className="space-y-1">
               <ShieldCheck className="h-4 w-4 text-primary mx-auto" />
               <p className="text-[10px] font-bold uppercase tracking-wider text-foreground">
-                24 Oy Kafolat
+                {t("warranty24")}
               </p>
-              <p className="text-[10px] text-muted-foreground">Rasmiy sifat kafolati</p>
+              <p className="text-[10px] text-muted-foreground">{t("warranty24Desc")}</p>
             </div>
             <div className="space-y-1 border-x border-border/80">
               <Ruler className="h-4 w-4 text-primary mx-auto" />
               <p className="text-[10px] font-bold uppercase tracking-wider text-foreground">
-                Maxsus O'lcham
+                {t("customDimensions")}
               </p>
-              <p className="text-[10px] text-muted-foreground">Xonaga moslashtirish</p>
+              <p className="text-[10px] text-muted-foreground">{t("customDimensionsDesc")}</p>
             </div>
             <div className="space-y-1">
               <Clock className="h-4 w-4 text-primary mx-auto" />
               <p className="text-[10px] font-bold uppercase tracking-wider text-foreground">
-                Atelier Yetkazish
+                {t("delivery")}
               </p>
-              <p className="text-[10px] text-muted-foreground">O'rnatib berish bilan</p>
+              <p className="text-[10px] text-muted-foreground">{t("deliveryDesc")}</p>
             </div>
           </div>
         </div>
@@ -215,7 +215,7 @@ export function ProductDetailView({
                 {product.categoryName} {product.material ? `• ${product.material}` : ""}
               </p>
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-                Atelier № {articleCode}
+                {t("articleNo", { code: articleCode })}
               </span>
             </div>
 
@@ -236,7 +236,7 @@ export function ProductDetailView({
           {product.colors && product.colors.length > 0 && (
             <div className="space-y-2">
               <p className="text-[11px] uppercase tracking-wider font-semibold text-foreground">
-                Mato va rang varianti:{" "}
+                {t("colorOptions")}{" "}
                 <span className="text-muted-foreground font-normal">
                   {product.colors[selectedColorIndex]?.name}
                 </span>
@@ -263,31 +263,31 @@ export function ProductDetailView({
           {/* Detailed Specifications Table */}
           <div className="border border-border bg-card p-4 space-y-3 text-xs">
             <p className="text-[10px] uppercase font-bold tracking-widest text-foreground">
-              Texnik Xarakteristikalar
+              {t("specsTitle")}
             </p>
             <div className="space-y-2 divide-y divide-border/60">
               {product.dimensions && (
                 <div className="flex items-center justify-between pt-1.5 text-muted-foreground">
-                  <span>Aniq o'lchamlari:</span>
+                  <span>{t("dimensions")}</span>
                   <span className="font-medium text-foreground">{product.dimensions}</span>
                 </div>
               )}
               {product.material && (
                 <div className="flex items-center justify-between pt-1.5 text-muted-foreground">
-                  <span>Asosiy materiali:</span>
+                  <span>{t("material")}</span>
                   <span className="font-medium text-foreground">{product.material}</span>
                 </div>
               )}
               {product.warranty && (
                 <div className="flex items-center justify-between pt-1.5 text-muted-foreground">
-                  <span>Kafolat muddati:</span>
+                  <span>{t("warranty")}</span>
                   <span className="font-medium text-foreground">{product.warranty}</span>
                 </div>
               )}
               <div className="flex items-center justify-between pt-1.5 text-muted-foreground">
-                <span>Mavjudlik holati:</span>
+                <span>{t("status")}</span>
                 <span className="font-medium text-foreground">
-                  {product.stockStatus === "IN_STOCK" ? "Omborda tayyor" : "Buyurtma asosida"}
+                  {product.stockStatus === "IN_STOCK" ? t("inStock") : t("madeToOrder")}
                 </span>
               </div>
               {product.characteristics?.map((item, idx) => (
@@ -307,7 +307,7 @@ export function ProductDetailView({
               onClick={() => setIsInquiryModalOpen(true)}
               className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-semibold text-xs uppercase tracking-wider py-5 sm:py-6 rounded-none shadow-none smooth-btn"
             >
-              <span>Narxini bilish va Maslahat olish</span>
+              <span>{t("askPriceBtn")}</span>
               <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Button>
 
@@ -326,12 +326,12 @@ export function ProductDetailView({
                 {isInSelection ? (
                   <>
                     <Check className="mr-1.5 h-4 w-4 stroke-[2.5]" />
-                    <span>Tanlangan</span>
+                    <span>{t("selected")}</span>
                   </>
                 ) : (
                   <>
                     <Bookmark className="mr-1.5 h-4 w-4" />
-                    <span>Tanlash</span>
+                    <span>{t("select")}</span>
                   </>
                 )}
               </Button>
@@ -344,7 +344,7 @@ export function ProductDetailView({
                 className="inline-flex items-center justify-center gap-1.5 border border-border-strong bg-card hover:border-foreground hover:bg-foreground hover:text-background text-foreground text-xs uppercase tracking-wider font-semibold py-3 sm:py-2.5 smooth-btn"
               >
                 <Send className="h-3.5 w-3.5 text-primary" />
-                <span>Telegram Bot</span>
+                <span>{t("telegramBtn")}</span>
               </a>
             </div>
           </div>
@@ -356,16 +356,16 @@ export function ProductDetailView({
         <section className="max-w-7xl mx-auto px-4 sm:px-8 pt-12 border-t border-border">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <p className="eyebrow">Atelier Tanlovi</p>
+              <p className="eyebrow">{t("atelierChoice")}</p>
               <h2 className="font-serif text-2xl sm:text-3xl font-bold text-foreground mt-1">
-                O'xshash Mebellar
+                {t("relatedTitle")}
               </h2>
             </div>
             <Link
               href={`/${locale}/catalog`}
               className="editorial-link"
             >
-              <span className="editorial-link-text">Barcha mebellar</span>
+              <span className="editorial-link-text">{t("allProducts")}</span>
               <ArrowRight className="editorial-link-arrow" />
             </Link>
           </div>
@@ -382,7 +382,11 @@ export function ProductDetailView({
       <LeadModal
         isOpen={isInquiryModalOpen}
         onClose={() => setIsInquiryModalOpen(false)}
-        customItemsSummary={`${title} (Atelier № ${articleCode}, ${product.dimensions || ""})`}
+        customItemsSummary={t("inquirySummary", {
+          title,
+          code: articleCode,
+          dimensions: product.dimensions || "",
+        })}
       />
     </div>
   );

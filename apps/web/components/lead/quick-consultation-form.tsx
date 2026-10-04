@@ -4,20 +4,24 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Ruler, Sparkles, PhoneCall, CheckCircle2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const quickConsultationSchema = z.object({
-  fullName: z.string().min(2, "Ismingizni kiriting"),
-  phone: z.string().min(7, "Telefon raqamingizni to'liq kiriting"),
-  room: z.string().optional(),
-});
-
-type QuickConsultationData = z.infer<typeof quickConsultationSchema>;
-
 export function QuickConsultationForm(): React.JSX.Element {
+  const t = useTranslations("quickConsultation");
   const [isSuccess, setIsSuccess] = React.useState(false);
+
+  const quickConsultationSchema = React.useMemo(() => {
+    return z.object({
+      fullName: z.string().min(2, t("fullNameError")),
+      phone: z.string().min(7, t("phoneError")),
+      room: z.string().optional(),
+    });
+  }, [t]);
+
+  type QuickConsultationData = z.infer<typeof quickConsultationSchema>;
 
   const {
     register,
@@ -38,9 +42,9 @@ export function QuickConsultationForm(): React.JSX.Element {
       const payload = {
         customerName: data.fullName,
         phone: data.phone.startsWith("+998") ? data.phone : `+998${data.phone.replace(/\D/g, "")}`,
-        notes: `Atelier maslahati so'rovi (Xona/Mahsulot: ${data.room || "Umumiy"})`,
+        notes: t("notesPrefix", { room: data.room || "General" }),
         source: "WEB" as const,
-        itemsSummary: "Bosh sahifadan bepul konsultatsiya so'rovi",
+        itemsSummary: t("itemsSummary"),
       };
 
       const res = await fetch("/api/leads", {
@@ -51,15 +55,15 @@ export function QuickConsultationForm(): React.JSX.Element {
 
       const json = await res.json();
       if (!res.ok || !json.success) {
-        toast.error(json.error || "Xatolik yuz berdi. Iltimos qaytadan urinib ko'ring.");
+        toast.error(json.error || t("toastError"));
         return;
       }
 
       setIsSuccess(true);
       reset();
-      toast.success("Rahmat! Mutaxassisimiz tez orada siz bilan bog'lanadi.");
+      toast.success(t("toastSuccess"));
     } catch {
-      toast.error("Tarmoqda xatolik yuz berdi");
+      toast.error(t("networkError"));
     }
   };
 
@@ -70,10 +74,10 @@ export function QuickConsultationForm(): React.JSX.Element {
           <CheckCircle2 className="h-7 w-7" />
         </div>
         <h3 className="font-serif text-xl font-bold text-foreground">
-          Arizangiz qabul qilindi!
+          {t("successTitle")}
         </h3>
         <p className="text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed">
-          Mebel mutaxassisimiz tez orada siz bilan bog'lanib, xonadoningiz o'lchamlari bo'yicha hisob-kitob qilib beradi.
+          {t("successDesc")}
         </p>
         <Button
           variant="outline"
@@ -81,7 +85,7 @@ export function QuickConsultationForm(): React.JSX.Element {
           onClick={() => setIsSuccess(false)}
           className="mt-2 text-xs rounded-none"
         >
-          Yangi so'rov qoldirish
+          {t("newRequest")}
         </Button>
       </div>
     );
@@ -91,11 +95,11 @@ export function QuickConsultationForm(): React.JSX.Element {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
         <label className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
-          To'liq ismingiz
+          {t("fullName")}
         </label>
         <input
           {...register("fullName")}
-          placeholder="Masalan: Sardor Aliyev"
+          placeholder={t("fullNamePlaceholder")}
           className="w-full px-4 py-2.5 bg-background border border-border rounded-none text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary transition-colors"
         />
         {errors.fullName && (
@@ -105,7 +109,7 @@ export function QuickConsultationForm(): React.JSX.Element {
 
       <div>
         <label className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
-          Telefon raqamingiz
+          {t("phone")}
         </label>
         <div className="flex">
           <span className="inline-flex items-center px-3 sm:px-3.5 bg-muted/50 border border-r-0 border-border rounded-none text-xs font-semibold text-muted-foreground shrink-0">
@@ -124,16 +128,16 @@ export function QuickConsultationForm(): React.JSX.Element {
 
       <div>
         <label className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
-          Qiziqtirayotgan xona yoki mebel
+          {t("roomLabel")}
         </label>
         <select
           {...register("room")}
           className="w-full px-4 py-2.5 bg-background border border-border rounded-none text-sm text-foreground focus:outline-none focus:border-primary transition-colors"
         >
-          <option value="Mehmonxona mebellari" className="bg-card text-foreground">Mehmonxona mebellari</option>
-          <option value="Yotoqxona komplekti" className="bg-card text-foreground">Yotoqxona komplekti</option>
-          <option value="Ovqatlanish stoli va stullar" className="bg-card text-foreground">Ovqatlanish stoli va stullar</option>
-          <option value="Maxsus arxitektura loyihasi" className="bg-card text-foreground">Maxsus individual arxitektura loyihasi</option>
+          <option value="living" className="bg-card text-foreground">{t("roomLiving")}</option>
+          <option value="bedroom" className="bg-card text-foreground">{t("roomBedroom")}</option>
+          <option value="dining" className="bg-card text-foreground">{t("roomDining")}</option>
+          <option value="custom" className="bg-card text-foreground">{t("roomCustom")}</option>
         </select>
       </div>
 
@@ -142,7 +146,7 @@ export function QuickConsultationForm(): React.JSX.Element {
         disabled={isSubmitting}
         className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-semibold text-xs uppercase tracking-wider py-3 rounded-none mt-2 transition-all flex items-center justify-center gap-2 shadow-none"
       >
-        <span>{isSubmitting ? "Yuborilmoqda..." : "Maslahat olish"}</span>
+        <span>{isSubmitting ? t("submitting") : t("submit")}</span>
         <ArrowRight className="h-4 w-4" />
       </Button>
 
@@ -150,15 +154,15 @@ export function QuickConsultationForm(): React.JSX.Element {
       <div className="grid grid-cols-3 gap-1 sm:gap-2 border-t border-border/60 pt-3 mt-3 text-center">
         <div className="flex flex-col items-center">
           <Ruler className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary mb-1" />
-          <span className="text-[10px] sm:text-[11px] text-muted-foreground">Bepul o'lchov</span>
+          <span className="text-[10px] sm:text-[11px] text-muted-foreground">{t("freeMeasurement")}</span>
         </div>
         <div className="flex flex-col items-center">
           <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary mb-1" />
-          <span className="text-[10px] sm:text-[11px] text-muted-foreground">3D loyiha</span>
+          <span className="text-[10px] sm:text-[11px] text-muted-foreground">{t("project3d")}</span>
         </div>
         <div className="flex flex-col items-center">
           <PhoneCall className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary mb-1" />
-          <span className="text-[10px] sm:text-[11px] text-muted-foreground">Tezkor javob</span>
+          <span className="text-[10px] sm:text-[11px] text-muted-foreground">{t("quickResponse")}</span>
         </div>
       </div>
     </form>
