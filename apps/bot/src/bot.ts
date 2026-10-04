@@ -1,3 +1,4 @@
+import http from "http";
 import { Bot, session } from "grammy";
 import { conversations, createConversation } from "@grammyjs/conversations";
 import { PrismaAdapter } from "@grammyjs/storage-prisma";
@@ -168,7 +169,18 @@ bot.catch((err) => {
   );
 });
 
-// 9. To'g'ridan-to'g'ri ishga tushirish (Long polling)
+// 9. Render Free Web Service port tinglash (Health check)
+const port = process.env["PORT"] || 3000;
+http
+  .createServer((_req, res) => {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end("Perfect Mebel Bot is running!");
+  })
+  .listen(port, () => {
+    process.stdout.write(`Health check web server running on port ${port}\n`);
+  });
+
+// 10. To'g'ridan-to'g'ri ishga tushirish (Long polling)
 if (process.env["NODE_ENV"] !== "test" && config.botToken) {
   bot.start({
     onStart: (botInfo) => {
