@@ -107,8 +107,11 @@ export async function adminAddCategoryConversation(
       }
     );
   } catch (error) {
+    process.stderr.write(
+      `Toifani saqlashda xatolik: ${error instanceof Error ? error.message : String(error)}\n`
+    );
     await ctx.reply(
-      `Toifani saqlashda xatolik: ${error instanceof Error ? error.message : "Noma'lum"}`,
+      "Toifani saqlashda server xatoligi yuz berdi. Iltimos, qaytadan urinib ko'ring.",
       { reply_markup: getMainMenuKeyboard(true) }
     );
   }

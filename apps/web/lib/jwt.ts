@@ -1,10 +1,17 @@
 import { jwtVerify, SignJWT, type JWTPayload } from "jose";
 import { cookies } from "next/headers";
 
-const secretEnv = process.env["JWT_SECRET"] || "fallback_development_secret_key_at_least_32_chars";
-const JWT_SECRET_BYTES = new TextEncoder().encode(secretEnv);
+function resolveJwtSecret(): Uint8Array {
+  const secret = process.env["JWT_SECRET"];
+  if (!secret || secret.length < 32) {
+    throw new Error(
+      "Xavfsizlik xatosi: JWT_SECRET muhit o'zgaruvchisi kiritilishi va kamida 32 belgidan iborat bo'lishi shart!"
+    );
+  }
+  return new TextEncoder().encode(secret);
+}
 
-export const getJwtSecret = (): Uint8Array => JWT_SECRET_BYTES;
+export const getJwtSecret = (): Uint8Array => resolveJwtSecret();
 
 export interface AdminSessionPayload extends JWTPayload {
   sub: string;

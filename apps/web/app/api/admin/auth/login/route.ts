@@ -171,8 +171,10 @@ export async function POST(req: Request): Promise<NextResponse> {
       },
     });
   } catch (error) {
-    const msg = error instanceof Error ? error.message : String(error);
     console.error("Admin Login API Error:", error);
-    return NextResponse.json({ success: false, error: msg }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Tizimga kirishda server xatoligi yuz berdi" },
+      { status: 500 }
+    );
   }
 }

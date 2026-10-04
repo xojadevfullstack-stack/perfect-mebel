@@ -111,8 +111,11 @@ export async function adminAddCollectionConversation(
       }
     );
   } catch (error) {
+    process.stderr.write(
+      `To'plamni saqlashda xatolik: ${error instanceof Error ? error.message : String(error)}\n`
+    );
     await ctx.reply(
-      `To'plamni saqlashda xatolik: ${error instanceof Error ? error.message : "Noma'lum"}`,
+      "To'plamni saqlashda server xatoligi yuz berdi. Iltimos, qaytadan urinib ko'ring.",
       { reply_markup: getMainMenuKeyboard(true) }
     );
   }
