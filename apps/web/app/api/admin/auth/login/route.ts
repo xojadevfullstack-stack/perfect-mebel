@@ -171,7 +171,8 @@ export async function POST(req: Request): Promise<NextResponse> {
       },
     });
   } catch (error) {
-    console.error("Admin Login API Error:", error);
-    return NextResponse.json({ success: false, error: "Serverda xatolik yuz berdi" }, { status: 500 });
+    const errorDetails = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+    console.error("Admin Login API Error:", errorDetails);
+    return NextResponse.json({ success: false, error: `Serverda xatolik yuz berdi (${errorDetails})` }, { status: 500 });
   }
 }
