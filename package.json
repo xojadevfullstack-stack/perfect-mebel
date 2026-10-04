@@ -17,6 +17,7 @@
                     "lint":  "pnpm --filter @mebel-salon/web lint",
                     "type-check":  "pnpm -r exec tsc --noEmit",
                     "bot:set-webhook": "tsx scripts/set-webhook.ts",
+                    "admin:reset-password": "tsx scripts/reset-admin-password.ts",
                     "test":  "pnpm --filter @mebel-salon/db exec tsx ../../scripts/test-runner.ts"
                 },
     "devDependencies":  {

@@ -34,14 +34,20 @@ datasource db {
 ```
 
 ### Migratsiya va Boshlang'ich Ma'lumotlar (Seed):
-Migratsiyalarni Vercel ichida emas, o'z kompyuteringizdan bir marta ishga tushiring:
+Migratsiyalarni Vercel/Render build jarayonida emas, alohida mustaqil tarzda `DIRECT_URL` orqali ishga tushiring. 
+> **Nima uchun `DIRECT_URL`?** Neon yoki Supabase pooled connection string (`DATABASE_URL`, masalan port 6543) PgBouncer orqali ishlaydi va PostgreSQL transactional advisory lock yoki DDL operatsiyalarini qo'llab-quvvatlamaydi. Shuning uchun migratsiyalar faqat `DIRECT_URL` (to'g'ridan-to'g'ri 5432-port) orqali yurgiziladi.
 
 ```bash
-# Migratsiyalarni production bazaga qo'llash
+# 1. Barcha migratsiyalarni (shu jumladan RateLimit jadvalini) production bazaga qo'llash:
 DATABASE_URL="<DIRECT_URL>" DIRECT_URL="<DIRECT_URL>" pnpm --filter @mebel-salon/db exec prisma migrate deploy
 
-# Faqat yangi bo'sh bazada (boshlang'ich toifalar va admin yaratish):
+# 2. Yangi bo'sh bazada boshlang'ich ma'lumotlar (kategoriyalar va admin) yaratish:
+# Eslatma: seed.ts agar admin mavjud bo'lsa, uning parolini o'zgartirmaydi (update: {}).
 DATABASE_URL="<DIRECT_URL>" DIRECT_URL="<DIRECT_URL>" pnpm --filter @mebel-salon/db exec tsx prisma/seed.ts
+
+# 3. Mavjud admin parolini xavfsiz yangilash:
+# Parol faqat environment o'zgaruvchisidan olinadi (hech qanday standart/hardcoded qiymat yo'q):
+ADMIN_PASSWORD="sizning-kuchli-yangi-parolingiz" pnpm admin:reset-password
 ```
 
 ---
@@ -60,7 +66,7 @@ DATABASE_URL="<DIRECT_URL>" DIRECT_URL="<DIRECT_URL>" pnpm --filter @mebel-salon
    - `DATABASE_URL`: Neon pooled connection string
    - `DIRECT_URL`: Neon direct connection string
    - `JWT_SECRET`: 32+ belgidan iborat tasodifiy maxfiy kalit (`openssl rand -base64 32`)
-   - `ADMIN_INITIAL_PASSWORD`: Admin yaratish paroli (agar kerak bo'lsa)
+   - `ADMIN_INITIAL_PASSWORD`: Yangi admin yaratish paroli (faqat seed paytida)
    - `TELEGRAM_BOT_TOKEN`: BotFather bergan bot tokeni
    - `TELEGRAM_WEBHOOK_SECRET`: Webhook so'rovlarini himoyalash maxfiy tokeni (`openssl rand -hex 24`)
    - `TELEGRAM_FACTORY_CHANNEL_ID`: Zavod kanali ID si (masalan, `-1001234567890`)
@@ -82,11 +88,15 @@ Agar Render o'rniga Vercel orqali bepul webhook ishlatmoqchi bo'lsangiz:
    ```
    Bu skript avtomatik ravishda `https://<sizning-saytingiz>/api/bot` manziliga webhook o'rnatadi.
 
+> **⚠️ Webhook va Lokal Ishlab Chiqish (Muhim Qoida):**
+> - **Lokal Dev bot uchun ALOHIDA bot tokeni kerak:** Agar kompyuteringizda `pnpm dev:bot` yurgizsangiz, grammY (`bot.start()`) avtomatik tarzda Telegram serveridan `deleteWebhook` chaqiradi va production webhook'ingizni o'chirib qo'yadi! Shuning uchun lokal dev uchun `@BotFather` dan alohida test boti oching (`DEV_BOT_TOKEN`).
+> - **Webhook rejimida Polling ishga tushirilmasin:** Agar Vercel orqali webhook ishlayotgan bo'lsa, Render yoki VPS da `apps/bot` polling jarayoni bir vaqtning o'zida ISHLATILMASLIGI SHART (Telegram 409 Conflict beradi).
+
 ---
 
-## 3. Render Sozlash (Telegram Bot)
+## 3. Render Sozlash (Telegram Bot — Faqat Polling varianti tanlansa)
 
-Bot alohida jarayonda **Polling** rejimida to'xtovsiz ishlashi uchun Render'da **Background Worker** sifatida ishga tushiriladi:
+Agar Vercel Webhook ishlatilmasa va bot alohida jarayonda **Polling** rejimida to'xtovsiz ishlashi kerak bo'lsa, Render'da **Background Worker** sifatida ishga tushiriladi:
 
 1. [render.com](https://render.com) da **New +** → **Background Worker** ni tanlang.
 2. GitHub reponi ulang.
@@ -114,7 +124,7 @@ Bot alohida jarayonda **Polling** rejimida to'xtovsiz ishlashi uchun Render'da *
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase anon key
 
 > **⚠️ Muhim xavfsizlik va barqarorlik eslatmalari:**
-> 1. **409 Conflict xatosi bo'lmasligi uchun:** Bitta tokenda faqat BITTA polling jarayon ishlashi shart. Render'da botni ishga tushirishdan oldin o'z kompyuteringizdagi lokal bot jarayonini o'chiring!
+> 1. **409 Conflict xatosi bo'lmasligi uchun:** Bitta tokenda faqat BITTA polling jarayon ishlashi shart. Agar Vercel webhook sozlangan bo'lsa, Render bot to'xtatilgan bo'lishi shart!
 > 2. **Instansiyalar soni:** Render'da bot instansiyasi doimo **1** ta bo'lishi kerak.
 > 3. **Bepul Web Service cheklovi:** Render'da bepul Web Service harakatsizlikdan so'ng uxlaydi (sleep), shu sababli Bot polling uchun Background Worker yoki webhook arxitekturasi tavsiya etiladi.
 

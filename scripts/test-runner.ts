@@ -15,6 +15,7 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import fs from "fs";
 import path from "path";
+import dotenv from "dotenv";
 import {
   leadSchema,
   categorySchema,
@@ -22,7 +23,22 @@ import {
   collectionSchema,
   escapeHtml,
 } from "../packages/shared/src";
-import { checkRateLimitAtomic, cleanupExpiredRateLimits } from "../packages/db/src";
+import {
+  checkRateLimitAtomic,
+  cleanupExpiredRateLimits,
+  isTelegramUpdateProcessed,
+  acquireTelegramUpdateLock,
+  markTelegramUpdateDone,
+  rollbackTelegramUpdate,
+} from "../packages/db/src";
+
+// Alohida test DB ni .env.test orqali ajratish
+const testEnvPath = path.resolve(process.cwd(), ".env.test");
+if (fs.existsSync(testEnvPath)) {
+  dotenv.config({ path: testEnvPath, override: true });
+} else {
+  dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+}
 
 const prisma = new PrismaClient();
 
@@ -51,9 +67,18 @@ async function runTest(name: string, fn: () => Promise<void> | void): Promise<vo
 }
 
 async function main(): Promise<void> {
+  const rawUrl = process.env["DATABASE_URL"] || "";
+  const isDedicatedTest = fs.existsSync(testEnvPath);
+  const maskedUrl = rawUrl.replace(/:[^:@]+@/, ":***@");
+
   process.stdout.write("\n=======================================================\n");
   process.stdout.write("🛋️  MEBEL SALON — LOYIHANI INTEGRATSION TESTLASH\n");
-  process.stdout.write("=======================================================\n\n");
+  process.stdout.write("=======================================================\n");
+  if (isDedicatedTest) {
+    process.stdout.write(`🧪 Alohida test bazasi (.env.test): ${maskedUrl}\n\n`);
+  } else {
+    process.stdout.write(`ℹ️  Asosiy DB (.env ishlatilmoqda; .env.test topilmadi): ${maskedUrl}\n\n`);
+  }
 
   // ─────────────────────────────────────────────────────────────
   // 1. MA'LUMOTLAR BAZASI VA PRISMA ORM TESTLARI
@@ -582,6 +607,90 @@ async function main(): Promise<void> {
       throw new Error("Eskirgan yozuv hali ham bazada mavjud");
     }
   });
+
+  await runTest("Telegram update idempotency lifecycle (lock, done, rollback)", async () => {
+    const testUpdateId = 987654321;
+
+    // 1. Dastlab processed emas
+    const initialDone = await isTelegramUpdateProcessed(testUpdateId);
+    if (initialDone) {
+      throw new Error("Update oldindan bajarilgan bo'lmasligi kerak");
+    }
+
+    // 2. In-flight lock olish
+    const lock1 = await acquireTelegramUpdateLock(testUpdateId);
+    if (!lock1) {
+      throw new Error("Birinchi lock olinishi kerak edi");
+    }
+
+    // 3. Parallel kelgan ikkinchi so'rov lock ololmasligi kerak
+    const lock2 = await acquireTelegramUpdateLock(testUpdateId);
+    if (lock2) {
+      throw new Error("Parallel ikkinchi so'rov lock ololmasligi kerak edi");
+    }
+
+    // 4. Handler xato berganda ROLLBACK: lock va done o'chirilishi kerak
+    await rollbackTelegramUpdate(testUpdateId);
+    const retryLock = await acquireTelegramUpdateLock(testUpdateId);
+    if (!retryLock) {
+      throw new Error("Rollback'dan keyin retry lock olinishi kerak edi (update yo'qolmasligi shart)");
+    }
+
+    // 5. Handler muvaffaqiyatli tugaganda: OXIRIDA done yoziladi
+    await markTelegramUpdateDone(testUpdateId);
+    const finalDone = await isTelegramUpdateProcessed(testUpdateId);
+    if (!finalDone) {
+      throw new Error("Muvaffaqiyatli update done sifatida qayd etilishi kerak edi");
+    }
+
+    // Tozalash
+    await rollbackTelegramUpdate(testUpdateId);
+  });
+
+  // ─────────────────────────────────────────────────────────────
+  // TEST MA'LUMOTLARINI TO'LIQ TOZALASH (CLEANUP)
+  // ─────────────────────────────────────────────────────────────
+  process.stdout.write("\n🧹 Test ma'lumotlarini tozalash (cleanup)...\n");
+  try {
+    const deletedLimits = await prisma.rateLimit.deleteMany({
+      where: {
+        OR: [
+          { key: { startsWith: "test:" } },
+          { key: { startsWith: "tg_update" } },
+          { key: { startsWith: "auth:login:test" } },
+          { key: { startsWith: "api:lead:test" } },
+        ],
+      },
+    });
+
+    const deletedLeads = await prisma.lead.deleteMany({
+      where: {
+        customerName: { in: ["Test Foydalanuvchi", "Bot Test Foydalanuvchi"] },
+      },
+    });
+
+    await prisma.supportMessage.deleteMany({
+      where: { groupMessageId: 999999 },
+    });
+
+    await prisma.product.deleteMany({
+      where: { slug: "test-product-slug" },
+    });
+
+    await prisma.collection.deleteMany({
+      where: { slug: "test-collection-slug" },
+    });
+
+    await prisma.category.deleteMany({
+      where: { slug: "test-category-slug" },
+    });
+
+    process.stdout.write(
+      `  ✅ Barcha test yozuvlari tozalandi (rl/tg_update: ${deletedLimits.count}, test arizalar: ${deletedLeads.count})\n`
+    );
+  } catch (cleanErr) {
+    process.stderr.write(`  ⚠️ Tozalashda xatolik: ${cleanErr}\n`);
+  }
 
   // ─────────────────────────────────────────────────────────────
   // TEST XULOSASI
