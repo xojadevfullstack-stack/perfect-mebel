@@ -3,6 +3,8 @@ import { unstable_setRequestLocale } from "next-intl/server";
 import { prisma } from "@mebel-salon/db";
 import { CatalogView } from "@/components/catalog/catalog-view";
 
+export const dynamic = "force-dynamic";
+
 interface CatalogPageProps {
   params: { locale: string };
 }

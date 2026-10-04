@@ -1,10 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { ProductCard, type ProductCardData } from "@/components/catalog/product-card";
-import { ATELIER_PRODUCTS, type AtelierProduct } from "@/lib/catalog-data";
 import { RotateCcw } from "lucide-react";
 
 interface CategoryData {
@@ -21,6 +20,7 @@ interface CatalogViewProps {
 
 export function CatalogView({ initialCategories }: CatalogViewProps): React.JSX.Element {
   const locale = useLocale();
+  const t = useTranslations("catalog");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -29,6 +29,8 @@ export function CatalogView({ initialCategories }: CatalogViewProps): React.JSX.
 
   const [categories, setCategories] = React.useState<CategoryData[]>(initialCategories || []);
   const [selectedCategory, setSelectedCategory] = React.useState<string>(categoryParam);
+  const [products, setProducts] = React.useState<ProductCardData[]>([]);
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
   // Fetch categories from database API if not provided in initialCategories
   React.useEffect(() => {
@@ -43,71 +45,42 @@ export function CatalogView({ initialCategories }: CatalogViewProps): React.JSX.
             }
           }
         } catch {
-          // fallback
+          // ignore
         }
       };
       fetchCategories();
     }
   }, [categories]);
 
-  // Convert ATELIER_PRODUCTS to ProductCardData format
-  const mappedAtelierProducts: ProductCardData[] = React.useMemo(() => {
-    return ATELIER_PRODUCTS.map((p) => ({
-      id: p.id,
-      slug: p.slug,
-      titleUz: p.titleUz,
-      titleRu: p.titleRu,
-      titleEn: p.titleEn,
-      descUz: p.descUz,
-      descRu: p.descRu,
-      descEn: p.descEn,
-      dimensions: p.dimensions,
-      material: p.material,
-      warranty: p.warranty,
-      stockStatus: p.stockStatus,
-      images: p.images,
-      article: p.article,
-      colors: p.colors,
-      category: {
-        id: p.categorySlug,
-        slug: p.categorySlug,
-        nameUz: p.categoryName,
-        nameRu: p.categoryName,
-        nameEn: p.categoryName,
-      },
-    }));
-  }, []);
-
-  const [dbProducts, setDbProducts] = React.useState<ProductCardData[]>([]);
-
-  // Fetch from database API if present
+  // Fetch from database API
   React.useEffect(() => {
     async function fetchDb() {
+      setIsLoading(true);
       try {
-        const res = await fetch("/api/products?limit=50");
+        const res = await fetch("/api/products?limit=100");
         if (res.ok) {
           const json = await res.json();
-          if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-            setDbProducts(json.data);
+          if (json.success && Array.isArray(json.data)) {
+            setProducts(json.data);
           }
         }
       } catch {
-        // Fallback to ATELIER_PRODUCTS
+        setProducts([]);
+      } finally {
+        setIsLoading(false);
       }
     }
     fetchDb();
   }, []);
 
-  const allProducts = dbProducts.length > 0 ? dbProducts : mappedAtelierProducts;
-
   // Filter products based on selected category slug
   const filteredProducts = React.useMemo(() => {
-    return allProducts.filter((product) => {
+    return products.filter((product) => {
       if (!selectedCategory || selectedCategory === "all" || selectedCategory === "Barchasi") return true;
       const catSlug = product.category?.slug;
       return catSlug === selectedCategory;
     });
-  }, [allProducts, selectedCategory]);
+  }, [products, selectedCategory]);
 
   const resetFilters = () => {
     setSelectedCategory("all");
@@ -139,23 +112,21 @@ export function CatalogView({ initialCategories }: CatalogViewProps): React.JSX.
   const activeCategoryTitle = activeCategoryObj ? getCategoryName(activeCategoryObj) : selectedCategory;
   const isAllSelected = !selectedCategory || selectedCategory === "all" || selectedCategory === "Barchasi";
 
-  const allLabel = locale === "ru" ? "Все" : locale === "en" ? "All" : "Barchasi";
-
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-8 sm:py-16">
       {/* Eyebrow & Header */}
-      <p className="eyebrow">Atelier ko'rgazmasi 2026</p>
+      <p className="eyebrow">Atelier 2026</p>
       <h1 className="mt-2.5 font-serif text-3xl sm:text-5xl font-bold tracking-tight text-foreground">
-        Mebellar Katalogi
+        {t("title")}
       </h1>
       <p className="mt-2.5 text-xs sm:text-sm text-muted-foreground font-light max-w-2xl leading-relaxed">
-        Har bir buyum alohida e'tibor va tabiiy materiallar bilan yaratilgan me'moriy namunadir.
+        {t("subtitle")}
       </p>
 
       {/* Hairline Divider */}
       <div className="my-6 sm:my-10 h-px bg-border" />
 
-      {/* Filter Controls Row: Clean Minimalist Category Tabs */}
+      {/* Filter Controls Row */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5">
         <div className="flex flex-wrap gap-1.5 sm:gap-2">
           {/* Barchasi / All button */}
@@ -168,7 +139,7 @@ export function CatalogView({ initialCategories }: CatalogViewProps): React.JSX.
                 : "border-border bg-card text-foreground hover:border-foreground/60"
             }`}
           >
-            {allLabel}
+            {t("allCategories")}
           </button>
 
           {/* Dynamic DB categories */}
@@ -189,27 +160,31 @@ export function CatalogView({ initialCategories }: CatalogViewProps): React.JSX.
         </div>
 
         <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
-          <span>{filteredProducts.length} ta namuna</span>
+          <span>{filteredProducts.length} {t("itemsFound")}</span>
         </div>
       </div>
 
       {/* Reset Filter if active */}
       {!isAllSelected && (
         <div className="mt-4 flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground animate-in fade-in-0 duration-300">
-          <span className="text-foreground font-semibold">Kategoriya: {activeCategoryTitle}</span>
+          <span className="text-foreground font-semibold">{t("filterByCategory")}: {activeCategoryTitle}</span>
           <button
             type="button"
             onClick={resetFilters}
             className="inline-flex items-center gap-1.5 text-primary hover:text-primary-hover font-semibold transition-colors duration-200 hover:scale-105 active:scale-95"
           >
             <RotateCcw className="h-3 w-3" />
-            <span>Tozalash</span>
+            <span>{t("resetFilters")}</span>
           </button>
         </div>
       )}
 
       {/* 3-Column Product Grid */}
-      {filteredProducts.length > 0 ? (
+      {isLoading ? (
+        <div className="py-24 text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        </div>
+      ) : filteredProducts.length > 0 ? (
         <div className="mt-8 grid gap-7 sm:grid-cols-2 lg:grid-cols-3 animate-in fade-in-0 duration-500 ease-editorial">
           {filteredProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
@@ -218,17 +193,14 @@ export function CatalogView({ initialCategories }: CatalogViewProps): React.JSX.
       ) : (
         <div className="py-24 text-center space-y-4">
           <p className="font-serif text-2xl text-foreground">
-            Bu filtrlarga mos mebel topilmadi.
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Boshqa toifa yoki materialni tanlab ko'ring.
+            {t("empty")}
           </p>
           <button
             type="button"
             onClick={resetFilters}
             className="border border-border bg-card px-4 py-2 text-xs uppercase tracking-wider font-semibold text-foreground hover:bg-muted"
           >
-            Barcha mebellarni ko'rsatish
+            {t("resetFilters")}
           </button>
         </div>
       )}

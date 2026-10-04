@@ -1,19 +1,18 @@
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { unstable_setRequestLocale } from "next-intl/server";
+import { unstable_setRequestLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@mebel-salon/db";
-import { ProductCard, type ProductCardData } from "@/components/catalog/product-card";
+import { ProductCard } from "@/components/catalog/product-card";
 import { QuickConsultationForm } from "@/components/lead/quick-consultation-form";
 import {
   ArrowRight,
   Maximize2,
   ShieldCheck,
-  CheckCircle2,
-  PhoneCall,
   Layers,
 } from "lucide-react";
-import { ATELIER_PRODUCTS } from "@/lib/catalog-data";
+
+export const dynamic = "force-dynamic";
 
 interface HomePageProps {
   params: { locale: string };
@@ -23,9 +22,12 @@ export default async function HomePage({
   params: { locale },
 }: HomePageProps): Promise<React.JSX.Element> {
   unstable_setRequestLocale(locale);
+  const tNav = await getTranslations({ locale, namespace: "navigation" });
+  const tCatalog = await getTranslations({ locale, namespace: "catalog" });
+  const tCollections = await getTranslations({ locale, namespace: "collections" });
 
   // DB dan ommabop mahsulotlar va komplektlarni olish
-  const [popularDbProducts, dbCollections] = await Promise.all([
+  const [popularProducts, dbCollections] = await Promise.all([
     prisma.product.findMany({
       where: { stockStatus: "IN_STOCK" },
       take: 4,
@@ -40,68 +42,16 @@ export default async function HomePage({
       take: 3,
       orderBy: { createdAt: "desc" },
       include: {
+        products: {
+          select: { id: true, titleUz: true, titleRu: true, titleEn: true },
+          take: 4,
+        },
         _count: {
           select: { products: true },
         },
       },
     }),
   ]);
-
-  // Fallback products from ATELIER_PRODUCTS
-  const fallbackProducts: ProductCardData[] = ATELIER_PRODUCTS.slice(0, 4).map((p) => ({
-    id: p.id,
-    slug: p.slug,
-    titleUz: p.titleUz,
-    titleRu: p.titleRu,
-    titleEn: p.titleEn,
-    descUz: p.descUz,
-    descRu: p.descRu,
-    descEn: p.descEn,
-    dimensions: p.dimensions,
-    material: p.material,
-    warranty: p.warranty,
-    stockStatus: p.stockStatus,
-    images: p.images,
-    article: p.article,
-    colors: p.colors,
-    category: {
-      id: p.categorySlug,
-      slug: p.categorySlug,
-      nameUz: p.categoryName,
-      nameRu: p.categoryName,
-      nameEn: p.categoryName,
-    },
-  }));
-
-  const popularProducts = popularDbProducts.length > 0 ? popularDbProducts : fallbackProducts;
-
-  // Stitch & Lovable uslubidagi komplektlar
-  const featuredSets = [
-    {
-      slug: "nordic-yashash-xonasi",
-      title: "Nordic Yashash Xonasi To'plami",
-      category: "Yaxlit Ansambl",
-      items: ["Modulli Divan", "Jurnal Stoli", "TV Konsol"],
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuATnyonbIkv8ZAc6afuYQB25mX2C4CMBJi0udEuFwc9BOZo357mX1Teegjh1r1vN2VyR8U9DzS0gWXZXr9g8YDpshD1c0agf5QT1QnECZ1ytSryK7fZJ8Pj8L4_bSFWNK5iTEhxUZ7wOKXIGiGHzgUYq4-OjiRPIZrfouy7DvgiZm-jKl7s26_fFc1h32vRbVtMgLEoGOcXYKAnDV3juGl5RyBIySeKRG9YslIE4p7xETuhfkf-WCYLSArkvMX-tHO8Lm8xwrXqtNQ",
-    },
-    {
-      slug: "kyoto-yotoqxona-toplami",
-      title: "Venetsiya Yotoqxona To'plami",
-      category: "Yaxlit Ansambl",
-      items: ["Boucle Krovat", "2 ta Tumba", "Kitob Javoni"],
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuAcDYSRzNE0rrW_Po8KOGmWeFj0Le5F2yCM-hkdAfBF825NkJLjakp8T9MNNlLdYWBG9ik8jPcdcwkj0-HUAUuGZbfW9IJW-FXkDM0bnL6sVB5KeY4IesTLOf3ASiqBT9Sg3VSP__3QFsMLWpuUJSVUerUIEc-VRVzpbd5usKe9YxQ_G0CgmQb8DR9x75S3dDB8C10k8MOvcMPoYH_S3TSax005YrqLafmogujVZuf3B6bExpjcwnoz1rIo6DLJCL7Ot16Pn2Zb-LE",
-    },
-    {
-      slug: "milano-ovqatlanish-toplami",
-      title: "Milano Ovqatlanish To'plami",
-      category: "Yaxlit Ansambl",
-      items: ["Katta Ovqat Stoli", "Tivoli Stuli", "Zen Kreslo"],
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuAvG1FELOfv6qU5qk8w7fjYgJfcJwAhtUElBQAm_ozXUCpFbD2Cz2ycaQgDJ8UWZAWR0TJwlArzpb88hNMbeYV9n9u0UNCizVwjWig111eCS59BJT8g-nWi7ulFh_Yxt3moil7qm6pwM0yo5wo3cRDedRvF3nXpwO5rtKiYvTQaijW4122HU4558GtTQrijheGi3wF8OKcmOBNx4JXzXKR0Ygh4XDsE_O5bq3D6dEQzHmDVSURaakNrojs90170bmKflp1gDoaSnks",
-    },
-  ];
 
   return (
     <div className="space-y-16 sm:space-y-24">
@@ -131,7 +81,7 @@ export default async function HomePage({
               href={`/${locale}/catalog`}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 sm:px-8 sm:py-3.5 bg-primary hover:bg-primary-hover text-primary-foreground font-semibold text-xs uppercase tracking-wider rounded-none smooth-btn shadow-none"
             >
-              <span>Katalogni ko'rish</span>
+              <span>{tNav("catalog")}</span>
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
 
@@ -139,34 +89,32 @@ export default async function HomePage({
               href={`/${locale}/contact`}
               className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-3.5 border border-border-strong hover:border-foreground hover:bg-foreground hover:text-background bg-card text-foreground font-semibold text-xs uppercase tracking-wider rounded-none smooth-btn"
             >
-              Konsultatsiya olish
+              <span>{tNav("contacts")}</span>
             </Link>
           </div>
+        </div>
 
-          {/* Panoramic Editorial Showcase Banner (Pristine Luxury Interior Photography) */}
-          <div className="group relative w-full aspect-[4/3] sm:aspect-[16/9] md:aspect-[21/9] overflow-hidden border border-border bg-card shadow-whisper">
+        {/* Hero Architectural Image Showcase */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          <div className="relative aspect-[16/9] md:aspect-[21/9] w-full overflow-hidden border border-border bg-card">
             <Image
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuATnyonbIkv8ZAc6afuYQB25mX2C4CMBJi0udEuFwc9BOZo357mX1Teegjh1r1vN2VyR8U9DzS0gWXZXr9g8YDpshD1c0agf5QT1QnECZ1ytSryK7fZJ8Pj8L4_bSFWNK5iTEhxUZ7wOKXIGiGHzgUYq4-OjiRPIZrfouy7DvgiZm-jKl7s26_fFc1h32vRbVtMgLEoGOcXYKAnDV3juGl5RyBIySeKRG9YslIE4p7xETuhfkf-WCYLSArkvMX-tHO8Lm8xwrXqtNQ"
-              alt="Perfect Mebel Atelier Showcase"
+              src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=2000&q=80"
+              alt="Mebel Salon Showcase"
               fill
               priority
-              sizes="100vw"
-              className="object-cover transition-transform duration-1000 ease-editorial group-hover:scale-[1.025]"
+              sizes="(max-width: 1280px) 100vw, 1280px"
+              className="object-cover"
             />
-            <div className="absolute bottom-2.5 left-2.5 right-2.5 sm:right-auto sm:bottom-8 sm:left-8 max-w-md border border-border bg-card p-3 sm:p-5 text-left space-y-1 shadow-md">
-              <span className="eyebrow block text-[10px] sm:text-[11px]">
-                Atelier &bull; Individual Mebel
-              </span>
-              <p className="font-serif text-sm sm:text-lg md:text-xl font-normal text-foreground leading-snug">
-                "Har bir mebel — shaxsiy xonadoningiz me'moriy davomi."
-              </p>
+            <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 px-3 py-1.5 sm:px-4 sm:py-2 border border-border/80 bg-card/90 backdrop-blur-sm text-foreground text-[10px] sm:text-xs uppercase tracking-wider font-semibold shadow-sm">
+              Atelier &bull; Individual Mebel
             </div>
           </div>
         </div>
       </section>
 
       {/* ======================================================== */}
-      {/* 2. SECTION 1: OMMABOP MEBELLAR (Curated Products) */}
+      {/* 2. SECTION 1: SARALANGAN MAHSULOTLAR (4-Card Grid) */}
       {/* ======================================================== */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
@@ -182,17 +130,23 @@ export default async function HomePage({
             href={`/${locale}/catalog`}
             className="editorial-link"
           >
-            <span className="editorial-link-text">Barchasini ko'rish</span>
+            <span className="editorial-link-text">{tCatalog("title")}</span>
             <ArrowRight className="editorial-link-arrow" />
           </Link>
         </div>
 
         {/* 4-Column Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {popularProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {popularProducts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {popularProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        ) : (
+          <div className="py-12 border border-dashed border-border text-center text-muted-foreground">
+            <p>{tCatalog("empty")}</p>
+          </div>
+        )}
       </section>
 
       {/* ======================================================== */}
@@ -205,8 +159,8 @@ export default async function HomePage({
             <div className="lg:col-span-6">
               <div className="relative aspect-[4/3] w-full overflow-hidden border border-border bg-card">
                 <Image
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcDYSRzNE0rrW_Po8KOGmWeFj0Le5F2yCM-hkdAfBF825NkJLjakp8T9MNNlLdYWBG9ik8jPcdcwkj0-HUAUuGZbfW9IJW-FXkDM0bnL6sVB5KeY4IesTLOf3ASiqBT9Sg3VSP__3QFsMLWpuUJSVUerUIEc-VRVzpbd5usKe9YxQ_G0CgmQb8DR9x75S3dDB8C10k8MOvcMPoYH_S3TSax005YrqLafmogujVZuf3B6bExpjcwnoz1rIo6DLJCL7Ot16Pn2Zb-LE"
-                  alt="Venetsiya kolleksiyasi"
+                  src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80"
+                  alt="Mebel ustaxonasi"
                   fill
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   className="object-cover"
@@ -235,7 +189,7 @@ export default async function HomePage({
                       24 Oylik Kafolat
                     </h4>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Har bir detal va mexanizm uchun to'liq rasmiy kafolat.
+                      Barcha konstruksiyalar va furnishing qismlariga rasmiy kafolat.
                     </p>
                   </div>
                 </div>
@@ -258,7 +212,7 @@ export default async function HomePage({
                   href={`/${locale}/about`}
                   className="editorial-link"
                 >
-                  <span className="editorial-link-text">Biz haqimizda batafsil o'qish</span>
+                  <span className="editorial-link-text">{tNav("about")}</span>
                   <ArrowRight className="editorial-link-arrow" />
                 </Link>
               </div>
@@ -277,60 +231,91 @@ export default async function HomePage({
               Garniturlar &bull; Ansambllar
             </span>
             <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-foreground font-bold tracking-tight">
-              Mukammal To'plamlar
+              {tCollections("title")}
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground mt-1 font-light">
-              Bir butun xona uchun tayyor uyg'un echimlar: krovat, divan, jurnal stoli va konsollar.
+              {tCollections("subtitle")}
             </p>
           </div>
           <Link
             href={`/${locale}/collections`}
             className="editorial-link"
           >
-            <span className="editorial-link-text">Barcha to'plamlar</span>
+            <span className="editorial-link-text">{tCollections("title")}</span>
             <ArrowRight className="editorial-link-arrow" />
           </Link>
         </div>
 
-        {/* 3 Sets Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {featuredSets.map((set, idx) => (
-            <Link
-              key={idx}
-              href={`/${locale}/collections/${set.slug}`}
-              className="group smooth-card border border-border bg-card overflow-hidden block"
-            >
-              <div className="relative aspect-[16/10] overflow-hidden bg-muted">
-                <Image
-                  src={set.image}
-                  alt={set.title}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover transition-transform duration-1000 ease-editorial group-hover:scale-105"
-                />
-                <span className="status absolute top-3 left-3 shadow-sm">
-                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                  <span>{set.category}</span>
-                </span>
-              </div>
-              <div className="p-5 sm:p-6 space-y-2.5">
-                <h3 className="font-serif text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-300 ease-editorial">
-                  {set.title}
-                </h3>
-                <div className="flex flex-wrap gap-1.5">
-                  {set.items.map((item, i) => (
-                    <span
-                      key={i}
-                      className="text-[10px] uppercase tracking-wider px-2 py-0.5 border border-border/80 text-muted-foreground"
-                    >
-                      {item}
+        {/* Collections Grid from DB */}
+        {dbCollections.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {dbCollections.map((col) => {
+              const title =
+                locale === "ru" && col.titleRu
+                  ? col.titleRu
+                  : locale === "en" && col.titleEn
+                  ? col.titleEn
+                  : col.titleUz;
+
+              const coverImage = col.images.length > 0 ? col.images[0] : null;
+
+              return (
+                <Link
+                  key={col.id}
+                  href={`/${locale}/collections/${col.slug}`}
+                  className="group smooth-card border border-border bg-card overflow-hidden block"
+                >
+                  <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+                    {coverImage ? (
+                      <Image
+                        src={coverImage}
+                        alt={title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover transition-transform duration-1000 ease-editorial group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                        <Layers className="h-10 w-10 stroke-1" />
+                      </div>
+                    )}
+                    <span className="status absolute top-3 left-3 shadow-sm">
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                      <span>{col._count.products} ta mebel</span>
                     </span>
-                  ))}
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+                  </div>
+                  <div className="p-5 sm:p-6 space-y-2.5">
+                    <h3 className="font-serif text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-300 ease-editorial">
+                      {title}
+                    </h3>
+                    <div className="flex flex-wrap gap-1.5">
+                      {col.products.map((p) => {
+                        const itemTitle =
+                          locale === "ru" && p.titleRu
+                            ? p.titleRu
+                            : locale === "en" && p.titleEn
+                            ? p.titleEn
+                            : p.titleUz;
+                        return (
+                          <span
+                            key={p.id}
+                            className="text-[10px] uppercase tracking-wider px-2 py-0.5 border border-border/80 text-muted-foreground"
+                          >
+                            {itemTitle}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="py-12 border border-dashed border-border text-center text-muted-foreground">
+            <p>{tCollections("empty")}</p>
+          </div>
+        )}
       </section>
 
       {/* ======================================================== */}
@@ -359,6 +344,7 @@ export default async function HomePage({
                   src="https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?q=80&w=1200&auto=format&fit=crop"
                   alt="Ustaxona jarayoni — Toshkent"
                   fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                   className="object-cover"
                 />
                 <div className="absolute bottom-3 left-3 px-3 py-1.5 border border-border bg-card text-foreground text-[10px] uppercase tracking-wider font-semibold shadow-sm">
@@ -376,7 +362,7 @@ export default async function HomePage({
                     href={`/${locale}/about`}
                     className="editorial-link"
                   >
-                    <span className="editorial-link-text">Biz haqimizda batafsil o'qish</span>
+                    <span className="editorial-link-text">{tNav("about")}</span>
                     <ArrowRight className="editorial-link-arrow" />
                   </Link>
                 </div>
