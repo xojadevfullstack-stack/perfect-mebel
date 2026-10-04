@@ -16,9 +16,9 @@ const nextConfig = {
     serverComponentsExternalPackages: ["@prisma/client", "bcryptjs"],
     outputFileTracingRoot: path.join(__dirname, "../../"),
     outputFileTracingIncludes: {
-      "/api/**/*": [
-        "../../node_modules/.pnpm/@prisma+client*/**",
-        "../../node_modules/.pnpm/prisma*/**",
+      "/**/*": [
+        "../../packages/db/node_modules/.prisma/**/*",
+        "../../node_modules/.pnpm/@prisma+client*/**/*",
       ],
     },
   },
