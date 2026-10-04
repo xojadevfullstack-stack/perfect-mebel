@@ -11,9 +11,9 @@ const __dirname = path.dirname(__filename);
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  transpilePackages: ["@mebel-salon/db", "@mebel-salon/shared"],
+  transpilePackages: ["@mebel-salon/db", "@mebel-salon/shared", "@mebel-salon/telegram"],
   experimental: {
-    serverComponentsExternalPackages: ["@prisma/client", "bcryptjs"],
+    serverComponentsExternalPackages: ["@prisma/client", "bcryptjs", "grammy"],
     outputFileTracingRoot: path.join(__dirname, "../../"),
     outputFileTracingIncludes: {
       "/**/*": [

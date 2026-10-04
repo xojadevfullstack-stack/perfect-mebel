@@ -83,9 +83,11 @@ JWT_SECRET="your-super-secret-key-32-chars-min"
 ### 5. Auth / Security (Avtorizatsiya)
 | Variable Name | Required | Description | Example Value |
 | --- | --- | --- | --- |
-| `JWT_SECRET` | Yes | JWT (jose) va sessiyalar shifrlash uchun maxfiy kalit. | `random-string-generate-with-openssl` |
+| `JWT_SECRET` | Yes | JWT (jose) va sessiyalar shifrlash uchun kamida 32 ta belgidan iborat maxfiy kalit. | `random-string-generate-with-openssl` |
+| `ADMIN_INITIAL_PASSWORD` | Optional | Dastlabki admin foydalanuvchini DB seed qilishda o'rnatiladigan parol. | `StrongAdminPass2026!` |
+| `TELEGRAM_WEBHOOK_SECRET` | Yes | Telegram Webhook so'rovlarini verifikatsiya qilish uchun maxfiy token (X-Telegram-Bot-Api-Secret-Token). | `random-webhook-secret-token` |
 
-*Qanday olish mumkin?* `JWT_SECRET` yaratish uchun terminalda `openssl rand -base64 32` buyrug'ini ishlating yoki xavfsiz tasodifiy matn yozing.
+*Qanday olish mumkin?* `JWT_SECRET` va `TELEGRAM_WEBHOOK_SECRET` yaratish uchun terminalda `openssl rand -base64 32` yoki `openssl rand -hex 24` buyrug'ini ishlating.
 
 ---
 

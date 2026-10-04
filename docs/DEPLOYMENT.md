@@ -62,6 +62,7 @@ DATABASE_URL="<DIRECT_URL>" DIRECT_URL="<DIRECT_URL>" pnpm --filter @mebel-salon
    - `JWT_SECRET`: 32+ belgidan iborat tasodifiy maxfiy kalit (`openssl rand -base64 32`)
    - `ADMIN_INITIAL_PASSWORD`: Admin yaratish paroli (agar kerak bo'lsa)
    - `TELEGRAM_BOT_TOKEN`: BotFather bergan bot tokeni
+   - `TELEGRAM_WEBHOOK_SECRET`: Webhook so'rovlarini himoyalash maxfiy tokeni (`openssl rand -hex 24`)
    - `TELEGRAM_FACTORY_CHANNEL_ID`: Zavod kanali ID si (masalan, `-1001234567890`)
    - `TELEGRAM_SUPPORT_GROUP_ID`: Mijozlar bilan jonli chat guruhi ID si (ixtiyoriy)
    - `NEXT_PUBLIC_APP_URL`: Vercel bergan URL yoki o'z domeningiz (masalan, `https://mebelsalon.uz`)
@@ -71,6 +72,15 @@ DATABASE_URL="<DIRECT_URL>" DIRECT_URL="<DIRECT_URL>" pnpm --filter @mebel-salon
    - `SUPABASE_SERVICE_ROLE_KEY`: Supabase service_role key
 
 > **Eslatma:** Agar Vercel build paytida Prisma query engine topilmasa, `apps/web/next.config.mjs` da `outputFileTracingRoot` sozlamasi tekshiriladi va generatorga `binaryTargets = ["native", "rhel-openssl-3.0.x"]` qo'shiladi.
+
+### Webhook Sozlash (Vercel orqali bepul 24/7 ishlash):
+Agar Render o'rniga Vercel orqali bepul webhook ishlatmoqchi bo'lsangiz:
+1. Vercel muhitiga `TELEGRAM_WEBHOOK_SECRET` ni qo'shing.
+2. Vercel deploy yakunlangach, terminaldan quyidagi skriptni yurgizing:
+   ```bash
+   pnpm bot:set-webhook
+   ```
+   Bu skript avtomatik ravishda `https://<sizning-saytingiz>/api/bot` manziliga webhook o'rnatadi.
 
 ---
 

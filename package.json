@@ -16,6 +16,7 @@
                     "db:studio":  "pnpm --filter @mebel-salon/db studio",
                     "lint":  "pnpm --filter @mebel-salon/web lint",
                     "type-check":  "pnpm -r exec tsc --noEmit",
+                    "bot:set-webhook": "tsx scripts/set-webhook.ts",
                     "test":  "pnpm --filter @mebel-salon/db exec tsx ../../scripts/test-runner.ts"
                 },
     "devDependencies":  {
