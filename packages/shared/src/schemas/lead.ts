@@ -2,7 +2,11 @@ import { z } from "zod";
 
 export const leadSchema = z.object({
   customerName: z.string().min(2, "Ism kamida 2 ta belgidan iborat bo'lishi kerak").max(100, "Ism 100 belgidan oshmasligi kerak"),
-  phone: z.string().min(9, "Telefon raqami noto'g'ri").max(20, "Telefon raqami 20 belgidan oshmasligi kerak"),
+  phone: z
+    .string()
+    .min(9, "Telefon raqami kamida 9 ta belgidan iborat bo'lishi kerak")
+    .max(20, "Telefon raqami 20 belgidan oshmasligi kerak")
+    .regex(/^\+?[0-9\s\-()]{9,20}$/, "Telefon raqami noto'g'ri formatda"),
   address: z.string().max(300, "Manzil 300 belgidan oshmasligi kerak").optional().nullable().or(z.literal("")),
   latitude: z.number().optional().nullable(),
   longitude: z.number().optional().nullable(),

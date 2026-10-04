@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import { locales, defaultLocale } from "./i18n/request";
-import { verifyAdminToken } from "@/lib/auth";
+import { verifyAdminToken } from "@/lib/jwt";
 
 const intlMiddleware = createMiddleware({
   locales,

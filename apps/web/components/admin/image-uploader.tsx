@@ -155,7 +155,7 @@ export function ImageUploader({
               )}
 
               {/* Actions overlay */}
-              <div className="absolute inset-0 flex items-center justify-center gap-1 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+              <div className="absolute inset-0 flex items-center justify-center gap-1 bg-footer/60 backdrop-blur-[2px] opacity-0 transition-opacity group-hover:opacity-100">
                 {idx !== 0 && (
                   <Button
                     type="button"

@@ -14,9 +14,11 @@
     "home": "Bosh sahifa",
     "catalog": "Katalog",
     "collections": "Komplektlar",
+    "about": "Biz haqimizda",
     "mySelections": "Tanlovlarim",
     "contacts": "Aloqa",
-    "admin": "Admin Panel"
+    "admin": "Admin Panel",
+    "consultation": "Maslahat olish"
   },
   "home": {
     "heroBadge": "To'g'ridan-to'g'ri zavoddan • Maxsus buyurtma",
@@ -54,8 +56,8 @@
     "madeToOrder": "Buyurtma asosida",
     "viewDetails": "Batafsil",
     "hideDetails": "Yashirish",
-    "addToSelection": "Tanlash ➕",
-    "inSelection": "Tanlandi ✅",
+    "addToSelection": "Tanlash",
+    "inSelection": "Tanlandi",
     "askPrice": "Narxini bilish",
     "orderViaTelegram": "Telegram orqali buyurtma",
     "dimensions": "O'lchamlari",
@@ -83,7 +85,7 @@
     "title": "Mening tanlovlarim",
     "subtitle": "Siz qiziqqan va tanlagan mebellar ro'yxati",
     "empty": "Hozircha hech narsa tanlamadingiz",
-    "emptyHint": "Katalogdan o'zingizga yoqqan mebellarni 'Tanlash ➕' tugmasi orqali bu yerga qo'shing.",
+    "emptyHint": "Katalogdan o'zingizga yoqqan mebellarni 'Tanlash' tugmasi orqali bu yerga qo'shing.",
     "clearAll": "Hammasini tozalash",
     "submitLead": "Ariza qoldirish",
     "selectedItemsCount": "ta tanlangan mahsulot"
@@ -102,7 +104,7 @@
     "notesPlaceholder": "O'lcham, rang yoki yetkazib berish bo'yicha istaklaringizni yozing",
     "submit": "Arizani yuborish",
     "submitting": "Yuborilmoqda...",
-    "successTitle": "Arizangiz muvaffaqiyatli qabul qilindi! 🎉",
+    "successTitle": "Arizangiz muvaffaqiyatli qabul qilindi!",
     "successDesc": "Menejerimiz tez orada siz bilan bog'lanadi. Bizni tanlaganingiz uchun rahmat!"
   },
   "contact": {

@@ -2,132 +2,123 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useTranslations, useLocale } from "next-intl";
-import { Sparkles, Phone, MapPin, Clock, Send } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { Phone, MapPin, Clock, Send, Award } from "lucide-react";
+import { BrandLogo } from "@/components/ui/brand-logo";
 
 export function Footer(): React.JSX.Element {
   const locale = useLocale();
   const tNav = useTranslations("navigation");
-  const tFoot = useTranslations("footer");
-  const tContact = useTranslations("contact");
-  const tCommon = useTranslations("common");
 
   return (
-    <footer className="border-t border-border bg-card text-card-foreground">
-      <div className="container mx-auto px-4 py-12 sm:px-8">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {/* Brand Info */}
-          <div className="space-y-4">
-            <Link href={`/${locale}`} className="flex items-center space-x-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
-                <Sparkles className="h-4 w-4" />
-              </div>
-              <span className="text-lg font-bold tracking-tight text-foreground">
-                Mebel Salon
-              </span>
+    <footer className="w-full border-t border-footer-border bg-footer text-footer-foreground transition-colors duration-200">
+      <div className="container mx-auto px-5 py-16 sm:px-8 max-w-site">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-12">
+          {/* Brand & Philosophy Column (4 cols) */}
+          <div className="space-y-4 md:col-span-4">
+            <Link
+              href={`/${locale}`}
+              className="inline-flex focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+              aria-label="Perfect Mebel"
+            >
+              <BrandLogo size="lg" subtitle="Atelier & Curation" inverted />
             </Link>
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              {tFoot("about")}
+            <p className="text-xs font-light leading-relaxed text-footer-muted max-w-sm">
+              Sokin hashamat va me'moriy muvozanatga asoslangan O'zbekiston mualliflik mebel atelyesi. Tabiiy materiallar va qo'lda ishlangan nafislik.
             </p>
-            <div className="pt-1">
-              <a
-                href="https://t.me/mebel_salon_bot"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center space-x-2 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors"
-              >
-                <Send className="h-3.5 w-3.5" />
-                <span>{tContact("telegramChannel")}</span>
-              </a>
+            <div className="flex items-center space-x-2 text-xs pt-1">
+              <Award className="h-4 w-4 text-footer-accent" />
+              <span className="text-[10px] uppercase font-bold tracking-[0.14em] text-footer-accent">
+                Atelier ko'rgazmasi 2026
+              </span>
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-semibold tracking-tight text-foreground">
-              {tFoot("quickLinks")}
+          {/* Quick Links (2 cols) */}
+          <div className="space-y-3 md:col-span-2">
+            <h4 className="text-[10px] font-bold uppercase tracking-widest text-footer-foreground">
+              Bo'limlar
             </h4>
-            <ul className="space-y-2 text-xs text-muted-foreground">
+            <ul className="space-y-2 text-xs text-footer-muted">
               <li>
-                <Link href={`/${locale}`} className="hover:text-primary transition-colors">
+                <Link href={`/${locale}`} className="hover:text-footer-foreground transition-colors">
                   {tNav("home")}
                 </Link>
               </li>
               <li>
-                <Link href={`/${locale}/catalog`} className="hover:text-primary transition-colors">
+                <Link href={`/${locale}/catalog`} className="hover:text-footer-foreground transition-colors">
                   {tNav("catalog")}
                 </Link>
               </li>
               <li>
-                <Link href={`/${locale}/collections`} className="hover:text-primary transition-colors">
+                <Link href={`/${locale}/collections`} className="hover:text-footer-foreground transition-colors">
                   {tNav("collections")}
                 </Link>
               </li>
               <li>
-                <Link href={`/${locale}/contact`} className="hover:text-primary transition-colors">
-                  {tNav("contacts")}
+                <Link href={`/${locale}/about`} className="hover:text-footer-foreground transition-colors">
+                  Biz haqimizda
                 </Link>
               </li>
               <li>
-                <Link href="/admin/login" className="hover:text-primary transition-colors text-muted-foreground/70">
-                  {tNav("admin")}
+                <Link href={`/${locale}/contact`} className="hover:text-footer-foreground transition-colors">
+                  {tNav("contacts")}
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Showroom & Factory */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-semibold tracking-tight text-foreground">
-              {tContact("showroomTitle")}
+          {/* Showroom (3 cols) */}
+          <div className="space-y-3 md:col-span-3">
+            <h4 className="text-[10px] font-bold uppercase tracking-widest text-footer-foreground">
+              Showroom &amp; Vitrina
             </h4>
-            <div className="space-y-2 text-xs text-muted-foreground">
+            <div className="space-y-2 text-xs text-footer-muted">
               <p className="flex items-start space-x-2">
-                <MapPin className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                <span>{tContact("showroomAddress")}</span>
+                <MapPin className="h-4 w-4 text-footer-accent shrink-0 mt-0.5" />
+                <span>Toshkent sh., Bunyodkor shox ko'chasi, 42-uy ("Novza" metrosi yaqinida)</span>
               </p>
-              <p className="flex items-start space-x-2 pt-2 border-t border-border/50">
-                <MapPin className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                <span>
-                  <strong className="block text-foreground font-medium">{tContact("factoryTitle")}:</strong>
-                  {tContact("factoryAddress")}
-                </span>
+              <p className="flex items-start space-x-2">
+                <Clock className="h-4 w-4 text-footer-accent shrink-0 mt-0.5" />
+                <span>Dushanba–Shanba: 10:00–20:00</span>
               </p>
             </div>
           </div>
 
-          {/* Contact Details */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-semibold tracking-tight text-foreground">
-              {tContact("phonesTitle")}
+          {/* Contact Details (3 cols) */}
+          <div className="space-y-3 md:col-span-3">
+            <h4 className="text-[10px] font-bold uppercase tracking-widest text-footer-foreground">
+              Aloqa &amp; Telegram
             </h4>
-            <div className="space-y-2 text-xs text-muted-foreground">
+            <div className="space-y-2 text-xs text-footer-muted">
               <p className="flex items-center space-x-2">
-                <Phone className="h-4 w-4 text-primary shrink-0" />
-                <a href="tel:+998901234567" className="hover:text-primary transition-colors font-medium text-foreground">
-                  +998 (90) 123-45-67
+                <Phone className="h-4 w-4 text-footer-accent shrink-0" />
+                <a href="tel:+998712008800" className="hover:text-footer-foreground font-medium text-footer-foreground transition-colors">
+                  +998 (71) 200-88-00
                 </a>
               </p>
-              <p className="flex items-center space-x-2">
-                <Phone className="h-4 w-4 text-primary shrink-0" />
-                <a href="tel:+998712000000" className="hover:text-primary transition-colors font-medium text-foreground">
-                  +998 (71) 200-00-00
+              <p className="flex items-center space-x-2 pt-1">
+                <Send className="h-4 w-4 text-footer-accent shrink-0" />
+                <a
+                  href="https://t.me/perfectmebel_uz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline text-footer-accent font-semibold transition-colors"
+                >
+                  @perfectmebel_uz
                 </a>
-              </p>
-              <p className="flex items-start space-x-2 pt-2 text-[11px]">
-                <Clock className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
-                <span>{tContact("workingHoursDesc")}</span>
               </p>
             </div>
           </div>
         </div>
 
-        {/* Bottom copyright */}
-        <div className="mt-8 border-t border-border/60 pt-6 text-center text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} Mebel Salon. {tFoot("allRightsReserved")}</p>
-          <p className="mt-1 text-[11px] text-muted-foreground/70">
-            {tCommon("siteDescription")}
-          </p>
+        <div className="mt-12 flex flex-col items-center justify-between border-t border-footer-border pt-6 text-[10px] text-footer-muted uppercase tracking-wider sm:flex-row">
+          <p>© {new Date().getFullYear()} PERFECT MEBEL. Barcha huquqlar himoyalangan.</p>
+          <div className="mt-3 flex items-center space-x-6 sm:mt-0">
+            <Link href="/admin/login" className="hover:text-footer-foreground transition-colors">
+              {tNav("admin")}
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

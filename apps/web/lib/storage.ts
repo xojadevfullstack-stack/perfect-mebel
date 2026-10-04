@@ -9,7 +9,6 @@ const ALLOWED_MIME_TYPES = [
   "image/png",
   "image/webp",
   "image/gif",
-  "image/svg+xml",
 ];
 
 export async function uploadImageFile(file: File): Promise<{ url: string }> {
@@ -17,7 +16,7 @@ export async function uploadImageFile(file: File): Promise<{ url: string }> {
     throw new Error("Fayl tanlanmagan");
   }
 
-  if (!ALLOWED_MIME_TYPES.includes(file.type) && !file.type.startsWith("image/")) {
+  if (!ALLOWED_MIME_TYPES.includes(file.type)) {
     throw new Error("Faqat rasm fayllari (JPG, PNG, WebP, GIF) qabul qilinadi");
   }
 

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@mebel-salon/db";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: Request): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(req.url);
@@ -32,7 +34,7 @@ export async function GET(req: Request): Promise<NextResponse> {
       },
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Serverda xatolik yuz berdi";
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    console.error("Collections API Error:", error);
+    return NextResponse.json({ success: false, error: "Serverda xatolik yuz berdi" }, { status: 500 });
   }
 }

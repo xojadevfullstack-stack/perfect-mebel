@@ -4,85 +4,184 @@
 
 @layer base {
   :root {
-    --background: 40 30% 98%;
-    --foreground: 24 10% 10%;
+    --radius: 0rem;
 
-    --card: 0 0% 100%;
-    --card-foreground: 24 10% 10%;
+    /* Semantic Warm Minimalist / Atelier Design Tokens */
+    --background: oklch(0.972 0.010 82);          /* Iliq ivory / cream fon */
+    --foreground: oklch(0.182 0.009 60);          /* Deyarli qora, to'q ko'mir matn (sof qora emas) */
+    --card: oklch(0.986 0.006 82);                /* Nafis och ivory card */
+    --card-foreground: oklch(0.182 0.009 60);
+    --popover: oklch(0.986 0.006 82);
+    --popover-foreground: oklch(0.182 0.009 60);
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 24 10% 10%;
+    --primary: oklch(0.380 0.090 46);             /* Og'ir, boy, chuqur konyak / oliyjanob eman-charm rang */
+    --primary-hover: oklch(0.320 0.080 44);       /* Tugma hover holati */
+    --primary-foreground: oklch(0.985 0.006 82);  /* Tugma ustidagi iliq ivory matn (sof oq emas) */
 
-    --primary: 38 92% 50%;
-    --primary-foreground: 24 10% 10%;
+    --secondary: oklch(0.915 0.009 75);           /* Ikkilamchi stone / warm gray */
+    --secondary-foreground: oklch(0.230 0.010 60);
 
-    --secondary: 36 25% 94%;
-    --secondary-foreground: 24 10% 10%;
+    --muted: oklch(0.935 0.009 78);               /* Yumshoq tosh fon */
+    --muted-foreground: oklch(0.440 0.014 65);    /* Aniq o'qiladigan tosh-ko'mir ikkilamchi matn */
 
-    --muted: 36 20% 92%;
-    --muted-foreground: 24 6% 45%;
+    --accent: oklch(0.905 0.012 75);              /* Stone accent */
+    --accent-foreground: oklch(0.230 0.010 60);
 
-    --accent: 38 90% 90%;
-    --accent-foreground: 24 10% 10%;
+    --destructive: oklch(0.520 0.150 28);
+    --destructive-foreground: oklch(0.985 0.006 82);
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
+    --border: oklch(0.875 0.010 75);              /* Yupqa tosh chiziq chegara */
+    --border-strong: oklch(0.720 0.015 72);       /* Ajratuvchi chiziq */
+    --input: oklch(0.945 0.008 80);               /* Input foni */
+    --ring: oklch(0.380 0.090 46);
 
-    --success: 158 64% 42%;
-    --success-foreground: 0 0% 100%;
+    --success: oklch(0.520 0.110 150);            /* Tabiiy sokin yashil */
+    --warning: oklch(0.680 0.120 70);             /* Sokin iliq ocher */
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
-
-    --border: 36 14% 88%;
-    --input: 36 14% 88%;
-    --ring: 38 92% 50%;
-
-    --radius: 0.375rem;
+    --footer: oklch(0.135 0.007 55);              /* Chuqur ko'mir rang footer */
+    --footer-foreground: oklch(0.925 0.009 78);   /* Sokin ivory matn */
+    --footer-muted: oklch(0.620 0.012 70);        /* Stone matn */
+    --footer-accent: oklch(0.560 0.090 48);       /* Chuqur amber urg'u */
+    --footer-border: oklch(0.220 0.008 60);       /* Yupqa ko'mir chegara */
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Chuqur, sokin, hashamatli espresso-ko'mir foni (arzon kulrang yoki AI slop emas) */
+    --background: oklch(0.132 0.007 55);          /* Chuqur ko'mir fon (~#141210) */
+    --foreground: oklch(0.925 0.009 78);          /* Iliq ivory / zig'ir matn (sof oq emas) */
+    --card: oklch(0.160 0.008 58);                /* Chuqur tosh card (~#1B1916) */
+    --card-foreground: oklch(0.925 0.009 78);
+    --popover: oklch(0.160 0.008 58);
+    --popover-foreground: oklch(0.925 0.009 78);
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --primary: oklch(0.575 0.100 48);             /* Oliyjanob boy bronza-konyak (ko'zga aniq tashlanadigan, qorong'i bo'lmagan) */
+    --primary-hover: oklch(0.520 0.095 46);       /* Konyak hover */
+    --primary-foreground: oklch(0.985 0.006 82);  /* Iliq ivory matn */
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --secondary: oklch(0.205 0.008 60);           /* Qorong'i stone / tosh */
+    --secondary-foreground: oklch(0.850 0.010 75);
 
-    --primary: 20.5 90.2% 48.2%;
-    --primary-foreground: 60 9.1% 97.8%;
+    --muted: oklch(0.190 0.008 58);               /* Tinch tosh fon */
+    --muted-foreground: oklch(0.760 0.012 75);    /* Aniq o'qiladigan, ko'zni charchatmaydigan iliq tosh matn */
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --accent: oklch(0.220 0.009 60);
+    --accent-foreground: oklch(0.925 0.009 78);
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --destructive: oklch(0.580 0.140 28);
+    --destructive-foreground: oklch(0.985 0.006 82);
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --border: oklch(0.235 0.008 60);              /* Yupqa, ko'zga tashlanmaydigan tosh divider (~#2A2622) */
+    --border-strong: oklch(0.320 0.010 60);
+    --input: oklch(0.180 0.008 58);
+    --ring: oklch(0.575 0.112 52);
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --success: oklch(0.580 0.110 150);
+    --warning: oklch(0.680 0.120 70);
 
-    --success: 142.1 70.6% 45.3%;
-    --success-foreground: 144.9 80.4% 10%;
-
-    --warning: 48 96% 53%;
-    --warning-foreground: 26 83.3% 14.1%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 20.5 90.2% 48.2%;
+    --footer: oklch(0.105 0.005 55);              /* Eng chuqur ko'mir */
+    --footer-foreground: oklch(0.900 0.009 78);
+    --footer-muted: oklch(0.680 0.012 75);
+    --footer-accent: oklch(0.575 0.112 52);
+    --footer-border: oklch(0.170 0.006 58);
   }
 }
 
 @layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
   * {
     @apply border-border;
   }
+  html {
+    overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
+  }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-playfair), Georgia, serif;
+    letter-spacing: 0;
+  }
+}
+
+/* Quiet Luxury / Lovable Atelier utilities */
+@layer utilities {
+  .eyebrow {
+    font-size: 0.6875rem; /* 11px */
+    line-height: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--primary);
+  }
+  .status {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] uppercase font-medium tracking-widest border border-border bg-card text-foreground;
+  }
+  .icon-button {
+    @apply inline-flex items-center justify-center h-10 w-10 border border-border bg-background transition-colors duration-200 hover:border-foreground;
+  }
+  .field {
+    @apply w-full border border-border bg-input px-3.5 py-2.5 text-xs text-foreground outline-none transition-colors focus:border-foreground;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Nafis editorial havola va animatsiyali hover */
+  .editorial-link {
+    @apply inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] font-semibold text-primary transition-colors duration-200;
+  }
+  .editorial-link-text {
+    @apply relative pb-0.5 after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-primary after:transition-all after:duration-300 group-hover:after:w-full;
+  }
+  .editorial-link-arrow {
+    @apply h-3.5 w-3.5 transition-transform duration-300 ease-out group-hover:translate-x-1.5;
+  }
+
+  /* Smooth Atelier animations & transitions */
+  .smooth-card {
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.5s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.3s ease;
+    will-change: transform;
+  }
+  .smooth-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.08);
+  }
+  .smooth-image {
+    transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: transform;
+  }
+  .group:hover .smooth-image {
+    transform: scale(1.035);
+  }
+  .smooth-btn {
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    user-select: none;
+  }
+  .smooth-btn:hover {
+    filter: brightness(1.05);
+  }
+  .smooth-btn:active {
+    transform: scale(0.98);
+  }
+  .smooth-pill {
+    transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  .smooth-pill:hover {
+    transform: scale(1.03);
+  }
+  .smooth-pill:active {
+    transform: scale(0.97);
   }
 }

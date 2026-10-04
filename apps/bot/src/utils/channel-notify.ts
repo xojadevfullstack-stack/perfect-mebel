@@ -17,7 +17,7 @@ export async function notifyFactoryChannel(
 
   try {
     const text = formatLeadChannelNotification(lead);
-    await api.sendMessage(channelId, text, { parse_mode: "Markdown" });
+    await api.sendMessage(channelId, text, { parse_mode: "HTML" });
     return true;
   } catch (error) {
     process.stderr.write(

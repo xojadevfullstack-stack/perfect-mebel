@@ -12,6 +12,7 @@
     "@grammyjs/conversations": "^1.2.0",
     "@grammyjs/storage-prisma": "^2.6.0",
     "@mebel-salon/db": "workspace:*",
+    "@mebel-salon/shared": "workspace:*",
     "@supabase/supabase-js": "^2.116.0",
     "dotenv": "^16.4.5",
     "grammy": "^1.30.0"

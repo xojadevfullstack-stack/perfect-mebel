@@ -1,226 +1,176 @@
-# Deployment Guide (O'rnatish qo'llanmasi)
+# Production Deployment Guide (Mebel Salon)
 
-Ushbu hujjat Mebel Salon loyihasini ishlab chiqarish (production) muhitiga joylashtirish bo'yicha to'liq qo'llanmani o'z ichiga oladi. Loyihani joylashtirishning turli xil usullari mavjud.
+Ushbu qo'llanma Mebel Salon loyihasini ishlab chiqarish (production) muhitiga to'liq va xatosiz joylashtirish bo'yicha bosqichma-bosqich yo'riqnomadir.
 
-## Option A: Vercel (Web) + VPS (Bot + DB) - Tavsiya etiladi
+---
 
-Bu usul Next.js frontend uchun Vercel'ning afzalliklaridan foydalanish imkonini beradi va Telegram Bot hamda ma'lumotlar bazasini o'zingizning VPS serveringizda saqlashga imkon beradi.
+## 🏛 Arxitektura Umumiy Ko'rinishi
 
-### 1. Vercel Setup (Web)
-Vercel Next.js ilovalarini joylashtirish uchun eng yaxshi platformadir.
+| Qatlam | Xizmat / Platforma | Tavsif & Sozlama |
+| :--- | :--- | :--- |
+| **Web Vitrina & Admin** | **Vercel** (`apps/web`) | Next.js 14 App Router, Serverless / Edge Functions |
+| **Telegram Bot** | **Render** (`apps/bot`) | Background Worker (bitta instansiya, Polling rejimida) |
+| **Ma'lumotlar Bazasi** | **Neon PostgreSQL** | Serverless Postgres (Pooled URL + Direct Migration URL) |
+| **Media Storage** | **Supabase Storage** | Mahsulot rasmlari uchun public bucket (`products`) |
+| **Xabarnomalar** | **Telegram Bot API** | Web o'zi bevosita ariza tushganda kanalga yuboradi (bot qulasa ham yo'qolmaydi) |
 
-1. Vercel.com saytida ro'yxatdan o'ting.
-2. **Add New Project** (Yangi loyiha qo'shish) tugmasini bosing va GitHub reponi ulang.
-3. Loyiha sozlamalarida **Environment Variables** (Muhit o'zgaruvchilari) ni sozlang:
-   - `DATABASE_URL` (VPS dagi PostgreSQL havolasi)
-   - `JWT_SECRET`
-   - `NEXT_PUBLIC_SUPABASE_URL` va `NEXT_PUBLIC_SUPABASE_ANON_KEY` (yoki Cloudinary credentials)
-4. **Build Command**: `npm run build`
-5. **Output Directory**: `.next`
-6. O'rnatishni boshlash (Deploy) tugmasini bosing.
-7. **Custom domain setup**: Vercel'ning **Domains** bo'limidan loyihaga o'zingizning shaxsiy domeningizni ulab, DNS yozuvlarini sozlang.
+---
 
-### 2. VPS Setup (Bot + Database)
-Bot va bazani joylashtirish uchun arzon VPS (masalan, DigitalOcean, Hetzner, AWS) kifoya qiladi.
+## 1. Neon PostgreSQL Sozlash
 
-**Talablar:** Ubuntu 22.04 LTS, kamida 1GB RAM.
+Neon boshqaruv panelida (`console.neon.tech`):
+1. Yangi loyiha (Project) yarating.
+2. Dashboard'dan **Connect** tugmasini bosing va **2 xil ulanish satrini** oling:
+   - **`DATABASE_URL` (Pooled):** `ep-*-pooler.aws.neon.tech` bilan tugaydi. Vercel va Render'da doimiy so'rovlar uchun ishlatiladi.
+   - **`DIRECT_URL` (Direct / Non-pooled):** `-pooler` bo'lmagan to'g'ridan-to'g'ri ulanish. Faqat migratsiyalar (`prisma migrate deploy`) uchun ishlatiladi.
 
-**Docker va Docker Compose o'rnatish:**
-```bash
-sudo apt update && sudo apt upgrade -y
-sudo apt install docker.io docker-compose -y
-sudo systemctl enable docker
-sudo systemctl start docker
+### Prisma konfiguratsiyasi (`packages/db/prisma/schema.prisma`):
+```prisma
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
 ```
 
-**Reponi klonlash va `.env` ni sozlash:**
+### Migratsiya va Boshlang'ich Ma'lumotlar (Seed):
+Migratsiyalarni Vercel ichida emas, o'z kompyuteringizdan bir marta ishga tushiring:
+
 ```bash
-git clone https://github.com/your-username/mebel-salon.git
-cd mebel-salon
-cp .env.example .env
-nano .env # Barcha kerakli o'zgaruvchilarni kiriting
+# Migratsiyalarni production bazaga qo'llash
+DATABASE_URL="<DIRECT_URL>" DIRECT_URL="<DIRECT_URL>" pnpm --filter @mebel-salon/db exec prisma migrate deploy
+
+# Faqat yangi bo'sh bazada (boshlang'ich toifalar va admin yaratish):
+DATABASE_URL="<DIRECT_URL>" DIRECT_URL="<DIRECT_URL>" pnpm --filter @mebel-salon/db exec tsx prisma/seed.ts
 ```
 
-**docker-compose.yml (PostgreSQL + Bot uchun):**
+---
+
+## 2. Vercel Sozlash (Web Vitrina & Admin)
+
+1. [vercel.com](https://vercel.com) da **Add New Project** tugmasini bosing va GitHub reponi tanlang.
+2. **Project Settings**:
+   - **Framework Preset:** `Next.js`
+   - **Root Directory:** `apps/web`
+   - **Include source files outside of the Root Directory:** ✅ **YOQILGAN** bo'lishi shart (chunki monorepoda `packages/db` va `packages/shared` ishlatiladi).
+3. **Build & Development Settings**:
+   - **Install Command:** `pnpm install --frozen-lockfile`
+   - **Build Command:** `pnpm --filter @mebel-salon/db generate && pnpm --filter @mebel-salon/web build`
+4. **Environment Variables** (Vercel Project Settings → Environment Variables):
+   - `DATABASE_URL`: Neon pooled connection string
+   - `DIRECT_URL`: Neon direct connection string
+   - `JWT_SECRET`: 32+ belgidan iborat tasodifiy maxfiy kalit (`openssl rand -base64 32`)
+   - `ADMIN_INITIAL_PASSWORD`: Admin yaratish paroli (agar kerak bo'lsa)
+   - `TELEGRAM_BOT_TOKEN`: BotFather bergan bot tokeni
+   - `TELEGRAM_FACTORY_CHANNEL_ID`: Zavod kanali ID si (masalan, `-1001234567890`)
+   - `TELEGRAM_SUPPORT_GROUP_ID`: Mijozlar bilan jonli chat guruhi ID si (ixtiyoriy)
+   - `NEXT_PUBLIC_APP_URL`: Vercel bergan URL yoki o'z domeningiz (masalan, `https://mebelsalon.uz`)
+   - `NEXT_PUBLIC_BOT_USERNAME`: Telegram botingiz username'i (`@` belgisisiz, masalan, `mebel_salon_bot`)
+   - `NEXT_PUBLIC_SUPABASE_URL`: Supabase loyihasi URL'i
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase anon/public key
+   - `SUPABASE_SERVICE_ROLE_KEY`: Supabase service_role key
+
+> **Eslatma:** Agar Vercel build paytida Prisma query engine topilmasa, `apps/web/next.config.mjs` da `outputFileTracingRoot` sozlamasi tekshiriladi va generatorga `binaryTargets = ["native", "rhel-openssl-3.0.x"]` qo'shiladi.
+
+---
+
+## 3. Render Sozlash (Telegram Bot)
+
+Bot alohida jarayonda **Polling** rejimida to'xtovsiz ishlashi uchun Render'da **Background Worker** sifatida ishga tushiriladi:
+
+1. [render.com](https://render.com) da **New +** → **Background Worker** ni tanlang.
+2. GitHub reponi ulang.
+3. Sozlamalar:
+   - **Name:** `mebel-salon-bot`
+   - **Root Directory:** *(bo'sh qoldiring — repo ildizi)*
+   - **Environment:** `Node`
+   - **Build Command:**
+     ```bash
+     corepack enable && pnpm install --frozen-lockfile && pnpm --filter @mebel-salon/db generate
+     ```
+   - **Start Command:**
+     ```bash
+     pnpm --filter @mebel-salon/bot start
+     ```
+   - **Plan:** Background Worker (bitta instansiya / 1 instance)
+4. **Environment Variables**:
+   - `DATABASE_URL`: Neon pooled connection string
+   - `TELEGRAM_BOT_TOKEN`: BotFather bergan bot tokeni
+   - `TELEGRAM_FACTORY_CHANNEL_ID`: Zavod kanali ID si
+   - `TELEGRAM_SUPPORT_GROUP_ID`: Qo'llab-quvvatlash guruhi ID si
+   - `ADMIN_TELEGRAM_IDS`: Bot adminlari Telegram ID lari (vergul bilan ajratilgan, masalan `1234567,9876543`)
+   - `NEXT_PUBLIC_APP_URL`: Web sayt manzili
+   - `NEXT_PUBLIC_SUPABASE_URL`: Supabase loyihasi URL'i
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase anon key
+
+> **⚠️ Muhim xavfsizlik va barqarorlik eslatmalari:**
+> 1. **409 Conflict xatosi bo'lmasligi uchun:** Bitta tokenda faqat BITTA polling jarayon ishlashi shart. Render'da botni ishga tushirishdan oldin o'z kompyuteringizdagi lokal bot jarayonini o'chiring!
+> 2. **Instansiyalar soni:** Render'da bot instansiyasi doimo **1** ta bo'lishi kerak.
+> 3. **Bepul Web Service cheklovi:** Render'da bepul Web Service harakatsizlikdan so'ng uxlaydi (sleep), shu sababli Bot polling uchun Background Worker yoki webhook arxitekturasi tavsiya etiladi.
+
+---
+
+## 4. GitHub Actions (CI Tekshiruv Workflow)
+
+Pull Request yoki Main branch ga commit qilinganda xatoliklarni oldindan ushlash uchun `.github/workflows/ci.yml`:
+
 ```yaml
-version: '3.8'
-services:
-  db:
-    image: postgres:15
-    restart: always
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-    ports:
-      - "5432:5432" # Eslatma: UFW orqali ushbu portni himoyalash tavsiya etiladi (masalan, faqat Vercel IP lari uchun ochiq qoldiring)
-    volumes:
-      - pgdata:/var/lib/postgresql/data
+name: CI Quality Gate
 
-  bot:
-    build: 
-      context: .
-      dockerfile: Dockerfile.bot
-    restart: always
-    env_file: .env
-    depends_on:
-      - db
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
-volumes:
-  pgdata:
-```
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
 
-**Nginx Reverse Proxy (Opsional):**
-Nginx orqali VPS IP manzilini yashirish va tashqi API yo'naltirish imkoniyati.
-**SSL with Let's Encrypt (Opsional):**
-Certbot yordamida Nginx server uchun bepul SSL sertifikat olish tavsiya etiladi.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-**Systemd service for auto-restart:** Docker Compose o'zining `restart: always` xususiyati orqali konteynerlarni qayta ishga tushiradi, lekin alohida jarayonlar uchun systemd service fayl (masalan `/etc/systemd/system/mebel-bot.service`) yaratish ham mumkin.
+      - name: Generate Prisma Client
+        run: pnpm --filter @mebel-salon/db generate
 
----
+      - name: Type-Check
+        run: pnpm type-check
 
-## Option B: Railway (All-in-one)
-Railway barcha xizmatlarni (Baza, Web, Bot) bitta joyda saqlash uchun eng qulay cloud platforma hisoblanadi.
-
-1. Railway.app saytida GitHub repo orqali yangi loyiha yarating.
-2. **Setup PostgreSQL service**: Railway'dan yangi "Database -> PostgreSQL" qo'shing.
-3. **Deploy Next.js**: Reponi tanlang va build komandasini ko'rsating (`npm run build`).
-4. **Deploy Bot**: Bot uchun alohida xizmat yarating va loyiha sozlamalarida `Dockerfile.bot` orqali ishga tushirishni ko'rsating.
-5. **Environment Variables**: Railway avtomatik ravishda `DATABASE_URL` ni barcha xizmatlarga ulaydi, boshqa `.env` o'zgaruvchilarini "Variables" bo'limida kiriting.
-
----
-
-## Option C: Full VPS Docker
-Barcha xizmatlarni (PostgreSQL, Next.js, Bot, Nginx) bitta VPS ga joylashtirish.
-
-**docker-compose.yml (to'liq tizim uchun):**
-```yaml
-version: '3.8'
-services:
-  db:
-    image: postgres:15
-    restart: always
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile.web
-    restart: always
-    ports:
-      - "3000:3000"
-    env_file: .env
-    depends_on:
-      - db
-
-  bot:
-    build:
-      context: .
-      dockerfile: Dockerfile.bot
-    restart: always
-    env_file: .env
-    depends_on:
-      - db
-
-volumes:
-  pgdata:
-```
-
-### .dockerignore
-Loyiha ildizida `.dockerignore` fayli yaratish tavsiya etiladi:
-```text
-node_modules
-.next
-.git
-.env
-.env.*
-docs
-*.md
-.github
-.agents
-```
-
-### Dockerfile.web
-```dockerfile
-# ===== Build Stage =====
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npx prisma generate
-RUN npm run build
-
-# ===== Production Stage =====
-FROM node:20-alpine AS runner
-WORKDIR /app
-ENV NODE_ENV=production
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-EXPOSE 3000
-CMD ["node", "server.js"]
-```
-
-### Dockerfile.bot
-```dockerfile
-FROM node:20-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-RUN npx prisma generate
-CMD ["npm", "run", "start:bot"]
+      - name: Build Web
+        run: pnpm --filter @mebel-salon/web build
+        env:
+          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+          DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+          JWT_SECRET: "dummy-secret-at-least-32-chars-long-here-1234"
+          TELEGRAM_BOT_TOKEN: "123:dummy"
+          TELEGRAM_FACTORY_CHANNEL_ID: "-100123"
 ```
 
 ---
 
-## Post-deployment (O'rnatishdan keyingi qadamlar)
+## 5. Deploydan Keyingi Smoke Test (Tekshirishlar)
 
-### 1. Database Migration (Prisma)
-Production bazaga jadvallarni yaratish va strukturalash:
-```bash
-npx prisma migrate deploy
-```
-
-### 2. Seed Admin User
-Admin panelga kirish uchun boshlang'ich admin hisobini yaratish:
-```bash
-npm run seed
-# Yoki VPS dagi container ichida:
-docker exec -it mebel_web npx prisma db seed
-```
-
-### 3. Telegram Webhook (Opsional)
-Agar bot webhook orqali ishlasa (Long Polling emas), Telegram API dan foydalanib webhook url o'rnatish kerak:
-```bash
-curl -X POST "https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook" \
-  -d "url=https://your-domain.com/api/bot" \
-  -d "secret_token=<YOUR_WEBHOOK_SECRET>"
-```
-
-### 4. Health Check Endpoints
-- `/api/health` orqali Next.js tizimi ishlashini tekshiring.
-
-### 5. Monitoring, Logging va Backups
-- **Monitoring & Logging**: Docker logs orqali bot va web xatoliklarni kuzatish: `docker logs -f mebel_bot`. CloudWatch yoki DataDog kabi xizmatlarni ulash ham tavsiya qilinadi.
-- **Backup Strategy (pg_dump cron)**: Har kuni tungi soat 2 da bazani saqlash uchun cron task:
-  ```bash
-  0 2 * * * docker exec db pg_dump -U user mebel_db > /backups/db_backup_$(date +\%F).sql
-  ```
-
----
-
-## CI/CD (Optional)
-GitHub Actions workflow orqali avtomatik joylashtirish (auto-deploy).
-`.github/workflows/deploy.yml` fayli yaratilib, har safar `main` branch ga kod push qilinganda VPS ga SSH orqali ulanib, quyidagi amallar bajariladi:
-- `git pull`
-- `docker-compose build`
-- `docker-compose up -d`
-- `npx prisma migrate deploy`
+1. **Web Vitrina:**
+   - Brauzerda saytga kiring (`/uz`, `/ru`, `/en`).
+   - Tilni almashtiring va dark/light rejimini tekshiring.
+   - Katalog sahifasida toifalar bo'yicha filtrlash (`/uz/catalog?category=...`) ishlashini tekshiring.
+2. **Lead (Ariza) Yuborish Testi:**
+   - Web modal orqali `Ali_<b>*[x` ismi va telefon bilan ariza qoldiring.
+   - Zavod kanaliga (`TELEGRAM_FACTORY_CHANNEL_ID`) xabar chiroyli formatda va buzilmasdan yetib borganini tekshiring.
+3. **Telegram Bot Testi:**
+   - Botga `/start` buyrug'ini yuboring.
+   - Web'dagi har qanday mebel sahifasidan Telegram deep-link tugmasi orqali botga o'ting.
+   - Bot orqali ariza topshiring va kanalga tushganini tekshiring.
+4. **Admin Panel Testi:**
+   - `/admin/login` sahifasiga o'ting va tizimga kiring.
+   - Barcha tushgan arizalar (leads), katalog va kolleksiyalar to'g'ri ko'rinayotganini tasdiqlang.
+   - Yangi rasm yuklash (Supabase orqali) xatosiz ishlashini tekshiring.

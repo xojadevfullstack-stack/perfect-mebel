@@ -61,8 +61,8 @@ export async function GET(req: Request): Promise<NextResponse> {
       },
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Serverda xatolik yuz berdi";
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    console.error("Admin Collections GET Error:", error);
+    return NextResponse.json({ success: false, error: "Serverda xatolik yuz berdi" }, { status: 500 });
   }
 }
 
@@ -138,7 +138,7 @@ export async function POST(req: Request): Promise<NextResponse> {
 
     return NextResponse.json({ success: true, data: collection }, { status: 201 });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Serverda xatolik yuz berdi";
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    console.error("Admin Collections POST Error:", error);
+    return NextResponse.json({ success: false, error: "Serverda xatolik yuz berdi" }, { status: 500 });
   }
 }

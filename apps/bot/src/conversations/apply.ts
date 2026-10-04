@@ -1,4 +1,5 @@
 import { prisma } from "@mebel-salon/db";
+import { escapeHtml } from "@mebel-salon/shared";
 import type { MyConversation, MyContext } from "../types/index.js";
 import {
   getMainMenuKeyboard,
@@ -36,10 +37,10 @@ export async function applyConversation(
       if (product) {
         itemsSummary = `${product.titleUz} (${product.category.nameUz})`;
         await ctx.reply(
-          `🛋 Tanlangan mebel: *${product.titleUz}*\n` +
-            `📁 Toifa: ${product.category.nameUz}\n\n` +
+          `🛋 Tanlangan mebel: <b>${escapeHtml(product.titleUz)}</b>\n` +
+            `📁 Toifa: ${escapeHtml(product.category.nameUz)}\n\n` +
             `Ushbu mebel bo'yicha ariza qoldirish uchun ma'lumotlaringizni to'ldiring:`,
-          { parse_mode: "Markdown" }
+          { parse_mode: "HTML" }
         );
       }
     } else if (matchStr.startsWith("order_set_")) {
@@ -54,9 +55,9 @@ export async function applyConversation(
       if (collection) {
         itemsSummary = `${collection.titleUz} to'plami (${collection.products.length} ta mebel)`;
         await ctx.reply(
-          `🗂 Tanlangan komplekt: *${collection.titleUz}*\n\n` +
+          `🗂 Tanlangan komplekt: <b>${escapeHtml(collection.titleUz)}</b>\n\n` +
             `Ushbu to'plam bo'yicha ariza qoldirish uchun quyidagi ma'lumotlarni to'ldiring:`,
-          { parse_mode: "Markdown" }
+          { parse_mode: "HTML" }
         );
       }
     }
@@ -66,9 +67,9 @@ export async function applyConversation(
   if (!itemsSummary) {
     await ctx.reply(
       "Qaysi mebel yoki to'plam sizni qiziqtiryapti?\n" +
-        "Masalan: *Oshxona garnituri*, *Yotoqxona to'plami*, *L-simon divan*",
+        "Masalan: <b>Oshxona garnituri</b>, <b>Yotoqxona to'plami</b>, <b>L-simon divan</b>",
       {
-        parse_mode: "Markdown",
+        parse_mode: "HTML",
         reply_markup: getCancelKeyboard(),
       }
     );
@@ -228,15 +229,15 @@ export async function applyConversation(
 
     // Mijozga minnatdorchilik xabari
     await ctx.reply(
-      `✅ *Arizangiz muvaffaqiyatli qabul qilindi!*\n\n` +
-        `👤 *Mijoz:* ${customerName}\n` +
-        `📞 *Telefon:* ${phone}\n` +
-        `🛋 *Mebel:* ${itemsSummary}\n` +
-        (address ? `📍 *Manzil:* ${address}\n` : "") +
-        (notes ? `📝 *Izoh:* ${notes}\n` : "") +
+      `✅ <b>Arizangiz muvaffaqiyatli qabul qilindi!</b>\n\n` +
+        `👤 <b>Mijoz:</b> ${escapeHtml(customerName)}\n` +
+        `📞 <b>Telefon:</b> ${escapeHtml(phone)}\n` +
+        `🛋 <b>Mebel:</b> ${escapeHtml(itemsSummary)}\n` +
+        (address ? `📍 <b>Manzil:</b> ${escapeHtml(address)}\n` : "") +
+        (notes ? `📝 <b>Izoh:</b> ${escapeHtml(notes)}\n` : "") +
         `\nTez orada mutaxassisimiz siz bilan bog'lanadi va buyurtma tafsilotlarini kelishib oladi.`,
       {
-        parse_mode: "Markdown",
+        parse_mode: "HTML",
         reply_markup: getMainMenuKeyboard(isAdminUser),
       }
     );

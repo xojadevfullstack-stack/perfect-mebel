@@ -1,16 +1,6 @@
 {
-  "extends": [
-    "next/core-web-vitals",
-    "plugin:@typescript-eslint/recommended",
-    "prettier"
-  ],
-  "plugins": [
-    "@typescript-eslint"
-  ],
+  "extends": "next/core-web-vitals",
   "rules": {
-    "no-console": ["error", { "allow": ["warn", "error"] }],
-    "no-var": "error",
-    "prefer-const": "error",
-    "@typescript-eslint/no-explicit-any": "error"
+    "react/no-unescaped-entities": "off"
   }
 }

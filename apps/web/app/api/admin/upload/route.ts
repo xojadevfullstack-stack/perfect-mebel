@@ -22,8 +22,10 @@ export async function POST(req: Request): Promise<NextResponse> {
     const result = await uploadImageFile(file);
     return NextResponse.json({ success: true, data: result }, { status: 201 });
   } catch (error) {
+    console.error("Admin Upload API Error:", error);
     const message = error instanceof Error ? error.message : "Rasm yuklashda xatolik yuz berdi";
     const status = message.includes("Production") || message.includes("Supabase") ? 500 : 400;
-    return NextResponse.json({ success: false, error: message }, { status });
+    const clientError = status === 500 ? "Rasm yuklashda server xatoligi yuz berdi" : message;
+    return NextResponse.json({ success: false, error: clientError }, { status });
   }
 }

@@ -26,7 +26,7 @@ export async function GET(
 
     return NextResponse.json({ success: true, data: product });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Serverda xatolik yuz berdi";
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    console.error("Product Detail API Error:", error);
+    return NextResponse.json({ success: false, error: "Serverda xatolik yuz berdi" }, { status: 500 });
   }
 }

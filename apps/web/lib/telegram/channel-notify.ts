@@ -1,3 +1,5 @@
+import { escapeHtml } from "@mebel-salon/shared";
+
 export interface LeadNotificationPayload {
   customerName: string;
   phone: string;
@@ -22,13 +24,13 @@ export async function sendLeadTelegramNotification(payload: LeadNotificationPayl
   });
 
   const message =
-    `🔔 *YANGI ARIZA!* (${payload.source})\n\n` +
-    `👤 *Mijoz:* ${payload.customerName}\n` +
-    `📞 *Telefon:* ${payload.phone}\n` +
-    `📍 *Manzil:* ${payload.address || "Ko'rsatilmagan"}\n` +
-    `🛋 *Tanlangan mebellar:*\n${payload.itemsSummary}\n` +
-    `📝 *Izoh:* ${payload.notes || "Yo'q"}\n` +
-    `📅 *Sana:* ${dateStr}`;
+    `🔔 <b>YANGI ARIZA!</b> (${escapeHtml(payload.source)})\n\n` +
+    `👤 <b>Mijoz:</b> ${escapeHtml(payload.customerName)}\n` +
+    `📞 <b>Telefon:</b> ${escapeHtml(payload.phone)}\n` +
+    `📍 <b>Manzil:</b> ${escapeHtml(payload.address || "Ko'rsatilmagan")}\n` +
+    `🛋 <b>Tanlangan mebellar:</b>\n${escapeHtml(payload.itemsSummary)}\n` +
+    `📝 <b>Izoh:</b> ${escapeHtml(payload.notes || "Yo'q")}\n` +
+    `📅 <b>Sana:</b> ${dateStr}`;
 
   try {
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
@@ -38,7 +40,7 @@ export async function sendLeadTelegramNotification(payload: LeadNotificationPayl
       body: JSON.stringify({
         chat_id: channelId,
         text: message,
-        parse_mode: "Markdown",
+        parse_mode: "HTML",
       }),
     });
 

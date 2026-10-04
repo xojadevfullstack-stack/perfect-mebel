@@ -58,6 +58,8 @@ export function formatCollectionCaption(
   return parts.join("\n");
 }
 
+import { escapeHtml } from "@mebel-salon/shared";
+
 export function formatLeadChannelNotification(lead: Lead): string {
   const dateFormatted = new Date(lead.createdAt).toLocaleString("uz-UZ", {
     timeZone: "Asia/Tashkent",
@@ -66,23 +68,23 @@ export function formatLeadChannelNotification(lead: Lead): string {
   const sourceBadge = lead.source === "WEB" ? "🌐 Veb-sayt" : "🤖 Telegram Bot";
 
   return [
-    `🔔 *YANGI ARIZA!*`,
+    `🔔 <b>YANGI ARIZA!</b>`,
     ``,
-    `📍 *Manba:* ${sourceBadge}`,
-    `👤 *Mijoz:* ${lead.customerName}`,
-    `📞 *Telefon:* ${lead.phone}`,
-    `🏠 *Manzil:* ${lead.address || "Ko'rsatilmagan"}`,
+    `📍 <b>Manba:</b> ${sourceBadge}`,
+    `👤 <b>Mijoz:</b> ${escapeHtml(lead.customerName)}`,
+    `📞 <b>Telefon:</b> ${escapeHtml(lead.phone)}`,
+    `🏠 <b>Manzil:</b> ${escapeHtml(lead.address || "Ko'rsatilmagan")}`,
     lead.latitude && lead.longitude
-      ? `🗺 *Geolokatsiya:* ${lead.latitude.toFixed(6)}, ${lead.longitude.toFixed(6)}`
+      ? `🗺 <b>Geolokatsiya:</b> ${lead.latitude.toFixed(6)}, ${lead.longitude.toFixed(6)}`
       : null,
-    lead.telegramId ? `💬 *Telegram ID:* \`${lead.telegramId}\`` : null,
+    lead.telegramId ? `💬 <b>Telegram ID:</b> <code>${escapeHtml(lead.telegramId)}</code>` : null,
     ``,
-    `🛋 *Tanlangan mebel(lar):*`,
-    `   ${lead.itemsSummary}`,
+    `🛋 <b>Tanlangan mebel(lar):</b>`,
+    `   ${escapeHtml(lead.itemsSummary)}`,
     ``,
-    `📝 *Izoh:* ${lead.notes || "Yo'q"}`,
-    `🆔 *Ariza ID:* \`${lead.id}\``,
-    `📅 *Qabul qilingan vaqt:* ${dateFormatted}`,
+    `📝 <b>Izoh:</b> ${escapeHtml(lead.notes || "Yo'q")}`,
+    `🆔 <b>Ariza ID:</b> <code>${escapeHtml(lead.id)}</code>`,
+    `📅 <b>Qabul qilingan vaqt:</b> ${dateFormatted}`,
   ]
     .filter((line) => line !== null)
     .join("\n");

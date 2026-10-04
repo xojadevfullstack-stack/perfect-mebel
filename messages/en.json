@@ -14,9 +14,11 @@
     "home": "Home",
     "catalog": "Catalog",
     "collections": "Collections",
+    "about": "About Us",
     "mySelections": "My Selections",
     "contacts": "Contacts",
-    "admin": "Admin Panel"
+    "admin": "Admin Panel",
+    "consultation": "Consultation"
   },
   "home": {
     "heroBadge": "Direct from Factory • Custom Craftsmanship",
@@ -54,8 +56,8 @@
     "madeToOrder": "Made to Order",
     "viewDetails": "View Details",
     "hideDetails": "Hide Details",
-    "addToSelection": "Select ➕",
-    "inSelection": "Selected ✅",
+    "addToSelection": "Select",
+    "inSelection": "Selected",
     "askPrice": "Ask Price",
     "orderViaTelegram": "Order via Telegram",
     "dimensions": "Dimensions",
@@ -83,7 +85,7 @@
     "title": "My Selections",
     "subtitle": "List of furniture pieces you are interested in",
     "empty": "You have not selected any items yet",
-    "emptyHint": "Browse the catalog and click 'Select ➕' to add items here.",
+    "emptyHint": "Browse the catalog and click 'Select' to add items here.",
     "clearAll": "Clear All",
     "submitLead": "Submit Request",
     "selectedItemsCount": "selected items"
@@ -102,7 +104,7 @@
     "notesPlaceholder": "Add custom size, fabric or delivery requirements",
     "submit": "Send Request",
     "submitting": "Sending...",
-    "successTitle": "Request Received! 🎉",
+    "successTitle": "Request Received!",
     "successDesc": "Our manager will contact you shortly. Thank you for choosing our furniture factory!"
   },
   "contact": {

@@ -33,8 +33,8 @@ export async function GET(
 
     return NextResponse.json({ success: true, data: category });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Serverda xatolik yuz berdi";
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    console.error("Admin Category Detail GET Error:", error);
+    return NextResponse.json({ success: false, error: "Serverda xatolik yuz berdi" }, { status: 500 });
   }
 }
 
@@ -103,8 +103,8 @@ export async function PUT(
 
     return NextResponse.json({ success: true, data: updated });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Serverda xatolik yuz berdi";
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    console.error("Admin Category Detail PUT Error:", error);
+    return NextResponse.json({ success: false, error: "Serverda xatolik yuz berdi" }, { status: 500 });
   }
 }
 
@@ -148,7 +148,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true, data: null });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Serverda xatolik yuz berdi";
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    console.error("Admin Category Detail DELETE Error:", error);
+    return NextResponse.json({ success: false, error: "Serverda xatolik yuz berdi" }, { status: 500 });
   }
 }

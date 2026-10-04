@@ -11,8 +11,22 @@ export default getRequestConfig(async ({ requestLocale }) => {
     locale = defaultLocale;
   }
 
+  let messages;
+  switch (locale) {
+    case "ru":
+      messages = (await import("../../../messages/ru.json")).default;
+      break;
+    case "en":
+      messages = (await import("../../../messages/en.json")).default;
+      break;
+    case "uz":
+    default:
+      messages = (await import("../../../messages/uz.json")).default;
+      break;
+  }
+
   return {
     locale,
-    messages: (await import(`../../../messages/${locale}.json`)).default,
+    messages,
   };
 });

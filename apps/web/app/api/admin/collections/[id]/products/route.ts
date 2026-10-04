@@ -21,8 +21,8 @@ export async function GET(_req: Request, { params }: RouteParams): Promise<NextR
 
     return NextResponse.json({ success: true, data: products });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Serverda xatolik yuz berdi";
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    console.error("Admin Collection Products GET Error:", error);
+    return NextResponse.json({ success: false, error: "Serverda xatolik yuz berdi" }, { status: 500 });
   }
 }
 
@@ -55,8 +55,8 @@ export async function POST(req: Request, { params }: RouteParams): Promise<NextR
       data: { message: `${productIds.length} ta mebel komplektga muvaffaqiyatli biriktirildi` },
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Serverda xatolik yuz berdi";
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    console.error("Admin Collection Products POST Error:", error);
+    return NextResponse.json({ success: false, error: "Serverda xatolik yuz berdi" }, { status: 500 });
   }
 }
 
@@ -91,7 +91,7 @@ export async function DELETE(req: Request, { params }: RouteParams): Promise<Nex
 
     return NextResponse.json({ success: false, error: "productId yoki productIds talab qilinadi" }, { status: 400 });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Serverda xatolik yuz berdi";
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    console.error("Admin Collection Products DELETE Error:", error);
+    return NextResponse.json({ success: false, error: "Serverda xatolik yuz berdi" }, { status: 500 });
   }
 }

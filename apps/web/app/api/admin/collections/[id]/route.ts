@@ -41,8 +41,8 @@ export async function GET(_req: Request, { params }: RouteParams): Promise<NextR
 
     return NextResponse.json({ success: true, data: collection });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Serverda xatolik yuz berdi";
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    console.error("Admin Collection Detail GET Error:", error);
+    return NextResponse.json({ success: false, error: "Serverda xatolik yuz berdi" }, { status: 500 });
   }
 }
 
@@ -140,8 +140,8 @@ async function handleUpdate(req: Request, id: string): Promise<NextResponse> {
 
     return NextResponse.json({ success: true, data: updated });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Serverda xatolik yuz berdi";
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    console.error("Admin Collection Detail PUT Error:", error);
+    return NextResponse.json({ success: false, error: "Serverda xatolik yuz berdi" }, { status: 500 });
   }
 }
 
@@ -162,7 +162,7 @@ export async function DELETE(_req: Request, { params }: RouteParams): Promise<Ne
 
     return NextResponse.json({ success: true, data: { message: "Komplekt muvaffaqiyatli o'chirildi" } });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Serverda xatolik yuz berdi";
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    console.error("Admin Collection Detail DELETE Error:", error);
+    return NextResponse.json({ success: false, error: "Serverda xatolik yuz berdi" }, { status: 500 });
   }
 }

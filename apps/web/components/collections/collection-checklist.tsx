@@ -2,15 +2,15 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { useTranslations, useLocale } from "next-intl";
+import Link from "next/link";
+import { useLocale } from "next-intl";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { LeadModal } from "@/components/lead/lead-modal";
-import { buildCollectionDeepLink } from "@/lib/telegram/deep-link";
-import { cn } from "@/lib/utils";
-import { Send, CheckSquare, Square, Package, ExternalLink } from "lucide-react";
+import { buildCollectionDeepLink, buildProductDeepLink } from "@/lib/telegram/deep-link";
+import { Send, ArrowRight, Check, Eye, Plus } from "lucide-react";
+import { CardImageSlider } from "@/components/catalog/card-image-slider";
+import { ProductCard, type ProductCardData } from "@/components/catalog/product-card";
 
 export interface ChecklistProduct {
   id: string;
@@ -24,6 +24,7 @@ export interface ChecklistProduct {
   warranty: string | null;
   stockStatus: "IN_STOCK" | "MADE_TO_ORDER";
   categoryName: string;
+  colors?: { name: string; hex: string }[];
 }
 
 export interface CollectionChecklistProps {
@@ -42,8 +43,6 @@ export interface CollectionChecklistProps {
 }
 
 export function CollectionChecklist({ collection }: CollectionChecklistProps): React.JSX.Element {
-  const tCol = useTranslations("collections");
-  const tCat = useTranslations("catalog");
   const locale = useLocale();
 
   const getCollectionTitle = () => {
@@ -85,184 +84,348 @@ export function CollectionChecklist({ collection }: CollectionChecklistProps): R
     setSelectedIds(new Set());
   };
 
-  // Tanlangan mebellarning ro'yxati
   const selectedProducts = collection.products.filter((p) => selectedIds.has(p.id));
-
-  // Ariza modaliga beriladigan tanlov matni
   const collectionTitle = getCollectionTitle();
   const selectedSummary =
     selectedProducts.length > 0
-      ? `${collectionTitle} komplektidan tanlandi (${selectedProducts.length} ta): ` +
+      ? `${collectionTitle} to'plami (${selectedProducts.length} ta buyum): ` +
         selectedProducts.map((p) => getProductTitle(p)).join(", ")
       : "";
 
   const telegramLink = buildCollectionDeepLink(collection.id);
+  const heroImage =
+    collection.images[0] ||
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuAcDYSRzNE0rrW_Po8KOGmWeFj0Le5F2yCM-hkdAfBF825NkJLjakp8T9MNNlLdYWBG9ik8jPcdcwkj0-HUAUuGZbfW9IJW-FXkDM0bnL6sVB5KeY4IesTLOf3ASiqBT9Sg3VSP__3QFsMLWpuUJSVUerUIEc-VRVzpbd5usKe9YxQ_G0CgmQb8DR9x75S3dDB8C10k8MOvcMPoYH_S3TSax005YrqLafmogujVZuf3B6bExpjcwnoz1rIo6DLJCL7Ot16Pn2Zb-LE";
 
   return (
-    <div className="space-y-6">
-      {/* Header va Amallar */}
-      <div className="flex flex-col gap-4 rounded-xl border bg-card p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight">{tCol("checklistTitle")}</h2>
-          <p className="text-sm text-muted-foreground">{tCol("checklistSubtitle")}</p>
-        </div>
+    <div className="space-y-16 pb-20 sm:pb-0">
+      {/* Top Split: Hero Panorama + Checklist Form */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* ======================================================== */}
+        {/* LEFT COLUMN: Architectural Hero Image & Hotspots (7 cols) */}
+        {/* ======================================================== */}
+        <div className="lg:col-span-7 bg-card border border-border p-3 sm:p-5 shadow-sm space-y-4">
+          <div className="relative aspect-[4/3] md:aspect-[16/11] overflow-hidden bg-muted">
+            <Image
+              src={heroImage}
+              alt={collectionTitle}
+              fill
+              priority
+              sizes="(max-width: 1024px) 100vw, 60vw"
+              className="object-cover"
+            />
 
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={selectAll}
-            className="flex items-center gap-1.5"
-          >
-            <CheckSquare className="h-4 w-4" />
-            <span>{tCol("selectAll")}</span>
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={deselectAll}
-            className="flex items-center gap-1.5"
-          >
-            <Square className="h-4 w-4" />
-            <span>{tCol("deselectAll")}</span>
-          </Button>
-        </div>
-      </div>
-
-      {/* Mebellar ro'yxati */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {collection.products.map((product) => {
-          const isChecked = selectedIds.has(product.id);
-          const title = getProductTitle(product);
-          const coverImage = product.images[0];
-
-          return (
-            <Card
-              key={product.id}
-              onClick={() => toggleProduct(product.id)}
-              className={cn(
-                "relative cursor-pointer transition-all border-2 overflow-hidden hover:border-primary/60",
-                isChecked ? "border-primary bg-primary/[0.02]" : "border-border opacity-70"
-              )}
-            >
-              <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
-                {coverImage ? (
-                  <Image
-                    src={coverImage}
-                    alt={title}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-300 hover:scale-105"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                    <Package className="h-10 w-10 stroke-1" />
-                  </div>
-                )}
-
-                {/* Checkbox overlay */}
-                <div
-                  className="absolute top-3 left-3 rounded-md bg-background/90 p-1 backdrop-blur shadow-sm"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Checkbox
-                    checked={isChecked}
-                    onCheckedChange={() => toggleProduct(product.id)}
-                  />
-                </div>
-
-                {/* Stock status badge */}
-                <Badge
-                  variant={product.stockStatus === "IN_STOCK" ? "success" : "secondary"}
-                  className="absolute top-3 right-3 shadow-sm backdrop-blur"
-                >
-                  {product.stockStatus === "IN_STOCK" ? tCat("inStock") : tCat("madeToOrder")}
-                </Badge>
-              </div>
-
-              <div className="p-4 space-y-2">
-                <div className="text-xs font-medium text-primary">
-                  {product.categoryName}
-                </div>
-                <h3 className="font-semibold text-base leading-snug line-clamp-2">
-                  {title}
-                </h3>
-
-                {(product.dimensions || product.material) && (
-                  <div className="text-xs text-muted-foreground space-y-0.5 pt-1 border-t">
-                    {product.dimensions && (
-                      <div>
-                        <span className="font-medium text-foreground">{tCat("dimensions")}: </span>
-                        {product.dimensions}
-                      </div>
-                    )}
-                    {product.material && (
-                      <div>
-                        <span className="font-medium text-foreground">{tCat("material")}: </span>
-                        {product.material}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Tanlov bo'yicha harakat paneli */}
-      <div className="sticky bottom-6 z-40 rounded-2xl border bg-card/95 p-4 shadow-xl backdrop-blur sm:p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-lg">
-              {selectedIds.size}
+            {/* Scrim Overlay Tag */}
+            <div className="absolute bottom-4 left-4 bg-card px-3.5 py-1.5 border border-border flex items-center space-x-2 shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-primary" />
+              <span className="eyebrow">
+                Atelier Spec &bull; 2026 Kolleksiya
+              </span>
             </div>
-            <div>
-              <p className="font-bold text-base">
-                {selectedIds.size} {tCol("selectedCount")}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {collectionTitle}
-              </p>
+
+            {/* Interactive Hotspots */}
+            <div className="absolute top-[58%] left-[45%] group cursor-pointer">
+              <span className="absolute -inset-2 rounded-full bg-primary/20 animate-ping" />
+              <span className="relative flex items-center justify-center w-6 h-6 rounded-full bg-background text-primary border border-primary shadow text-xs font-bold">
+                1
+              </span>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-foreground text-background px-3 py-1.5 text-xs whitespace-nowrap shadow-lg">
+                Asosiy mebel elementi
+              </div>
+            </div>
+
+            <div className="absolute top-[64%] left-[20%] group cursor-pointer">
+              <span className="relative flex items-center justify-center w-6 h-6 rounded-full bg-background text-primary border border-primary shadow text-xs font-bold">
+                2
+              </span>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-foreground text-background px-3 py-1.5 text-xs whitespace-nowrap shadow-lg">
+                Yondosh tumba / stol
+              </div>
+            </div>
+
+            <div className="absolute top-[35%] right-[22%] group cursor-pointer">
+              <span className="relative flex items-center justify-center w-6 h-6 rounded-full bg-background text-primary border border-primary shadow text-xs font-bold">
+                3
+              </span>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-foreground text-background px-3 py-1.5 text-xs whitespace-nowrap shadow-lg">
+                Javon / Modul
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Telegram orqali butun komplektga buyurtma */}
+          {/* Material Spec Badges Under Hero */}
+          <div className="pt-2 grid grid-cols-3 gap-2 text-center text-xs">
+            <div className="p-2.5 bg-muted/40 border border-border/60">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-0.5">
+                Asosiy Qoplama
+              </span>
+              <span className="font-medium text-foreground">Italiya Bouclé</span>
+            </div>
+            <div className="p-2.5 bg-muted/40 border border-border/60">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-0.5">
+                Yog'och Massivi
+              </span>
+              <span className="font-medium text-foreground">Solid Oak (Eman)</span>
+            </div>
+            <div className="p-2.5 bg-muted/40 border border-border/60">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-0.5">
+                Ustki Qoplama
+              </span>
+              <span className="font-medium text-foreground">Honed Travertin</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ======================================================== */}
+        {/* RIGHT COLUMN: Interactive Checklist Module (5 cols) */}
+        {/* ======================================================== */}
+        <div className="lg:col-span-5 bg-card border border-border p-4 sm:p-8 space-y-6">
+          <div className="border-b border-border/80 pb-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-serif text-xl sm:text-2xl font-bold text-foreground">
+                To'plam tarkibiy qismlari
+              </h3>
+              <span className="text-xs font-semibold px-2.5 py-1 bg-primary/10 text-primary">
+                Tanlangan: {selectedProducts.length} ta
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+              Komplektdan istalgan mahsulotlarni tanlang yoki o'chirib qoldiring. Tanlovingiz bo'yicha to'g'ridan-to'g'ri maslahatchiga ariza yuboriladi.
+            </p>
+
+            <div className="flex items-center gap-3 pt-3 text-xs">
+              <button
+                type="button"
+                onClick={selectAll}
+                className="text-primary hover:underline font-semibold"
+              >
+                Barchasini tanlash
+              </button>
+              <span className="text-muted-foreground">&bull;</span>
+              <button
+                type="button"
+                onClick={deselectAll}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Bekor qilish
+              </button>
+            </div>
+          </div>
+
+          {/* Checklist Items: 2-Column Marketplace Grid (Uzum Market Inspired) */}
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+            {collection.products.map((product) => {
+              const isChecked = selectedIds.has(product.id);
+              const pTitle = getProductTitle(product);
+              const coverImg = product.images[0] || null;
+
+              return (
+                <div
+                  key={product.id}
+                  onClick={() => toggleProduct(product.id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      toggleProduct(product.id);
+                    }
+                  }}
+                  className={`group relative flex flex-col justify-between p-2.5 sm:p-3 border cursor-pointer select-none transition-all duration-300 ease-editorial hover:-translate-y-0.5 hover:shadow-whisper active:scale-[0.99] ${
+                    isChecked
+                      ? "border-primary bg-primary/[0.05] ring-1 ring-primary/40 shadow-whisper"
+                      : "border-border/70 bg-card hover:border-foreground/30 opacity-75 hover:opacity-100"
+                  }`}
+                >
+                  <div>
+                    {/* Thumbnail Container */}
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted/60 mb-2 border border-border/40">
+                      {coverImg ? (
+                        <Image
+                          src={coverImg}
+                          alt={pTitle}
+                          fill
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
+                          className="object-cover transition-transform duration-700 ease-editorial group-hover:scale-105"
+                        />
+                      ) : null}
+
+                      {/* Top-Right Floating Checkbox Indicator */}
+                      <div className="absolute top-1.5 right-1.5 z-10">
+                        <div
+                          className={`h-5 w-5 rounded-none flex items-center justify-center transition-all duration-200 ease-editorial shadow-sm ${
+                            isChecked
+                              ? "bg-primary text-primary-foreground scale-105"
+                              : "bg-card border border-border text-transparent"
+                          }`}
+                        >
+                          <Check className="h-3.5 w-3.5 stroke-[2.5]" />
+                        </div>
+                      </div>
+
+                      {/* Top-Left Stock Badge */}
+                      <div className="absolute top-1.5 left-1.5 z-10">
+                        <span
+                          className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 font-semibold shadow-sm transition-opacity duration-200 ${
+                            product.stockStatus === "IN_STOCK"
+                              ? "bg-card text-success border border-success/40"
+                              : "bg-card text-warning border border-warning/40"
+                          }`}
+                        >
+                          {product.stockStatus === "IN_STOCK" ? "Tayyor" : "Buyurtma"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Info */}
+                    <h4 className="font-semibold text-xs sm:text-sm text-foreground line-clamp-2 leading-snug transition-colors duration-200 group-hover:text-primary">
+                      {pTitle}
+                    </h4>
+                    {product.dimensions && (
+                      <span className="text-[10px] sm:text-[11px] text-muted-foreground block mt-0.5 line-clamp-1">
+                        {product.dimensions}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Bottom Toggle Pill */}
+                  <div className="mt-2.5 pt-2 border-t border-border/60 flex items-center justify-between text-[11px]">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
+                      {isChecked ? "Tanlandi" : "Qo'shish"}
+                    </span>
+                    <span
+                      className={`text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 border inline-flex items-center justify-center transition-all duration-200 ease-editorial ${
+                        isChecked
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border text-muted-foreground group-hover:border-foreground"
+                      }`}
+                    >
+                      {isChecked ? <Check className="h-3 w-3 stroke-[2.5]" /> : <Plus className="h-3 w-3" />}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Lead Modal Trigger & Telegram Direct */}
+          <div className="space-y-3 pt-2">
+            <Button
+              size="lg"
+              disabled={selectedProducts.length === 0}
+              onClick={() => setLeadModalOpen(true)}
+              className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-semibold text-xs uppercase tracking-wider py-5 sm:py-6 rounded-none shadow-none smooth-btn"
+            >
+              <span>Tanlangan qismlar bo'yicha ariza qoldirish</span>
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </Button>
+
             <a
               href={telegramLink}
               target="_blank"
               rel="noopener noreferrer"
-              className={cn(
-                buttonVariants({ variant: "outline", size: "lg" }),
-                "gap-2"
-              )}
+              className="inline-flex w-full items-center justify-center gap-2 border border-border bg-card hover:bg-muted text-foreground text-xs uppercase tracking-wider font-semibold py-3 smooth-btn"
             >
-              <Send className="h-4 w-4 text-sky-500" />
-              <span>{tCol("orderFullSetViaTelegram")}</span>
-              <ExternalLink className="h-3 w-3 text-muted-foreground" />
+              <Send className="h-3.5 w-3.5 text-primary" />
+              <span>Telegram orqali buyurtma</span>
             </a>
+          </div>
 
-            {/* Tanlangan mebellar bo'yicha saytdan ariza qoldirish */}
-            <Button
-              type="button"
-              size="lg"
-              disabled={selectedIds.size === 0}
-              onClick={() => setLeadModalOpen(true)}
-              className="gap-2 shadow-md"
-            >
-              <span>{tCol("orderSelected")}</span>
-              <span className="rounded-full bg-primary-foreground/20 px-2 py-0.5 text-xs font-bold">
-                {selectedIds.size}
-              </span>
-            </Button>
+          <div className="border-t border-border/60 pt-4 space-y-1.5 text-xs text-muted-foreground font-light">
+            <p className="flex items-center gap-1.5">
+              <Check className="h-3.5 w-3.5 text-primary shrink-0" />
+              <span>Bepul xonadon o'lchov olish</span>
+            </p>
+            <p className="flex items-center gap-1.5">
+              <Check className="h-3.5 w-3.5 text-primary shrink-0" />
+              <span>3D interyerga joylashtirib ko'rsatish</span>
+            </p>
+            <p className="flex items-center gap-1.5">
+              <Check className="h-3.5 w-3.5 text-primary shrink-0" />
+              <span>24 oylik rasmiy kafolat</span>
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Ariza Modali */}
+      {/* ======================================================== */}
+      {/* BOTTOM SECTION: Minimalist Furniture Grid (Image 4 Style) */}
+      {/* ======================================================== */}
+      <section className="space-y-8 pt-8 border-t border-border">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <p className="eyebrow">Tarkibiy Mebellar Galereyasi</p>
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-foreground mt-1">
+              Komplektga Kiruvchi Elementlar
+            </h2>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1 font-light">
+              Har bir buyumni alohida ko'rishingiz, parametrlarini tekshirishingiz yoki komplektga qo'shishingiz mumkin.
+            </p>
+          </div>
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            {collection.products.length} ta mebel
+          </span>
+        </div>
+
+        {/* Minimalist Furniture Gallery */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {collection.products.map((p) => {
+            const cardProduct: ProductCardData = {
+              id: p.id,
+              slug: p.slug,
+              titleUz: p.titleUz,
+              titleRu: p.titleRu,
+              titleEn: p.titleEn,
+              dimensions: p.dimensions,
+              material: p.material,
+              warranty: p.warranty,
+              stockStatus: p.stockStatus,
+              images: p.images && p.images.length > 0 ? p.images : [heroImage],
+              category: {
+                id: p.id,
+                slug: p.slug,
+                nameUz: p.categoryName,
+                nameRu: p.categoryName,
+                nameEn: p.categoryName,
+              },
+            };
+
+            return <ProductCard key={p.id} product={cardProduct} />;
+          })}
+        </div>
+      </section>
+
+      {/* Mobile Floating Sticky Action Bar (Solid Atelier Design) */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-background border-t border-border p-3 shadow-2xl flex items-center gap-2">
+        <div className="flex-1 min-w-0">
+          <div className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
+            To'plamdan:
+          </div>
+          <div className="text-xs font-bold text-foreground truncate">
+            {selectedProducts.length} ta element tanlandi
+          </div>
+        </div>
+        <a
+          href={telegramLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="h-10 w-10 flex items-center justify-center border border-border bg-card text-foreground hover:bg-muted shrink-0 transition-colors"
+          title="Telegram orqali"
+        >
+          <Send className="h-4 w-4 text-primary" />
+        </a>
+        <Button
+          size="sm"
+          disabled={selectedProducts.length === 0}
+          onClick={() => setLeadModalOpen(true)}
+          className="bg-primary hover:bg-primary-hover text-primary-foreground font-semibold text-xs uppercase tracking-wider h-10 px-3.5 rounded-none shadow-none shrink-0"
+        >
+          <span>Ariza</span>
+          <ArrowRight className="ml-1 h-3.5 w-3.5" />
+        </Button>
+      </div>
+
+      {/* Inquiry Modal */}
       <LeadModal
         isOpen={leadModalOpen}
         onClose={() => setLeadModalOpen(false)}
