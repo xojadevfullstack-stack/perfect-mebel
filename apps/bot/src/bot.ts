@@ -183,6 +183,7 @@ http
 // 10. To'g'ridan-to'g'ri ishga tushirish (Long polling)
 if (process.env["NODE_ENV"] !== "test" && config.botToken) {
   bot.start({
+    drop_pending_updates: true,
     onStart: (botInfo) => {
       process.stdout.write(`Telegram Bot (@${botInfo.username}) muvaffaqiyatli ishga tushdi!\n`);
     },
