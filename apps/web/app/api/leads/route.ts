@@ -132,16 +132,20 @@ export async function POST(req: Request): Promise<NextResponse> {
       },
     });
 
-    // Telegram zavod kanaliga bildirishnoma jo'natish (fon rejimida)
-    void sendLeadTelegramNotification({
-      customerName: lead.customerName,
-      phone: lead.phone,
-      address: lead.address,
-      notes: lead.notes,
-      itemsSummary: lead.itemsSummary,
-      source: "WEB",
-      createdAt: lead.createdAt,
-    });
+    // Telegram zavod kanaliga bildirishnoma jo'natish (await qilinadi, lekin lead saqlanishini buzmaydi)
+    try {
+      await sendLeadTelegramNotification({
+        customerName: lead.customerName,
+        phone: lead.phone,
+        address: lead.address,
+        notes: lead.notes,
+        itemsSummary: lead.itemsSummary,
+        source: "WEB",
+        createdAt: lead.createdAt,
+      });
+    } catch (notifyErr) {
+      console.error("Lead Telegram notify failed (lead saved successfully):", notifyErr);
+    }
 
     return NextResponse.json({ success: true, data: { id: lead.id } }, { status: 201 });
   } catch (error) {

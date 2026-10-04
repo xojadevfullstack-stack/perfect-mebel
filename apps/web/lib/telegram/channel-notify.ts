@@ -31,7 +31,6 @@ export async function sendLeadTelegramNotification(payload: LeadNotificationPayl
     `🛋 <b>Tanlangan mebellar:</b>\n${escapeHtml(payload.itemsSummary)}\n` +
     `📝 <b>Izoh:</b> ${escapeHtml(payload.notes || "Yo'q")}\n` +
     `📅 <b>Sana:</b> ${dateStr}`;
-
   try {
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
     const res = await fetch(url, {
@@ -44,7 +43,15 @@ export async function sendLeadTelegramNotification(payload: LeadNotificationPayl
       }),
     });
 
-    return res.ok;
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => "");
+      process.stderr.write(
+        `Telegram API error (HTTP ${res.status}): ${errBody}\n`
+      );
+      return false;
+    }
+
+    return true;
   } catch (err: unknown) {
     const errMsg = err instanceof Error ? err.message : "Telegram notify error";
     process.stderr.write(`Failed to send telegram notification: ${errMsg}\n`);

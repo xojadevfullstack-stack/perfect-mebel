@@ -1,4 +1,5 @@
 import { prisma, StockStatus } from "@mebel-salon/db";
+import { escapeHtml } from "@mebel-salon/shared";
 import type { MyConversation, MyContext } from "../types/index.js";
 import { getCancelKeyboard, getMainMenuKeyboard } from "../keyboards/main-menu.js";
 import { config, isAdmin } from "../config.js";
@@ -191,7 +192,7 @@ export async function adminAddProductConversation(
       } catch (err) {
         const errMsg = err instanceof Error ? err.message : String(err);
         process.stderr.write(`Telegram photo yuklashda xatolik: ${errMsg}\n`);
-        await ctx.reply(`⚠️ Rasmni saqlashda xatolik yuz berdi: ${errMsg}`);
+        await ctx.reply("⚠️ Rasmni saqlashda server xatoligi yuz berdi.");
       }
     }
   } else if (imgCtx.message?.text && imgCtx.message.text !== "-") {
@@ -238,21 +239,24 @@ export async function adminAddProductConversation(
     );
 
     await ctx.reply(
-      `✅ *Yangi mebel muvaffaqiyatli saqlandi!*\n\n` +
-        `🛋 Nomi: *${newProduct.titleUz}*\n` +
-        `📁 Toifa: ${newProduct.category.nameUz}\n` +
-        `📦 Holati: ${newProduct.stockStatus}\n` +
-        (newProduct.dimensions ? `📐 O'lchami: ${newProduct.dimensions}\n` : "") +
-        (newProduct.material ? `🪵 Material: ${newProduct.material}\n` : "") +
-        `🔗 Slug: \`${newProduct.slug}\``,
+      `✅ <b>Yangi mebel muvaffaqiyatli saqlandi!</b>\n\n` +
+        `🛋 Nomi: <b>${escapeHtml(newProduct.titleUz)}</b>\n` +
+        `📁 Toifa: ${escapeHtml(newProduct.category.nameUz)}\n` +
+        `📦 Holati: ${escapeHtml(newProduct.stockStatus)}\n` +
+        (newProduct.dimensions ? `📐 O'lchami: ${escapeHtml(newProduct.dimensions)}\n` : "") +
+        (newProduct.material ? `🪵 Material: ${escapeHtml(newProduct.material)}\n` : "") +
+        `🔗 Slug: <code>${escapeHtml(newProduct.slug)}</code>`,
       {
-        parse_mode: "Markdown",
+        parse_mode: "HTML",
         reply_markup: getMainMenuKeyboard(true),
       }
     );
   } catch (error) {
+    process.stderr.write(
+      `Mebelni saqlashda xatolik: ${error instanceof Error ? error.message : String(error)}\n`
+    );
     await ctx.reply(
-      `Mebelni saqlashda xatolik: ${error instanceof Error ? error.message : "Noma'lum"}`,
+      "Mebelni saqlashda server xatoligi yuz berdi. Iltimos, qaytadan urinib ko'ring.",
       { reply_markup: getMainMenuKeyboard(true) }
     );
   }

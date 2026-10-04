@@ -1,4 +1,5 @@
 import { prisma } from "@mebel-salon/db";
+import { escapeHtml } from "@mebel-salon/shared";
 import type { MyContext } from "../types/index.js";
 import { config } from "../config.js";
 
@@ -39,14 +40,14 @@ export async function handleCustomerMessage(ctx: MyContext): Promise<void> {
 
     // Support guruhiga ma'lumotli xabarni yuborish
     const notificationText =
-      `📩 *Yangi mijoz xabari!*\n` +
-      `👤 Mijoz: *${userName}* (${userHandle})\n` +
-      `🆔 Telegram ID: \`${userId}\`\n\n` +
-      `💬 *Xabar:*\n${text || "(fayl/rasm yuborildi)"}\n\n` +
-      `_Javob yozish uchun ushbu xabarga 'Reply' qiling._`;
+      `📩 <b>Yangi mijoz xabari!</b>\n` +
+      `👤 Mijoz: <b>${escapeHtml(userName)}</b> (${escapeHtml(userHandle)})\n` +
+      `🆔 Telegram ID: <code>${escapeHtml(userId)}</code>\n\n` +
+      `💬 <b>Xabar:</b>\n${escapeHtml(text || "(fayl/rasm yuborildi)")}\n\n` +
+      `<i>Javob yozish uchun ushbu xabarga 'Reply' qiling.</i>`;
 
     const groupMsg = await ctx.api.sendMessage(supportGroupId, notificationText, {
-      parse_mode: "Markdown",
+      parse_mode: "HTML",
     });
 
     // DB ga mapping saqlash
@@ -67,7 +68,7 @@ export async function handleCustomerMessage(ctx: MyContext): Promise<void> {
       }\n`
     );
     await ctx.reply(
-      "Xabaringiz qabul qilindi. Tez orada mutaxassisimiz bog'lanadi."
+      "Kechirasiz, xabaringizni menejerga yetkazishda xatolik yuz berdi. Iltimos, qaytadan yuboring yoki qo'ng'iroq qiling."
     );
   }
 }
@@ -96,17 +97,17 @@ export async function handleSupportGroupReply(ctx: MyContext): Promise<void> {
     }
 
     const replyText = ctx.message.text || "";
-    const customerMessage = `💬 *Menejerdan javob:*\n\n${replyText}`;
+    const customerMessage = `💬 <b>Menejerdan javob:</b>\n\n${escapeHtml(replyText)}`;
 
     if (ctx.message.photo && ctx.message.photo.length > 0) {
       const photo = ctx.message.photo[ctx.message.photo.length - 1]!;
       await ctx.api.sendPhoto(mapping.userTelegramId, photo.file_id, {
         caption: customerMessage,
-        parse_mode: "Markdown",
+        parse_mode: "HTML",
       });
     } else {
       await ctx.api.sendMessage(mapping.userTelegramId, customerMessage, {
-        parse_mode: "Markdown",
+        parse_mode: "HTML",
       });
     }
 
