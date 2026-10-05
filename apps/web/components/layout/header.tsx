@@ -53,7 +53,7 @@ export function Header({ onOpenSelections, onOpenInquiry }: HeaderProps): React.
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-md transition-colors duration-200">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background transition-colors duration-200">
       <div className="container mx-auto flex h-16 sm:h-20 items-center justify-between px-3 sm:px-6 lg:px-8 max-w-7xl">
         {/* Brand Logo Anchor with proper minimum breathing space */}
         <Link
