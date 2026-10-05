@@ -9,7 +9,20 @@ import {
 } from "@/components/catalog/product-detail-view";
 import { type ProductCardData } from "@/components/catalog/product-card";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+export const dynamicParams = true;
+
+export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
+  try {
+    const products = await prisma.product.findMany({
+      select: { slug: true },
+      take: 20,
+    });
+    return products.map((p) => ({ slug: p.slug }));
+  } catch {
+    return [];
+  }
+}
 
 interface ProductDetailPageProps {
   params: { locale: string; slug: string };

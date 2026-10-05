@@ -1,8 +1,7 @@
 import * as React from "react";
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
+import { getMessages, unstable_setRequestLocale } from "next-intl/server";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import "@/lib/env";
@@ -18,12 +17,8 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }): Promise<React.JSX.Element> {
-  const cookieStore = cookies();
-  const rawLocale =
-    cookieStore.get("admin_locale")?.value ||
-    cookieStore.get("NEXT_LOCALE")?.value ||
-    "uz";
-  const locale = ["uz", "ru", "en"].includes(rawLocale) ? rawLocale : "uz";
+  const locale = "uz";
+  unstable_setRequestLocale(locale);
   const messages = await getMessages({ locale });
 
   return (

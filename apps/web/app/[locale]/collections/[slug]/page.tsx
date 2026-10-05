@@ -12,7 +12,20 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ChevronLeft } from "lucide-react";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+export const dynamicParams = true;
+
+export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
+  try {
+    const collections = await prisma.collection.findMany({
+      select: { slug: true },
+      take: 20,
+    });
+    return collections.map((c) => ({ slug: c.slug }));
+  } catch {
+    return [];
+  }
+}
 
 interface CollectionDetailPageProps {
   params: { locale: string; slug: string };
