@@ -125,33 +125,34 @@ export function ProductCard({ product, onAskPrice }: ProductCardProps): React.JS
         />
 
         {/* Card Body: Clean, calm typography with clear contrast */}
-        <div className="p-4 sm:p-5 space-y-1.5">
-          <p className="eyebrow truncate">
+        <div className="p-2.5 sm:p-5 space-y-1 sm:space-y-1.5">
+          <p className="text-[10px] sm:text-xs uppercase tracking-wider font-semibold text-primary truncate">
             {categoryName} {product.material ? `• ${product.material}` : ""}
           </p>
 
-          <h3 className="font-serif text-lg sm:text-xl font-bold tracking-tight text-foreground transition-colors duration-300 ease-editorial group-hover:text-primary leading-snug">
+          <h3 className="font-sans text-xs sm:text-lg font-semibold tracking-tight text-foreground transition-colors duration-300 ease-editorial group-hover:text-primary leading-tight sm:leading-snug line-clamp-1 sm:line-clamp-2">
             {title}
           </h3>
 
           {product.dimensions && (
-            <p className="text-xs text-muted-foreground pt-0.5">
-              <span className="font-medium text-foreground">{tCat("dimensions")}:</span> {product.dimensions}
+            <p className="text-[10px] sm:text-xs text-muted-foreground pt-0.5 line-clamp-1">
+              <span className="hidden sm:inline font-medium text-foreground">{tCat("dimensions")}: </span>
+              {product.dimensions}
             </p>
           )}
         </div>
       </Link>
 
       {/* Clean Single Action: Narxini bilish */}
-      <div className="p-4 sm:p-5 pt-0 mt-auto">
+      <div className="p-2.5 sm:p-5 pt-0 mt-auto">
         <Button
           size="sm"
           variant="outline"
           onClick={handleAskPrice}
-          className="w-full h-10 text-xs font-semibold uppercase tracking-wider border-border-strong bg-card text-foreground hover:bg-foreground hover:text-background smooth-btn"
+          className="w-full h-8 sm:h-10 text-[10px] sm:text-xs font-semibold uppercase tracking-wider border-border-strong bg-card text-foreground hover:bg-foreground hover:text-background smooth-btn px-1 sm:px-3"
         >
-          <HelpCircle className="mr-1.5 h-3.5 w-3.5 text-primary shrink-0 transition-transform duration-300 group-hover/btn:scale-110" />
-          <span>{tCat("askPrice")}</span>
+          <HelpCircle className="mr-1 sm:mr-1.5 h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary shrink-0 transition-transform duration-300 group-hover/btn:scale-110" />
+          <span className="truncate">{tCat("askPrice")}</span>
         </Button>
       </div>
 

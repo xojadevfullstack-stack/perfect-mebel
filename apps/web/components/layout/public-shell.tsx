@@ -16,7 +16,7 @@ export function PublicShell({ children }: PublicShellProps): React.JSX.Element {
   const [inquiryOpen, setInquiryOpen] = React.useState(false);
 
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground overflow-x-hidden w-full">
+    <div className="flex min-h-screen flex-col bg-background text-foreground w-full">
       <Header
         onOpenSelections={() => setSelectionsOpen(true)}
         onOpenInquiry={() => setInquiryOpen(true)}

@@ -2,16 +2,16 @@ import * as React from "react";
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, unstable_setRequestLocale } from "next-intl/server";
-import { Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { PublicShell } from "@/components/layout/public-shell";
 import { locales } from "@/i18n/request";
 import "@/lib/env";
 import "../globals.css";
 
-const playfair = Playfair_Display({
+const inter = Inter({
   subsets: ["latin", "cyrillic"],
-  variable: "--font-playfair",
+  variable: "--font-inter",
   display: "swap",
 });
 
@@ -43,7 +43,7 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} suppressHydrationWarning className={`${playfair.variable} ${plusJakarta.variable}`}>
+    <html lang={locale} suppressHydrationWarning className={`${inter.variable} ${plusJakarta.variable}`}>
       <body className="min-h-screen bg-background text-foreground antialiased font-sans selection:bg-primary/20 selection:text-foreground">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <NextIntlClientProvider locale={locale} messages={messages}>

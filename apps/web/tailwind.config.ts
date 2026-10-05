@@ -84,11 +84,11 @@ const config: Config = {
         lg: "4px",
       },
       fontFamily: {
-        sans: ["var(--font-plus-jakarta)", "ui-sans-serif", "system-ui", "sans-serif"],
-        serif: ["var(--font-playfair)", "Georgia", "serif"],
-        display: ["var(--font-playfair)", "Georgia", "serif"],
-        headline: ["var(--font-playfair)", "Georgia", "serif"],
-        body: ["var(--font-plus-jakarta)", "sans-serif"],
+        sans: ["var(--font-inter)", "var(--font-plus-jakarta)", "ui-sans-serif", "system-ui", "-apple-system", "sans-serif"],
+        serif: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+        headline: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+        body: ["var(--font-inter)", "var(--font-plus-jakarta)", "sans-serif"],
       },
       boxShadow: {
         whisper: "0 2px 8px -2px rgba(0, 0, 0, 0.05), 0 1px 4px -1px rgba(0, 0, 0, 0.03)",

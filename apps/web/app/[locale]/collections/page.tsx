@@ -1,4 +1,4 @@
-﻿import * as React from "react";
+import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { unstable_setRequestLocale, getTranslations } from "next-intl/server";
@@ -53,7 +53,7 @@ export default async function CollectionsPage({
         {displayCollections.length === 0 && (
           <p className="py-16 text-center text-muted-foreground">{t("empty")}</p>
         )}
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {displayCollections.map((col) => {
             const title =
               locale === "ru" && "titleRu" in col && col.titleRu
@@ -98,7 +98,7 @@ export default async function CollectionsPage({
                     </div>
                   </div>
 
-                  <div className="p-6 space-y-2">
+                  <div className="p-4 sm:p-6 space-y-1.5 sm:space-y-2">
                     <span className="eyebrow block">
                       {t("ensemble")}
                     </span>

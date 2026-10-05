@@ -144,19 +144,19 @@ export function CardImageSlider({
           title={isInSelection ? t("removeFromSelection") : t("addToSelection")}
           aria-label={isInSelection ? t("removeFromSelection") : t("addToSelection")}
           className={cn(
-            "icon-button absolute right-3 top-3 sm:right-3.5 sm:top-3.5 z-10 h-9 w-9 bg-card text-foreground border border-border-strong shadow-whisper-md transition-all duration-300 ease-editorial hover:scale-105 active:scale-95",
+            "icon-button absolute right-2 top-2 sm:right-3.5 sm:top-3.5 z-10 h-7 w-7 sm:h-9 sm:w-9 bg-card text-foreground border border-border-strong shadow-whisper-md transition-all duration-300 ease-editorial hover:scale-105 active:scale-95",
             isInSelection && "border-primary bg-primary text-primary-foreground shadow-sm"
           )}
         >
           {isInSelection ? (
-            <Check className="h-4 w-4 stroke-[2.5]" />
+            <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 stroke-[2.5]" />
           ) : (
-            <Bookmark className="h-4 w-4 text-foreground/85 hover:text-foreground" />
+            <Bookmark className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-foreground/85 hover:text-foreground" />
           )}
         </button>
       )}
 
-      {/* Prev / Next Navigation Arrows (100% Solid & High-Contrast on Any Photo) */}
+      {/* Prev / Next Navigation Arrows (Visible on desktop; mobile uses smooth touch swipe) */}
       {hasMultiple && (
         <>
           <button
@@ -165,7 +165,7 @@ export function CardImageSlider({
             aria-label={t("prevImage")}
             className={cn(
               "absolute left-2.5 top-1/2 -translate-y-1/2 z-20",
-              "h-10 w-10 flex items-center justify-center",
+              "hidden sm:flex h-10 w-10 items-center justify-center",
               "rounded-none bg-card text-foreground border border-border-strong",
               "shadow-whisper-md transition-all duration-300 ease-editorial",
               "hover:bg-primary hover:text-primary-foreground hover:border-primary hover:scale-105 active:scale-95",
@@ -181,7 +181,7 @@ export function CardImageSlider({
             aria-label={t("nextImage")}
             className={cn(
               "absolute right-2.5 top-1/2 -translate-y-1/2 z-20",
-              "h-10 w-10 flex items-center justify-center",
+              "hidden sm:flex h-10 w-10 items-center justify-center",
               "rounded-none bg-card text-foreground border border-border-strong",
               "shadow-whisper-md transition-all duration-300 ease-editorial",
               "hover:bg-primary hover:text-primary-foreground hover:border-primary hover:scale-105 active:scale-95",
