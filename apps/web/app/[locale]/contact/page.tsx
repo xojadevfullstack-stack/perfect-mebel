@@ -123,7 +123,7 @@ export default async function ContactPage({
 
           <div className="flex flex-wrap gap-3">
             <a
-              href="https://t.me/perfectmebel_uz"
+              href="https://t.me/perfectmebelbot"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center space-x-2 rounded-none bg-primary hover:bg-primary-hover px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-primary-foreground shadow-none transition-all"

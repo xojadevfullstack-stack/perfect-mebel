@@ -354,7 +354,7 @@ export default function SelectionsPage(): React.JSX.Element {
                 </Button>
 
                 <a
-                  href="https://t.me/perfectmebel_uz"
+                  href="https://t.me/perfectmebelbot"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full flex items-center justify-center gap-2 rounded-none border border-border-strong hover:border-foreground hover:bg-foreground hover:text-background py-2.5 px-4 text-xs font-semibold text-foreground smooth-btn"
@@ -404,7 +404,7 @@ export default function SelectionsPage(): React.JSX.Element {
               </Button>
 
               <a
-                href="https://t.me/perfectmebel_uz"
+                href="https://t.me/perfectmebelbot"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2 rounded-none border border-border-strong hover:border-foreground hover:bg-foreground hover:text-background py-2.5 px-4 text-xs font-semibold text-foreground smooth-btn"

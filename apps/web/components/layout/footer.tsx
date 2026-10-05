@@ -100,12 +100,12 @@ export function Footer(): React.JSX.Element {
               <p className="flex items-center space-x-2 pt-1">
                 <Send className="h-4 w-4 text-footer-accent shrink-0" />
                 <a
-                  href="https://t.me/perfectmebel_uz"
+                  href="https://t.me/perfectmebelbot"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:underline text-footer-accent font-semibold transition-colors"
                 >
-                  @perfectmebel_uz
+                  @perfectmebelbot
                 </a>
               </p>
             </div>

@@ -8,6 +8,7 @@ import { ProductCard } from "@/components/catalog/product-card";
 import { QuickConsultationForm } from "@/components/lead/quick-consultation-form";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface HomePageProps {
   params: { locale: string };

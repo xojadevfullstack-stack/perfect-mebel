@@ -4,6 +4,7 @@ import { prisma } from "@mebel-salon/db";
 import { CatalogView } from "@/components/catalog/catalog-view";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface CatalogPageProps {
   params: { locale: string };

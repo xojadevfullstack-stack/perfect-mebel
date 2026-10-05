@@ -6,6 +6,7 @@ import { prisma } from "@mebel-salon/db";
 import { ArrowRight, Layers } from "lucide-react";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface CollectionsPageProps {
   params: { locale: string };

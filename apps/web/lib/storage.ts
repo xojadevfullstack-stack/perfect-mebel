@@ -25,61 +25,54 @@ export async function uploadImageFile(file: File): Promise<{ url: string }> {
   }
 
   const supabaseUrl = process.env["NEXT_PUBLIC_SUPABASE_URL"];
-  const supabaseKey = process.env["NEXT_PUBLIC_SUPABASE_ANON_KEY"] || process.env["SUPABASE_SERVICE_ROLE_KEY"];
+  const serviceKey =
+    process.env["SUPABASE_SERVICE_ROLE_KEY"] || process.env["NEXT_PUBLIC_SUPABASE_ANON_KEY"];
 
-  // 1. Agar Supabase to'g'ri sozlangan bo'lsa
-  if (
-    supabaseUrl &&
-    supabaseKey &&
-    !supabaseUrl.includes("your-project.supabase.co") &&
-    !supabaseKey.includes("your-key-here")
-  ) {
+  if (supabaseUrl && serviceKey) {
     try {
-      const { createClient } = await import("@supabase/supabase-js");
-      const supabase = createClient(supabaseUrl, supabaseKey);
-
-      const extension = path.extname(file.name) || ".webp";
-      const uniqueFileName = `${Date.now()}-${crypto.randomBytes(8).toString("hex")}${extension}`;
+      const ext = path.extname(file.name) || (file.type === "image/png" ? ".png" : file.type === "image/jpeg" ? ".jpg" : ".webp");
+      const uniqueFileName = `${Date.now()}-${crypto.randomBytes(8).toString("hex")}${ext}`;
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
 
-      const { data, error } = await supabase.storage
-        .from("products")
-        .upload(uniqueFileName, buffer, {
-          contentType: file.type,
-          upsert: true,
-        });
+      const uploadUrl = `${supabaseUrl}/storage/v1/object/products/${uniqueFileName}`;
+      const uploadRes = await fetch(uploadUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${serviceKey}`,
+          apikey: serviceKey,
+          "Content-Type": file.type,
+        },
+        body: buffer,
+      });
 
-      if (error) {
-        throw new Error(`Supabase yuklash xatosi: ${error.message}`);
+      if (uploadRes.ok) {
+        const publicUrl = `${supabaseUrl}/storage/v1/object/public/products/${uniqueFileName}`;
+        return { url: publicUrl };
       }
 
-      const { data: urlData } = supabase.storage.from("products").getPublicUrl(data.path);
-      return { url: urlData.publicUrl };
+      const errorText = await uploadRes.text();
+      console.error("Supabase Storage upload error:", uploadRes.status, errorText);
+      throw new Error(`Supabase yuklash xatosi (${uploadRes.status}): ${errorText}`);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Supabase storage xatosi";
       if (process.env["NODE_ENV"] === "production") {
-        throw new Error(`Production Supabase yuklash xatosi: ${message}`);
+        throw new Error(message);
       }
-      process.stderr.write(`Supabase upload error, falling back to local: ${message}\n`);
+      console.warn("Supabase upload failed, falling back to local:", message);
     }
-  } else if (process.env["NODE_ENV"] === "production") {
-    throw new Error(
-      "Production muhitida Supabase Storage sozlanmagan. NEXT_PUBLIC_SUPABASE_URL va NEXT_PUBLIC_SUPABASE_ANON_KEY kiritilishi shart."
-    );
   }
 
-  // 2. Lokal saqlash (faqat lokal development muhiti uchun)
+  // Fallback faqat lokal development uchun
   const uploadsDir = path.join(process.cwd(), "public", "uploads");
   await fs.mkdir(uploadsDir, { recursive: true });
 
-  const extension = path.extname(file.name) || ".webp";
-  const uniqueName = `${Date.now()}-${crypto.randomBytes(8).toString("hex")}${extension}`;
+  const ext = path.extname(file.name) || ".webp";
+  const uniqueName = `${Date.now()}-${crypto.randomBytes(8).toString("hex")}${ext}`;
   const filePath = path.join(uploadsDir, uniqueName);
 
   const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-  await fs.writeFile(filePath, buffer);
+  await fs.writeFile(filePath, Buffer.from(bytes));
 
   return { url: `/uploads/${uniqueName}` };
 }

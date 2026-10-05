@@ -1,5 +1,5 @@
 export function getBotUsername(): string {
-  return process.env["NEXT_PUBLIC_BOT_USERNAME"] || "mebel_salon_bot";
+  return process.env["NEXT_PUBLIC_BOT_USERNAME"] || "perfectmebelbot";
 }
 
 export function buildProductDeepLink(productId: string): string {
