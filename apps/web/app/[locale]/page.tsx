@@ -35,7 +35,7 @@ export default async function HomePage({
       },
     }),
     prisma.collection.findMany({
-      take: 3,
+      take: 4,
       orderBy: { createdAt: "desc" },
       include: {
         products: {
