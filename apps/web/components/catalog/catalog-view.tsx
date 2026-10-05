@@ -16,9 +16,10 @@ interface CategoryData {
 
 interface CatalogViewProps {
   initialCategories: CategoryData[];
+  initialProducts?: ProductCardData[];
 }
 
-export function CatalogView({ initialCategories }: CatalogViewProps): React.JSX.Element {
+export function CatalogView({ initialCategories, initialProducts = [] }: CatalogViewProps): React.JSX.Element {
   const locale = useLocale();
   const t = useTranslations("catalog");
   const router = useRouter();
@@ -29,8 +30,28 @@ export function CatalogView({ initialCategories }: CatalogViewProps): React.JSX.
 
   const [categories, setCategories] = React.useState<CategoryData[]>(initialCategories || []);
   const [selectedCategory, setSelectedCategory] = React.useState<string>(categoryParam);
-  const [products, setProducts] = React.useState<ProductCardData[]>([]);
-  const [isLoading, setIsLoading] = React.useState<boolean>(true);
+  const [products, setProducts] = React.useState<ProductCardData[]>(initialProducts);
+  const [isLoading, setIsLoading] = React.useState<boolean>(initialProducts.length === 0);
+
+  // Sync initialProducts if received/updated
+  React.useEffect(() => {
+    if (initialProducts && initialProducts.length > 0) {
+      setProducts(initialProducts);
+      setIsLoading(false);
+    }
+  }, [initialProducts]);
+
+  // Sync categories prop
+  React.useEffect(() => {
+    if (initialCategories && initialCategories.length > 0) {
+      setCategories(initialCategories);
+    }
+  }, [initialCategories]);
+
+  // Sync categoryParam from URL
+  React.useEffect(() => {
+    setSelectedCategory(categoryParam);
+  }, [categoryParam]);
 
   // Fetch categories from database API if not provided in initialCategories
   React.useEffect(() => {
@@ -52,8 +73,9 @@ export function CatalogView({ initialCategories }: CatalogViewProps): React.JSX.
     }
   }, [categories]);
 
-  // Fetch from database API
+  // Fetch from database API only if no initial products were provided
   React.useEffect(() => {
+    if (initialProducts.length > 0) return;
     async function fetchDb() {
       setIsLoading(true);
       try {
@@ -71,7 +93,7 @@ export function CatalogView({ initialCategories }: CatalogViewProps): React.JSX.
       }
     }
     fetchDb();
-  }, []);
+  }, [initialProducts.length]);
 
   // Filter products based on selected category slug
   const filteredProducts = React.useMemo(() => {

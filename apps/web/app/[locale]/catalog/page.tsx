@@ -14,17 +14,53 @@ export default async function CatalogPage({
 }: CatalogPageProps): Promise<React.JSX.Element> {
   unstable_setRequestLocale(locale);
 
-  // Kategoriyalarni bazadan server tomonda olish
-  const categories = await prisma.category.findMany({
-    orderBy: { order: "asc" },
-    select: {
-      id: true,
-      slug: true,
-      nameUz: true,
-      nameRu: true,
-      nameEn: true,
-    },
-  });
+  // Kategoriyalar va mahsulotlarni bazadan server tomonda olish
+  const [categories, products] = await Promise.all([
+    prisma.category.findMany({
+      orderBy: { order: "asc" },
+      select: {
+        id: true,
+        slug: true,
+        nameUz: true,
+        nameRu: true,
+        nameEn: true,
+      },
+    }),
+    prisma.product.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        category: true,
+        collection: true,
+      },
+    }),
+  ]);
+
+  const initialProducts = products.map((p) => ({
+    id: p.id,
+    slug: p.slug,
+    titleUz: p.titleUz,
+    titleRu: p.titleRu,
+    titleEn: p.titleEn,
+    descUz: p.descUz,
+    descRu: p.descRu,
+    descEn: p.descEn,
+    dimensions: p.dimensions,
+    material: p.material,
+    warranty: p.warranty,
+    stockStatus: p.stockStatus as "IN_STOCK" | "MADE_TO_ORDER",
+    images: p.images,
+    article: p.id ? `PM-${p.id.slice(0, 4).toUpperCase()}` : undefined,
+    category: p.category
+      ? {
+          id: p.category.id,
+          slug: p.category.slug,
+          nameUz: p.category.nameUz,
+          nameRu: p.category.nameRu,
+          nameEn: p.category.nameEn,
+        }
+      : null,
+    colors: [],
+  }));
 
   return (
     <React.Suspense
@@ -34,7 +70,7 @@ export default async function CatalogPage({
         </div>
       }
     >
-      <CatalogView initialCategories={categories} />
+      <CatalogView initialCategories={categories} initialProducts={initialProducts} />
     </React.Suspense>
   );
 }

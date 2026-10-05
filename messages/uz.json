@@ -80,6 +80,14 @@
     "empty": "Komplektlar topilmadi",
     "itemsCount": "ta mebel"
   },
+  "collectionsPage": {
+    "eyebrow": "Eksklyuziv To'plamlar",
+    "title": "Komplektlar va Garniturlar",
+    "description": "Uyingizning har bir xonasi uchun yagona dizayn va uyg'un uslubda yaratilgan to'liq mebel ansambllari.",
+    "empty": "Hozircha komplektlar mavjud emas",
+    "itemsBadge": "{count} ta mebel",
+    "ensemble": "Ansambl"
+  },
   "selections": {
     "floatingButton": "Tanlovlar",
     "title": "Mening tanlovlarim",

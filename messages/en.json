@@ -80,6 +80,14 @@
     "empty": "No collections found",
     "itemsCount": "items"
   },
+  "collectionsPage": {
+    "eyebrow": "Exclusive Collections",
+    "title": "Sets and Collections",
+    "description": "Harmonious furniture ensembles crafted in unified design for every room in your home.",
+    "empty": "No collections found yet",
+    "itemsBadge": "{count} items",
+    "ensemble": "Ensemble"
+  },
   "selections": {
     "floatingButton": "Selections",
     "title": "My Selections",
