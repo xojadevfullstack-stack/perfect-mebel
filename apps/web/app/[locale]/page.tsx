@@ -133,7 +133,7 @@ export default async function HomePage({
 
         {/* 4-Column Product Grid */}
         {popularProducts.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-6">
             {popularProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -241,7 +241,7 @@ export default async function HomePage({
 
         {/* Collections Grid from DB */}
         {dbCollections.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-6">
             {dbCollections.map((col) => {
               const title =
                 locale === "ru" && col.titleRu
@@ -258,30 +258,30 @@ export default async function HomePage({
                   href={`/${locale}/collections/${col.slug}`}
                   className="group smooth-card border border-border bg-card overflow-hidden block"
                 >
-                  <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+                  <div className="relative aspect-[4/3] sm:aspect-[16/10] overflow-hidden bg-muted">
                     {coverImage ? (
                       <Image
                         src={coverImage}
                         alt={title}
                         fill
-                        sizes="(max-width: 768px) 100vw, 33vw"
+                        sizes="(max-width: 768px) 50vw, 33vw"
                         className="object-cover transition-transform duration-1000 ease-editorial group-hover:scale-105"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                        <Layers className="h-10 w-10 stroke-1" />
+                        <Layers className="h-8 w-8 sm:h-10 sm:w-10 stroke-1" />
                       </div>
                     )}
-                    <span className="status absolute top-3 left-3 shadow-sm">
+                    <span className="status absolute top-1.5 left-1.5 sm:top-3 sm:left-3 shadow-sm px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-[10px]">
                       <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                       <span>{tCollections("itemsCount", { count: col._count.products })}</span>
                     </span>
                   </div>
-                  <div className="p-5 sm:p-6 space-y-2.5">
-                    <h3 className="font-serif text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-300 ease-editorial">
+                  <div className="p-2 sm:p-5 space-y-1 sm:space-y-2">
+                    <h3 className="text-xs sm:text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-300 ease-editorial leading-tight line-clamp-1 sm:line-clamp-2">
                       {title}
                     </h3>
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="hidden sm:flex flex-wrap gap-1.5">
                       {col.products.map((p) => {
                         const itemTitle =
                           locale === "ru" && p.titleRu

@@ -53,7 +53,7 @@ export default async function CollectionsPage({
         {displayCollections.length === 0 && (
           <p className="py-16 text-center text-muted-foreground">{t("empty")}</p>
         )}
-        <div className="grid gap-4 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-6 lg:grid-cols-3">
           {displayCollections.map((col) => {
             const title =
               locale === "ru" && "titleRu" in col && col.titleRu
@@ -78,35 +78,35 @@ export default async function CollectionsPage({
                 className="group smooth-card flex flex-col justify-between overflow-hidden rounded-none border border-border bg-card block"
               >
                 <div>
-                  <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
+                  <div className="relative aspect-[4/3] sm:aspect-[16/10] w-full overflow-hidden bg-muted">
                     {coverImage ? (
                       <Image
                         src={coverImage}
                         alt={title}
                         fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 33vw"
                         className="object-cover transition-transform duration-1000 ease-editorial group-hover:scale-105"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                        <Layers className="h-12 w-12 stroke-1" />
+                        <Layers className="h-8 w-8 sm:h-12 sm:w-12 stroke-1" />
                       </div>
                     )}
 
-                    <div className="absolute top-3 right-3 bg-card text-foreground px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider border border-border shadow-sm">
+                    <div className="absolute top-1.5 right-1.5 sm:top-3 sm:right-3 bg-card text-foreground px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider border border-border shadow-sm">
                       {t("itemsBadge", { count: col.products.length })}
                     </div>
                   </div>
 
-                  <div className="p-4 sm:p-6 space-y-1.5 sm:space-y-2">
-                    <span className="eyebrow block">
+                  <div className="p-2 sm:p-5 space-y-0.5 sm:space-y-1.5">
+                    <span className="text-[9px] sm:text-xs uppercase tracking-wider font-semibold text-primary block truncate">
                       {t("ensemble")}
                     </span>
-                    <h2 className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors duration-300 ease-editorial">
+                    <h2 className="text-xs sm:text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors duration-300 ease-editorial leading-tight sm:leading-snug line-clamp-1 sm:line-clamp-2">
                       {title}
                     </h2>
                     {desc && (
-                      <p className="text-sm text-muted-foreground font-light line-clamp-2 leading-relaxed pt-1">
+                      <p className="hidden sm:block text-xs sm:text-sm text-muted-foreground font-light line-clamp-2 leading-relaxed pt-1">
                         {desc}
                       </p>
                     )}

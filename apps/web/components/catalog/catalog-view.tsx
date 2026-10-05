@@ -185,7 +185,7 @@ export function CatalogView({ initialCategories }: CatalogViewProps): React.JSX.
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
         </div>
       ) : filteredProducts.length > 0 ? (
-        <div className="mt-6 sm:mt-8 grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3 animate-in fade-in-0 duration-500 ease-editorial">
+        <div className="mt-4 sm:mt-8 grid grid-cols-2 gap-2.5 sm:gap-6 lg:grid-cols-3 animate-in fade-in-0 duration-500 ease-editorial">
           {filteredProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
