@@ -56,7 +56,12 @@ export function LeadDetailDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <div className="flex items-center justify-between pr-4">
-            <DialogTitle>{t("detailsTitle")}</DialogTitle>
+            <div className="flex items-center gap-2">
+              <DialogTitle>{t("detailsTitle")}</DialogTitle>
+              <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-muted text-foreground border border-border">
+                #PM-{lead.id.slice(0, 6).toUpperCase()}
+              </span>
+            </div>
             <Badge variant={lead.source === "WEB" ? "default" : "secondary"}>
               {lead.source === "WEB" ? (
                 <Globe className="h-3 w-3 mr-1" />
@@ -82,13 +87,21 @@ export function LeadDetailDialog({
           {/* Telefon */}
           <div className="flex items-start space-x-3 rounded-lg border border-border bg-muted/20 p-3">
             <Phone className="h-5 w-5 text-primary mt-0.5" />
-            <div>
+            <div className="space-y-1">
               <span className="text-xs text-muted-foreground">{t("phone")}</span>
-              <p className="text-sm font-semibold text-foreground">
-                <a href={`tel:${lead.phone}`} className="hover:underline text-primary">
+              <div className="flex flex-wrap items-center gap-3">
+                <a href={`tel:${lead.phone}`} className="hover:underline text-sm font-semibold text-primary">
                   {lead.phone}
                 </a>
-              </p>
+                <a
+                  href={`https://t.me/+${lead.phone.replace(/\D/g, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-muted-foreground hover:text-primary transition-colors underline"
+                >
+                  Telegram orqali yozish ↗
+                </a>
+              </div>
             </div>
           </div>
 
@@ -101,10 +114,15 @@ export function LeadDetailDialog({
                 {lead.address || <span className="text-muted-foreground italic">{t("notSpecified")}</span>}
               </p>
               {lead.latitude && lead.longitude && (
-                <p className="mt-1 flex items-center text-xs text-muted-foreground">
+                <a
+                  href={`https://www.google.com/maps?q=${lead.latitude},${lead.longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1.5 inline-flex items-center text-xs text-primary hover:underline font-medium"
+                >
                   <Navigation className="h-3 w-3 mr-1" />
-                  {t("location")}: {lead.latitude}, {lead.longitude}
-                </p>
+                  <span>Xaritada ko'rish ({lead.latitude.toFixed(5)}, {lead.longitude.toFixed(5)}) ↗</span>
+                </a>
               )}
             </div>
           </div>
@@ -137,7 +155,15 @@ export function LeadDetailDialog({
               <Bot className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <span className="text-xs text-muted-foreground">{t("telegramId")}</span>
-                <p className="text-sm font-mono text-foreground">{lead.telegramId}</p>
+                <p className="text-sm font-mono text-foreground">
+                  <a
+                    href={`tg://user?id=${lead.telegramId}`}
+                    className="text-primary hover:underline inline-flex items-center gap-1"
+                  >
+                    <span>{lead.telegramId}</span>
+                    <span className="text-xs font-sans text-muted-foreground">(Chat ochish ↗)</span>
+                  </a>
+                </p>
               </div>
             </div>
           )}

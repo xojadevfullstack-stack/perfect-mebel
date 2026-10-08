@@ -35,33 +35,37 @@ export async function generateMetadata({
   params: { locale, slug },
 }: CollectionDetailPageProps): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: "collectionDetail" });
-  const collection = await prisma.collection.findUnique({
-    where: { slug },
-    select: { titleUz: true, titleRu: true, titleEn: true, descUz: true, descRu: true, descEn: true },
-  });
+  try {
+    const collection = await prisma.collection.findUnique({
+      where: { slug },
+      select: { titleUz: true, titleRu: true, titleEn: true, descUz: true, descRu: true, descEn: true },
+    });
 
-  if (!collection) {
+    if (!collection) {
+      return { title: t("notFoundTitle") };
+    }
+
+    const title =
+      locale === "ru" && collection.titleRu
+        ? collection.titleRu
+        : locale === "en" && collection.titleEn
+        ? collection.titleEn
+        : collection.titleUz;
+
+    const desc =
+      locale === "ru" && collection.descRu
+        ? collection.descRu
+        : locale === "en" && collection.descEn
+        ? collection.descEn
+        : collection.descUz;
+
+    return {
+      title: t("metaTitle", { title }),
+      description: desc || t("metaDescription"),
+    };
+  } catch {
     return { title: t("notFoundTitle") };
   }
-
-  const title =
-    locale === "ru" && collection.titleRu
-      ? collection.titleRu
-      : locale === "en" && collection.titleEn
-      ? collection.titleEn
-      : collection.titleUz;
-
-  const desc =
-    locale === "ru" && collection.descRu
-      ? collection.descRu
-      : locale === "en" && collection.descEn
-      ? collection.descEn
-      : collection.descUz;
-
-  return {
-    title: t("metaTitle", { title }),
-    description: desc || t("metaDescription"),
-  };
 }
 
 export default async function CollectionDetailPage({
@@ -71,18 +75,23 @@ export default async function CollectionDetailPage({
   const tNav = await getTranslations({ locale, namespace: "navigation" });
   const t = await getTranslations({ locale, namespace: "collectionDetail" });
 
-  const dbCollection = await prisma.collection.findUnique({
-    where: { slug },
-    include: {
-      products: {
-        include: {
-          category: {
-            select: { nameUz: true, nameRu: true, nameEn: true },
+  let dbCollection;
+  try {
+    dbCollection = await prisma.collection.findUnique({
+      where: { slug },
+      include: {
+        products: {
+          include: {
+            category: {
+              select: { nameUz: true, nameRu: true, nameEn: true },
+            },
           },
         },
       },
-    },
-  });
+    });
+  } catch {
+    notFound();
+  }
 
   if (!dbCollection) {
     notFound();

@@ -1,4 +1,5 @@
 import type { Product, Collection, Lead } from "@mebel-salon/db";
+import { escapeHtml } from "@mebel-salon/shared";
 
 export function formatProductCaption(
   product: Product & { category?: { nameUz: string } }
@@ -58,33 +59,36 @@ export function formatCollectionCaption(
   return parts.join("\n");
 }
 
-import { escapeHtml } from "@mebel-salon/shared";
-
 export function formatLeadChannelNotification(lead: Lead): string {
   const dateFormatted = new Date(lead.createdAt).toLocaleString("uz-UZ", {
     timeZone: "Asia/Tashkent",
   });
 
   const sourceBadge = lead.source === "WEB" ? "🌐 Veb-sayt" : "🤖 Telegram Bot";
+  const appUrl = (process.env["NEXT_PUBLIC_APP_URL"] || "http://localhost:3000").replace(/\/$/, "");
+  const adminUrl = `${appUrl}/admin/leads`;
+  const orderCode = `PM-${lead.id.slice(0, 6).toUpperCase()}`;
 
   return [
-    `🔔 <b>YANGI ARIZA!</b>`,
+    `🔔 <b>YANGI ARIZA! (#${orderCode})</b>`,
     ``,
     `📍 <b>Manba:</b> ${sourceBadge}`,
     `👤 <b>Mijoz:</b> ${escapeHtml(lead.customerName)}`,
-    `📞 <b>Telefon:</b> ${escapeHtml(lead.phone)}`,
+    `📞 <b>Telefon:</b> <a href="tel:${escapeHtml(lead.phone)}">${escapeHtml(lead.phone)}</a>`,
     `🏠 <b>Manzil:</b> ${escapeHtml(lead.address || "Ko'rsatilmagan")}`,
     lead.latitude && lead.longitude
-      ? `🗺 <b>Geolokatsiya:</b> ${lead.latitude.toFixed(6)}, ${lead.longitude.toFixed(6)}`
+      ? `🗺 <b>Geolokatsiya:</b> <a href="https://www.google.com/maps?q=${lead.latitude},${lead.longitude}">${lead.latitude.toFixed(6)}, ${lead.longitude.toFixed(6)}</a>`
       : null,
     lead.telegramId ? `💬 <b>Telegram ID:</b> <code>${escapeHtml(lead.telegramId)}</code>` : null,
     ``,
     `🛋 <b>Tanlangan mebel(lar):</b>`,
     `   ${escapeHtml(lead.itemsSummary)}`,
     ``,
-    `📝 <b>Izoh:</b> ${escapeHtml(lead.notes || "Yo'q")}`,
+    lead.notes ? `📝 <b>Izoh:</b> ${escapeHtml(lead.notes)}` : null,
     `🆔 <b>Ariza ID:</b> <code>${escapeHtml(lead.id)}</code>`,
-    `📅 <b>Qabul qilingan vaqt:</b> ${dateFormatted}`,
+    `📅 <b>Sana:</b> ${dateFormatted}`,
+    ``,
+    `🔗 <a href="${adminUrl}">Admin Panelda ko'rish</a>`,
   ]
     .filter((line) => line !== null)
     .join("\n");

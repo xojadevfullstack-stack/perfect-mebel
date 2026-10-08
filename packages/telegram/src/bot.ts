@@ -24,6 +24,7 @@ import {
 import {
   handleAdminMenu,
   handleAdminStats,
+  handleAdminLeads,
 } from "./handlers/admin";
 import {
   handleCustomerMessage,
@@ -61,6 +62,7 @@ export function createBot(customToken?: string): Bot<MyContext> {
   bot.command("collections", (ctx) => showCollections(ctx, 1));
   bot.command("help", showContactInfo);
   bot.command("admin", handleAdminMenu);
+  bot.command("leads", requireAdmin, handleAdminLeads);
 
   bot.command("add_category", requireAdmin, async (ctx) => {
     await ctx.conversation.enter("adminAddCategoryConversation");
@@ -76,6 +78,7 @@ export function createBot(customToken?: string): Bot<MyContext> {
   bot.hears("🛋 Katalog", showCategories);
   bot.hears("🗂 Komplektlar", (ctx) => showCollections(ctx, 1));
   bot.hears("📝 Ariza qoldirish", async (ctx) => {
+    ctx.session.applyItem = null;
     await ctx.conversation.enter("applyConversation");
   });
   bot.hears("📞 Aloqa", showContactInfo);
@@ -101,9 +104,22 @@ export function createBot(customToken?: string): Bot<MyContext> {
   });
 
   bot.callbackQuery(/^apply_prod_([a-zA-Z0-9-]+)$/, async (ctx) => {
+    await ctx.answerCallbackQuery();
     const match = ctx.match;
     if (match && match[1]) {
-      ctx.match = `order_product_${match[1]}`;
+      const prodId = match[1];
+      const product = await prisma.product.findFirst({
+        where: { OR: [{ id: prodId }, { slug: prodId }] },
+        include: { category: true },
+      });
+      if (product) {
+        ctx.session.applyItem = {
+          type: "product",
+          id: product.id,
+          title: product.titleUz,
+          details: product.category.nameUz,
+        };
+      }
       await ctx.conversation.enter("applyConversation");
     }
   });
@@ -126,9 +142,22 @@ export function createBot(customToken?: string): Bot<MyContext> {
   });
 
   bot.callbackQuery(/^apply_col_([a-zA-Z0-9-]+)$/, async (ctx) => {
+    await ctx.answerCallbackQuery();
     const match = ctx.match;
     if (match && match[1]) {
-      ctx.match = `order_set_${match[1]}`;
+      const colId = match[1];
+      const collection = await prisma.collection.findFirst({
+        where: { OR: [{ id: colId }, { slug: colId }] },
+        include: { products: true },
+      });
+      if (collection) {
+        ctx.session.applyItem = {
+          type: "collection",
+          id: collection.id,
+          title: collection.titleUz,
+          details: `${collection.products.length} ta mebel`,
+        };
+      }
       await ctx.conversation.enter("applyConversation");
     }
   });
@@ -136,6 +165,7 @@ export function createBot(customToken?: string): Bot<MyContext> {
   // Admin Callbacks
   bot.callbackQuery("admin_menu", handleAdminMenu);
   bot.callbackQuery("admin_stats", handleAdminStats);
+  bot.callbackQuery("admin_leads", handleAdminLeads);
 
   bot.callbackQuery("admin_add_cat", requireAdmin, async (ctx) => {
     await ctx.answerCallbackQuery();

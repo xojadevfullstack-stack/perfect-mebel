@@ -1,14 +1,14 @@
 import { prisma } from "@mebel-salon/db";
 import { escapeHtml } from "@mebel-salon/shared";
-import type { MyConversation, MyContext } from "../types/index.js";
+import type { MyConversation, MyContext } from "../types/index";
 import {
   getMainMenuKeyboard,
   getPhoneRequestKeyboard,
   getLocationRequestKeyboard,
   getCancelKeyboard,
-} from "../keyboards/main-menu.js";
-import { notifyFactoryChannel } from "../utils/channel-notify.js";
-import { isAdmin } from "../config.js";
+} from "../keyboards/main-menu";
+import { notifyFactoryChannel } from "../utils/channel-notify";
+import { isAdmin } from "../config";
 
 export async function applyConversation(
   conversation: MyConversation,
@@ -17,54 +17,62 @@ export async function applyConversation(
   const userId = ctx.from?.id ? String(ctx.from.id) : undefined;
   const isAdminUser = isAdmin(userId);
 
-  // Deep link yoki sessiondan itemContext olish
-  const itemType = ctx.session.currentCategory; // yoki prefilled context
-
   let itemsSummary = "";
 
   // 1-bosqich: Mahsulot yoki komplektni aniqlash
-  if (ctx.match && typeof ctx.match === "string") {
-    const matchStr = ctx.match;
+  const sessionItem = ctx.session.applyItem;
+  if (sessionItem?.title) {
+    itemsSummary = sessionItem.title + (sessionItem.details ? ` (${sessionItem.details})` : "");
+  } else if (ctx.match && typeof ctx.match === "string") {
+    const matchStr = ctx.match.trim();
     if (matchStr.startsWith("order_product_")) {
       const productId = matchStr.replace("order_product_", "").trim();
       const product = await conversation.external(() =>
-        prisma.product.findUnique({
-          where: { id: productId },
+        prisma.product.findFirst({
+          where: { OR: [{ id: productId }, { slug: productId }] },
           include: { category: true },
         })
       );
 
       if (product) {
         itemsSummary = `${product.titleUz} (${product.category.nameUz})`;
-        await ctx.reply(
-          `🛋 Tanlangan mebel: <b>${escapeHtml(product.titleUz)}</b>\n` +
-            `📁 Toifa: ${escapeHtml(product.category.nameUz)}\n\n` +
-            `Ushbu mebel bo'yicha ariza qoldirish uchun ma'lumotlaringizni to'ldiring:`,
-          { parse_mode: "HTML" }
-        );
+        ctx.session.applyItem = {
+          type: "product",
+          id: product.id,
+          title: product.titleUz,
+          details: product.category.nameUz,
+        };
       }
     } else if (matchStr.startsWith("order_set_")) {
       const collectionId = matchStr.replace("order_set_", "").trim();
       const collection = await conversation.external(() =>
-        prisma.collection.findUnique({
-          where: { id: collectionId },
+        prisma.collection.findFirst({
+          where: { OR: [{ id: collectionId }, { slug: collectionId }] },
           include: { products: true },
         })
       );
 
       if (collection) {
         itemsSummary = `${collection.titleUz} to'plami (${collection.products.length} ta mebel)`;
-        await ctx.reply(
-          `🗂 Tanlangan komplekt: <b>${escapeHtml(collection.titleUz)}</b>\n\n` +
-            `Ushbu to'plam bo'yicha ariza qoldirish uchun quyidagi ma'lumotlarni to'ldiring:`,
-          { parse_mode: "HTML" }
-        );
+        ctx.session.applyItem = {
+          type: "collection",
+          id: collection.id,
+          title: collection.titleUz,
+          details: `${collection.products.length} ta mebel`,
+        };
       }
     }
   }
 
-  // Agar ariza umumiy bo'lsa (bosh menyudan "Ariza qoldirish" bosilgan)
-  if (!itemsSummary) {
+  // Agar mebel oldindan tanlangan bo'lsa, xabar beramiz
+  if (itemsSummary) {
+    await ctx.reply(
+      `🛋 <b>Tanlangan mebel:</b> ${escapeHtml(itemsSummary)}\n\n` +
+        `Ushbu mebel bo'yicha ariza qoldirish uchun ma'lumotlaringizni to'ldiring:`,
+      { parse_mode: "HTML" }
+    );
+  } else {
+    // Agar ariza umumiy bo'lsa (bosh menyudan "Ariza qoldirish" bosilgan)
     await ctx.reply(
       "Qaysi mebel yoki to'plam sizni qiziqtiryapti?\n" +
         "Masalan: <b>Oshxona garnituri</b>, <b>Yotoqxona to'plami</b>, <b>L-simon divan</b>",
@@ -76,6 +84,7 @@ export async function applyConversation(
 
     const itemCtx = await conversation.wait();
     if (itemCtx.message?.text === "❌ Bekor qilish") {
+      ctx.session.applyItem = null;
       await itemCtx.reply("Ariza bekor qilindi.", {
         reply_markup: getMainMenuKeyboard(isAdminUser),
       });
@@ -83,6 +92,10 @@ export async function applyConversation(
     }
 
     itemsSummary = itemCtx.message?.text?.trim() || "Mebel buyurtmasi";
+    ctx.session.applyItem = {
+      type: "general",
+      title: itemsSummary,
+    };
   }
 
   // 2-bosqich: Ismni so'rash
@@ -94,6 +107,7 @@ export async function applyConversation(
   while (!customerName) {
     const nameCtx = await conversation.wait();
     if (nameCtx.message?.text === "❌ Bekor qilish") {
+      ctx.session.applyItem = null;
       await nameCtx.reply("Ariza bekor qilindi.", {
         reply_markup: getMainMenuKeyboard(isAdminUser),
       });
@@ -123,6 +137,7 @@ export async function applyConversation(
   while (!phone) {
     const phoneCtx = await conversation.wait();
     if (phoneCtx.message?.text === "❌ Bekor qilish") {
+      ctx.session.applyItem = null;
       await phoneCtx.reply("Ariza bekor qilindi.", {
         reply_markup: getMainMenuKeyboard(isAdminUser),
       });
@@ -162,6 +177,7 @@ export async function applyConversation(
 
   const locCtx = await conversation.wait();
   if (locCtx.message?.text === "❌ Bekor qilish") {
+    ctx.session.applyItem = null;
     await locCtx.reply("Ariza bekor qilindi.", {
       reply_markup: getMainMenuKeyboard(isAdminUser),
     });
@@ -190,6 +206,7 @@ export async function applyConversation(
 
   const notesCtx = await conversation.wait();
   if (notesCtx.message?.text === "❌ Bekor qilish") {
+    ctx.session.applyItem = null;
     await notesCtx.reply("Ariza bekor qilindi.", {
       reply_markup: getMainMenuKeyboard(isAdminUser),
     });
@@ -227,21 +244,28 @@ export async function applyConversation(
     // Zavod kanaliga xabarnoma yuborish
     await conversation.external(() => notifyFactoryChannel(ctx.api, lead));
 
+    // Sessionni tozalash
+    ctx.session.applyItem = null;
+
+    const orderCode = `PM-${lead.id.slice(0, 6).toUpperCase()}`;
+
     // Mijozga minnatdorchilik xabari
     await ctx.reply(
-      `✅ <b>Arizangiz muvaffaqiyatli qabul qilindi!</b>\n\n` +
+      `✅ <b>Arizangiz muvaffaqiyatli qabul qilindi! (#${orderCode})</b>\n\n` +
         `👤 <b>Mijoz:</b> ${escapeHtml(customerName)}\n` +
         `📞 <b>Telefon:</b> ${escapeHtml(phone)}\n` +
         `🛋 <b>Mebel:</b> ${escapeHtml(itemsSummary)}\n` +
         (address ? `📍 <b>Manzil:</b> ${escapeHtml(address)}\n` : "") +
         (notes ? `📝 <b>Izoh:</b> ${escapeHtml(notes)}\n` : "") +
-        `\nTez orada mutaxassisimiz siz bilan bog'lanadi va buyurtma tafsilotlarini kelishib oladi.`,
+        `🆔 <b>Ariza ID:</b> <code>${escapeHtml(lead.id)}</code>\n\n` +
+        `Tez orada mutaxassisimiz siz bilan bog'lanadi va buyurtma tafsilotlarini kelishib oladi.`,
       {
         parse_mode: "HTML",
         reply_markup: getMainMenuKeyboard(isAdminUser),
       }
     );
   } catch (error) {
+    ctx.session.applyItem = null;
     process.stderr.write(
       `Arizani saqlashda xatolik: ${
         error instanceof Error ? error.message : String(error)

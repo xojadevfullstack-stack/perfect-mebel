@@ -896,6 +896,8 @@ export async function handleAdminLeadsGet(req: Request): Promise<NextResponse> {
         customerName?: { contains: string; mode: "insensitive" };
         phone?: { contains: string; mode: "insensitive" };
         address?: { contains: string; mode: "insensitive" };
+        itemsSummary?: { contains: string; mode: "insensitive" };
+        notes?: { contains: string; mode: "insensitive" };
       }>;
     } = {};
 
@@ -908,6 +910,8 @@ export async function handleAdminLeadsGet(req: Request): Promise<NextResponse> {
         { customerName: { contains: search, mode: "insensitive" } },
         { phone: { contains: search, mode: "insensitive" } },
         { address: { contains: search, mode: "insensitive" } },
+        { itemsSummary: { contains: search, mode: "insensitive" } },
+        { notes: { contains: search, mode: "insensitive" } },
       ];
     }
 

@@ -225,17 +225,42 @@ function isValidOrigin(req: Request): boolean {
 
   try {
     const originUrl = new URL(origin);
-    const appUrlString = process.env["NEXT_PUBLIC_APP_URL"] || "http://localhost:3000";
-    const appUrl = new URL(appUrlString);
-
-    if (originUrl.host === appUrl.host) return true;
-
     const hostHeader = req.headers.get("host");
-    if (hostHeader && originUrl.host === hostHeader) return true;
+    const forwardedHost = req.headers.get("x-forwarded-host");
 
+    // 1. Same host / port or reverse proxy match
+    if (hostHeader) {
+      const cleanHost = hostHeader.split(":")[0];
+      if (originUrl.host === hostHeader || originUrl.hostname === cleanHost) {
+        return true;
+      }
+    }
+
+    if (forwardedHost) {
+      const cleanForwarded = forwardedHost.split(":")[0];
+      if (originUrl.host === forwardedHost || originUrl.hostname === cleanForwarded) {
+        return true;
+      }
+    }
+
+    // 2. Configured app URL
+    const appUrlString = process.env["NEXT_PUBLIC_APP_URL"];
+    if (appUrlString) {
+      try {
+        const appUrl = new URL(appUrlString);
+        if (originUrl.host === appUrl.host || originUrl.hostname === appUrl.hostname) {
+          return true;
+        }
+      } catch {
+        // ignore invalid URL in config
+      }
+    }
+
+    // 3. Localhost / Loopback environments
     if (
-      process.env["NODE_ENV"] !== "production" &&
-      (originUrl.hostname === "localhost" || originUrl.hostname === "127.0.0.1")
+      originUrl.hostname === "localhost" ||
+      originUrl.hostname === "127.0.0.1" ||
+      originUrl.hostname === "0.0.0.0"
     ) {
       return true;
     }
@@ -297,10 +322,14 @@ export async function handleLeadsPost(req: Request): Promise<NextResponse> {
 
     try {
       await sendLeadTelegramNotification({
+        id: lead.id,
         customerName: lead.customerName,
         phone: lead.phone,
         address: lead.address,
+        latitude: lead.latitude,
+        longitude: lead.longitude,
         notes: lead.notes,
+        telegramId: lead.telegramId,
         itemsSummary: lead.itemsSummary,
         source: "WEB",
         createdAt: lead.createdAt,

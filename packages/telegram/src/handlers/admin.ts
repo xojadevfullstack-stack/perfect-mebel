@@ -1,10 +1,13 @@
 import { InlineKeyboard } from "grammy";
 import { prisma } from "@mebel-salon/db";
+import { escapeHtml } from "@mebel-salon/shared";
 import type { MyContext } from "../types/index";
 import { isAdmin } from "../config";
 
 export function getAdminMenuKeyboard(): InlineKeyboard {
   return new InlineKeyboard()
+    .text("📋 So'nggi arizalar", "admin_leads")
+    .row()
     .text("➕ Yangi kategoriya", "admin_add_cat")
     .row()
     .text("➕ Yangi mebel", "admin_add_prod")
@@ -42,6 +45,73 @@ export async function handleAdminMenu(ctx: MyContext): Promise<void> {
     await ctx.reply(text, {
       parse_mode: "Markdown",
       reply_markup: getAdminMenuKeyboard(),
+    });
+  }
+}
+
+export async function handleAdminLeads(ctx: MyContext): Promise<void> {
+  const userId = ctx.from?.id ? String(ctx.from.id) : undefined;
+  if (!isAdmin(userId)) {
+    await ctx.reply("❌ Kechirasiz, sizda ma'mur huquqlari mavjud emas.");
+    return;
+  }
+
+  const leads = await prisma.lead.findMany({
+    take: 5,
+    orderBy: { createdAt: "desc" },
+  });
+
+  const keyboard = new InlineKeyboard()
+    .text("🔄 Yangilash", "admin_leads")
+    .row()
+    .text("⬅️ Admin menyuga qaytish", "admin_menu");
+
+  if (leads.length === 0) {
+    const text = "📋 Hozircha arizalar mavjud emas.";
+    if (ctx.callbackQuery) {
+      await ctx.editMessageText(text, { reply_markup: keyboard });
+      await ctx.answerCallbackQuery();
+    } else {
+      await ctx.reply(text, { reply_markup: keyboard });
+    }
+    return;
+  }
+
+  let text = `📋 <b>So'nggi 5 ta ariza:</b>\n\n`;
+  leads.forEach((l, idx) => {
+    const dateStr = new Date(l.createdAt).toLocaleDateString("uz-UZ", {
+      day: "2-digit",
+      month: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    const sourceIcon = l.source === "WEB" ? "🌐" : "🤖";
+    const code = `PM-${l.id.slice(0, 6).toUpperCase()}`;
+    text += `${idx + 1}. ${sourceIcon} <b>${escapeHtml(l.customerName)}</b> (#${code})\n`;
+    text += `   📞 <a href="tel:${escapeHtml(l.phone)}">${escapeHtml(l.phone)}</a> (${dateStr})\n`;
+    text += `   🛋 ${escapeHtml(l.itemsSummary)}\n`;
+    if (l.address) text += `   🏠 ${escapeHtml(l.address)}\n`;
+    if (l.notes) text += `   📝 <i>${escapeHtml(l.notes)}</i>\n`;
+    text += `\n`;
+  });
+
+  if (ctx.callbackQuery) {
+    try {
+      await ctx.editMessageText(text, {
+        parse_mode: "HTML",
+        reply_markup: keyboard,
+      });
+      await ctx.answerCallbackQuery();
+    } catch {
+      await ctx.reply(text, {
+        parse_mode: "HTML",
+        reply_markup: keyboard,
+      });
+    }
+  } else {
+    await ctx.reply(text, {
+      parse_mode: "HTML",
+      reply_markup: keyboard,
     });
   }
 }

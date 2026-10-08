@@ -32,33 +32,37 @@ export async function generateMetadata({
   params: { locale, slug },
 }: ProductDetailPageProps): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: "productDetail" });
-  const product = await prisma.product.findUnique({
-    where: { slug },
-    select: { titleUz: true, titleRu: true, titleEn: true, descUz: true, descRu: true, descEn: true },
-  });
+  try {
+    const product = await prisma.product.findUnique({
+      where: { slug },
+      select: { titleUz: true, titleRu: true, titleEn: true, descUz: true, descRu: true, descEn: true },
+    });
 
-  if (!product) {
+    if (!product) {
+      return { title: t("notFoundTitle") };
+    }
+
+    const title =
+      locale === "ru" && product.titleRu
+        ? product.titleRu
+        : locale === "en" && product.titleEn
+        ? product.titleEn
+        : product.titleUz;
+
+    const desc =
+      locale === "ru" && product.descRu
+        ? product.descRu
+        : locale === "en" && product.descEn
+        ? product.descEn
+        : product.descUz;
+
+    return {
+      title: t("metaTitle", { title }),
+      description: desc || t("metaDescription"),
+    };
+  } catch {
     return { title: t("notFoundTitle") };
   }
-
-  const title =
-    locale === "ru" && product.titleRu
-      ? product.titleRu
-      : locale === "en" && product.titleEn
-      ? product.titleEn
-      : product.titleUz;
-
-  const desc =
-    locale === "ru" && product.descRu
-      ? product.descRu
-      : locale === "en" && product.descEn
-      ? product.descEn
-      : product.descUz;
-
-  return {
-    title: t("metaTitle", { title }),
-    description: desc || t("metaDescription"),
-  };
 }
 
 export default async function ProductDetailPage({
@@ -66,14 +70,19 @@ export default async function ProductDetailPage({
 }: ProductDetailPageProps): Promise<React.JSX.Element> {
   unstable_setRequestLocale(locale);
 
-  const dbProduct = await prisma.product.findUnique({
-    where: { slug },
-    include: {
-      category: {
-        select: { id: true, slug: true, nameUz: true, nameRu: true, nameEn: true },
+  let dbProduct;
+  try {
+    dbProduct = await prisma.product.findUnique({
+      where: { slug },
+      include: {
+        category: {
+          select: { id: true, slug: true, nameUz: true, nameRu: true, nameEn: true },
+        },
       },
-    },
-  });
+    });
+  } catch {
+    notFound();
+  }
 
   if (!dbProduct) {
     notFound();
@@ -105,16 +114,21 @@ export default async function ProductDetailPage({
   };
 
   // Tegishli mebellar: avval shu kategoriyadan, yetmasa boshqalardan
-  const related = await prisma.product.findMany({
-    where: { id: { not: dbProduct.id } },
-    orderBy: [{ createdAt: "desc" }],
-    take: 12,
-    include: {
-      category: {
-        select: { id: true, slug: true, nameUz: true, nameRu: true, nameEn: true },
+  let related: Array<typeof dbProduct> = [];
+  try {
+    related = await prisma.product.findMany({
+      where: { id: { not: dbProduct.id } },
+      orderBy: [{ createdAt: "desc" }],
+      take: 12,
+      include: {
+        category: {
+          select: { id: true, slug: true, nameUz: true, nameRu: true, nameEn: true },
+        },
       },
-    },
-  });
+    });
+  } catch {
+    related = [];
+  }
 
   const sameCategory = related.filter((p) => p.categoryId === dbProduct.categoryId);
   const others = related.filter((p) => p.categoryId !== dbProduct.categoryId);

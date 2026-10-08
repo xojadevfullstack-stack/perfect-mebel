@@ -1,6 +1,7 @@
-import type { MyContext } from "../types/index.js";
-import { getMainMenuKeyboard } from "../keyboards/main-menu.js";
-import { isAdmin } from "../config.js";
+import { prisma } from "@mebel-salon/db";
+import type { MyContext } from "../types/index";
+import { getMainMenuKeyboard } from "../keyboards/main-menu";
+import { isAdmin } from "../config";
 
 export async function handleStart(ctx: MyContext): Promise<void> {
   const userId = ctx.from?.id ? String(ctx.from.id) : undefined;
@@ -11,8 +12,40 @@ export async function handleStart(ctx: MyContext): Promise<void> {
 
   if (match && typeof match === "string" && match.trim() !== "") {
     const trimmed = match.trim();
-    if (trimmed.startsWith("order_product_") || trimmed.startsWith("order_set_")) {
-      // Deep link orqali to'g'ridan-to'g'ri ariza conversation ga kirish
+    if (trimmed.startsWith("order_product_")) {
+      const prodId = trimmed.replace("order_product_", "").trim();
+      const product = await prisma.product.findFirst({
+        where: { OR: [{ id: prodId }, { slug: prodId }] },
+        include: { category: true },
+      });
+
+      if (product) {
+        ctx.session.applyItem = {
+          type: "product",
+          id: product.id,
+          title: product.titleUz,
+          details: product.category.nameUz,
+        };
+      }
+      await ctx.conversation.enter("applyConversation");
+      return;
+    }
+
+    if (trimmed.startsWith("order_set_")) {
+      const colId = trimmed.replace("order_set_", "").trim();
+      const collection = await prisma.collection.findFirst({
+        where: { OR: [{ id: colId }, { slug: colId }] },
+        include: { products: true },
+      });
+
+      if (collection) {
+        ctx.session.applyItem = {
+          type: "collection",
+          id: collection.id,
+          title: collection.titleUz,
+          details: `${collection.products.length} ta mebel`,
+        };
+      }
       await ctx.conversation.enter("applyConversation");
       return;
     }

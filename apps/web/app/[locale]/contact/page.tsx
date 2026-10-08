@@ -1,6 +1,7 @@
 import * as React from "react";
 import { getTranslations, unstable_setRequestLocale } from "next-intl/server";
 import { Phone, MapPin, Clock, Send, Factory, Award } from "lucide-react";
+import { getBotUsername } from "@/lib/telegram/deep-link";
 
 interface ContactPageProps {
   params: { locale: string };
@@ -123,7 +124,7 @@ export default async function ContactPage({
 
           <div className="flex flex-wrap gap-3">
             <a
-              href="https://t.me/perfectmebelbot"
+              href={`https://t.me/${getBotUsername()}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center space-x-2 rounded-none bg-primary hover:bg-primary-hover px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-primary-foreground shadow-none transition-all"

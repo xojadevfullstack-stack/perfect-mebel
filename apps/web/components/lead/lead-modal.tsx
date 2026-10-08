@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { leadSchema, type LeadFormData } from "@mebel-salon/shared";
 import { useSelectionsStore } from "@/lib/store/selections-store";
+import { getBotUsername } from "@/lib/telegram/deep-link";
 import { Loader2, CheckCircle2, Bookmark, Send, ShieldCheck, ArrowRight, Check } from "lucide-react";
 
 interface LeadModalProps {
@@ -105,8 +106,10 @@ export function LeadModal({
         return;
       }
 
-      const randomCode = Math.floor(10000 + Math.random() * 90000);
-      setOrderId(`#PM-${randomCode}`);
+      const orderCode = json.data?.id
+        ? `#PM-${json.data.id.slice(0, 6).toUpperCase()}`
+        : `#PM-${Math.floor(10000 + Math.random() * 90000)}`;
+      setOrderId(orderCode);
       setIsSubmittedSuccess(true);
       toast.success(tLead("successTitle"));
 
@@ -169,7 +172,7 @@ export function LeadModal({
               </Button>
 
               <a
-                href="https://t.me/perfectmebelbot"
+                href={`https://t.me/${getBotUsername()}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2 border border-border-strong hover:border-foreground hover:bg-foreground hover:text-background py-2.5 px-4 text-xs font-semibold text-foreground smooth-btn"

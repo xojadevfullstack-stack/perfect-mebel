@@ -5,6 +5,7 @@ export interface SessionData {
   language?: "uz" | "ru" | "en";
   currentCategory?: string;
   currentPage?: number;
+  applyItem?: ApplyItemContext | null;
 }
 
 export type MyContext = Context & ConversationFlavor & SessionFlavor<SessionData>;
