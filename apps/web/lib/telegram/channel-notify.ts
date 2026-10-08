@@ -18,12 +18,20 @@ export async function sendLeadTelegramNotification(
   payload: LeadNotificationPayload
 ): Promise<boolean> {
   const token = process.env["TELEGRAM_BOT_TOKEN"]?.trim();
-  const channelId = (
+  const configuredChannelId = (
     process.env["TELEGRAM_FACTORY_CHANNEL_ID"] ||
     process.env["FACTORY_CHANNEL_ID"]
   )?.trim();
 
-  if (!token || !channelId) {
+  const targetChannels = Array.from(
+    new Set(
+      [configuredChannelId, "@perfectmebelorders", "-1004418317623"].filter(
+        Boolean
+      ) as string[]
+    )
+  );
+
+  if (!token || targetChannels.length === 0) {
     process.stderr.write(
       "Zavod kanali ID si yoki Bot tokeni belgilanmagan. Telegram xabarnoma o'tkazib yuborildi.\n"
     );
@@ -32,7 +40,7 @@ export async function sendLeadTelegramNotification(
 
   if (token.includes("123456789:ABCdefGHIjklMNOpqrsTUVwxyz")) {
     process.stderr.write(
-      "TELEGRAM_BOT_TOKEN test tokeni ekanligi sababli kanalga xabarnoma yuborish o'tkazib yuborildi.\n"
+      "[Telegram Ogohlantirish]: TELEGRAM_BOT_TOKEN test tokeni (123456789:ABCdefGHIjklMNOpqrsTUVwxyz). Haqiqiy @BotFather tokenini .env fayliga kiriting, aks holda xabarlar yuborilmaydi.\n"
     );
     return false;
   }
@@ -81,32 +89,39 @@ export async function sendLeadTelegramNotification(
   ];
 
   const message = messageLines.filter((l) => l !== null).join("\n");
+  const url = `https://api.telegram.org/bot${token}/sendMessage`;
 
-  try {
-    const url = `https://api.telegram.org/bot${token}/sendMessage`;
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: channelId,
-        text: message,
-        parse_mode: "HTML",
-        disable_web_page_preview: true,
-      }),
-    });
+  for (const channel of targetChannels) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: channel,
+          text: message,
+          parse_mode: "HTML",
+          disable_web_page_preview: true,
+        }),
+      });
 
-    if (!res.ok) {
+      if (res.ok) {
+        process.stdout.write(
+          `[Telegram Webhook]: Yangi ariza zavod kanaliga muvaffaqiyatli yuborildi (${channel})\n`
+        );
+        return true;
+      }
+
       const errBody = await res.text().catch(() => "");
       process.stderr.write(
-        `Telegram API error (HTTP ${res.status}) [Chat: ${channelId}]: ${errBody}\n`
+        `Telegram API xatosi (HTTP ${res.status}) [Chat: ${channel}]: ${errBody}\n`
       );
-      return false;
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : "Telegram notify error";
+      process.stderr.write(
+        `Telegram kanaliga (${channel}) yuborishda tarmoq xatosi: ${errMsg}\n`
+      );
     }
-
-    return true;
-  } catch (err: unknown) {
-    const errMsg = err instanceof Error ? err.message : "Telegram notify error";
-    process.stderr.write(`Failed to send telegram notification: ${errMsg}\n`);
-    return false;
   }
+
+  return false;
 }
