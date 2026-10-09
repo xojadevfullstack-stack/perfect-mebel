@@ -67,7 +67,10 @@ export default function AdminLeadsPage(): React.JSX.Element {
         params.set("source", sourceFilter);
       }
 
-      const res = await fetch(`/api/admin/leads?${params.toString()}`);
+      const res = await fetch(`/api/admin/leads?${params.toString()}`, {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache" },
+      });
       const json = await res.json();
 
       if (json.success && Array.isArray(json.data)) {

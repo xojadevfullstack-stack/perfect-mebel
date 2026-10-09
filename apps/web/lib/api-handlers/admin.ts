@@ -925,11 +925,18 @@ export async function handleAdminLeadsGet(req: Request): Promise<NextResponse> {
       }),
     ]);
 
-    return NextResponse.json({
-      success: true,
-      data: leads,
-      meta: { total, page, limit },
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        data: leads,
+        meta: { total, page, limit },
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        },
+      }
+    );
   } catch (error) {
     console.error("Admin Leads API Error:", error);
     return NextResponse.json({ success: false, error: "Serverda xatolik yuz berdi" }, { status: 500 });
