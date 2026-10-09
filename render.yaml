@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: perfect-mebel-bot
+    runtime: node
+    plan: free
+    buildCommand: pnpm install && pnpm build:bot
+    startCommand: pnpm start:bot
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: TELEGRAM_FACTORY_CHANNEL_ID
+        sync: false
+      - key: TELEGRAM_SUPPORT_GROUP_ID
+        sync: false
+      - key: ADMIN_TELEGRAM_IDS
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
